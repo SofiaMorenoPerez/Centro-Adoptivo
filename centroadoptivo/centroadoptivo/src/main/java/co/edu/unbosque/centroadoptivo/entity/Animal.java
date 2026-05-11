@@ -15,10 +15,10 @@ import java.util.Objects;
 
 /**
  * Entidad que representa un animal registrado en el sistema
- * del centro de adopción. Los atributos de especie, raza, color
- * y clasificación son detectados automáticamente por inteligencia
- * artificial a partir de la imagen cargada. El nombre y la edad
- * son ingresados manualmente por el usuario publicador.
+ * del centro de adopción. Los atributos de especie, raza, color,
+ * clasificación y edad son detectados automáticamente por inteligencia
+ * artificial a partir de la imagen cargada. El nombre es ingresado
+ * manualmente por el usuario publicador.
  *
  * @author Centro Adoptivo Unbosque
  * @version 1.0
@@ -39,10 +39,11 @@ public class Animal {
     private String nombre;
 
     /**
-     * Edad del animal ingresada manualmente por el usuario publicador.
-     * Se representa como texto ya que puede ser un rango, por ejemplo "2-3 años".
+     * Etapa de vida del animal estimada por inteligencia artificial.
+     *
+     * @see AnimalEdad
      */
-    private String edad;
+    private @Enumerated(EnumType.STRING) AnimalEdad edad;
 
     /**
      * Indica si el animal ha sido esterilizado.
@@ -125,6 +126,21 @@ public class Animal {
     private Adoption adopcion;
 
     /**
+     * Etapa de vida del animal estimada visualmente
+     * por inteligencia artificial a partir de la imagen cargada.
+     */
+    public enum AnimalEdad {
+        /** Animal en etapa de cría, menor de 1 año */
+        CACHORRO,
+        /** Animal joven, entre 1 y 3 años */
+        JOVEN,
+        /** Animal en etapa adulta, entre 3 y 7 años */
+        ADULTO,
+        /** Animal de edad avanzada, mayor de 7 años */
+        MAYOR
+    }
+
+    /**
      * Clasificación del animal según su naturaleza.
      */
     public enum AnimalClasificacion {
@@ -157,7 +173,7 @@ public class Animal {
      * con todos sus atributos.
      *
      * @param nombre         Nombre del animal ingresado por el usuario
-     * @param edad           Edad del animal ingresada por el usuario
+     * @param edad           Etapa de vida estimada por IA
      * @param esterilizado   Indica si está esterilizado
      * @param vacunado       Indica si está vacunado
      * @param especie        Especie detectada por IA
@@ -172,7 +188,7 @@ public class Animal {
      * @param publicador     Usuario que publicó el animal
      * @param adopcion       Solicitud de adopción asociada
      */
-    public Animal(String nombre, String edad, boolean esterilizado, boolean vacunado,
+    public Animal(String nombre, AnimalEdad edad, boolean esterilizado, boolean vacunado,
             String especie, String raza, String color, String observaciones, String imagen,
             LocalDateTime publicadoEn, LocalDateTime actualizadoEn,
             AnimalClasificacion clasificacion, AnimalEstado estado,
@@ -219,16 +235,16 @@ public class Animal {
     public void setNombre(String nombre) { this.nombre = nombre; }
 
     /**
-     * Obtiene la edad del animal.
+     * Obtiene la etapa de vida del animal.
      * @return edad del animal
      */
-    public String getEdad() { return edad; }
+    public AnimalEdad getEdad() { return edad; }
 
     /**
-     * Establece la edad del animal.
-     * @param edad edad a asignar
+     * Establece la etapa de vida del animal.
+     * @param edad etapa de vida a asignar
      */
-    public void setEdad(String edad) { this.edad = edad; }
+    public void setEdad(AnimalEdad edad) { this.edad = edad; }
 
     /**
      * Indica si el animal está esterilizado.
@@ -412,7 +428,7 @@ public class Animal {
         return Objects.equals(actualizadoEn, other.actualizadoEn)
                 && clasificacion == other.clasificacion
                 && Objects.equals(color, other.color)
-                && Objects.equals(edad, other.edad)
+                && edad == other.edad
                 && Objects.equals(especie, other.especie)
                 && estado == other.estado
                 && esterilizado == other.esterilizado
