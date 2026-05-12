@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -115,15 +114,16 @@ public class Animal {
      * Un usuario puede publicar múltiples animales.
      */
     @ManyToOne
-    @JoinColumn(name = "useradopcion_id")
-    private UserAdopcion publicador;
+    @JoinColumn(name = "publicador_id")
+    private Usuario publicador;
 
     /**
-     * Solicitud de adopción asociada al animal.
-     * Un animal solo puede tener una adopción activa.
+     * Usuario que adoptó el animal.
+     * Es nulo mientras el animal esté disponible o pendiente.
      */
-    @OneToOne(mappedBy = "animal")
-    private Adoption adopcion;
+    @ManyToOne
+    @JoinColumn(name = "adoptante_id")
+    private Usuario adoptante;
 
     /**
      * Etapa de vida del animal estimada visualmente
@@ -186,13 +186,13 @@ public class Animal {
      * @param clasificacion  Clasificación detectada por IA
      * @param estado         Estado en el proceso de adopción
      * @param publicador     Usuario que publicó el animal
-     * @param adopcion       Solicitud de adopción asociada
+     * @param adoptante      Usuario que adoptó el animal
      */
     public Animal(String nombre, AnimalEdad edad, boolean esterilizado, boolean vacunado,
             String especie, String raza, String color, String observaciones, String imagen,
             LocalDateTime publicadoEn, LocalDateTime actualizadoEn,
             AnimalClasificacion clasificacion, AnimalEstado estado,
-            UserAdopcion publicador, Adoption adopcion) {
+            Usuario publicador, Usuario adoptante) {
         this.nombre = nombre;
         this.edad = edad;
         this.esterilizado = esterilizado;
@@ -207,7 +207,7 @@ public class Animal {
         this.clasificacion = clasificacion;
         this.estado = estado;
         this.publicador = publicador;
-        this.adopcion = adopcion;
+        this.adoptante = adoptante;
     }
 
     /**
@@ -382,25 +382,25 @@ public class Animal {
      * Obtiene el usuario que publicó el animal.
      * @return usuario publicador
      */
-    public UserAdopcion getPublicador() { return publicador; }
+    public Usuario getPublicador() { return publicador; }
 
     /**
      * Establece el usuario que publicó el animal.
      * @param publicador usuario a asignar
      */
-    public void setPublicador(UserAdopcion publicador) { this.publicador = publicador; }
+    public void setPublicador(Usuario publicador) { this.publicador = publicador; }
 
     /**
-     * Obtiene la adopción asociada al animal.
-     * @return adopción del animal
+     * Obtiene el usuario que adoptó el animal.
+     * @return usuario adoptante, null si no ha sido adoptado
      */
-    public Adoption getAdopcion() { return adopcion; }
+    public Usuario getAdoptante() { return adoptante; }
 
     /**
-     * Establece la adopción asociada al animal.
-     * @param adopcion adopción a asignar
+     * Establece el usuario que adoptó el animal.
+     * @param adoptante usuario a asignar
      */
-    public void setAdopcion(Adoption adopcion) { this.adopcion = adopcion; }
+    public void setAdoptante(Usuario adoptante) { this.adoptante = adoptante; }
 
     @Override
     public String toString() {

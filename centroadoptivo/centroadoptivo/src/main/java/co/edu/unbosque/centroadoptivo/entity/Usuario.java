@@ -1,8 +1,13 @@
 package co.edu.unbosque.centroadoptivo.entity;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-
-import co.edu.unbosque.centroadoptivo.enums.RolDeUsuario;
+import java.time.LocalDateTime;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,139 +17,155 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name ="usuario")
-public class Usuario {
+@Table(name = "usuario")
+public class Usuario implements UserDetails {
 
-	private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
-	
-	private String nombre;
-	private String apellido;
-	private long telefono;
-	private String email;
-	private String password;
-	private String ciudad;
-	private String direccion;
-	private @Enumerated(EnumType.STRING) RolDeUsuario rol;
-	
-	public Usuario() {
-	}
+    private static final long serialVersionUID = 1L;
 
-	public Usuario(String nombre, String apellido, long telefono, String email, String password, String ciudad,
-			String direccion, RolDeUsuario rol) {
-		super();
-		this.nombre = nombre;
-		this.apellido = apellido;
-		this.telefono = telefono;
-		this.email = email;
-		this.password = password;
-		this.ciudad = ciudad;
-		this.direccion = direccion;
-		this.rol = rol;
-	}
+    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
 
-	public Long getId() {
-		return id;
-	}
+    @Column(unique = true)
+    private String username;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    private String password;
 
-	public String getNombre() {
-		return nombre;
-	}
+    private String nombreCompleto;
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    @Column(unique = true)
+    private String email;
 
-	public String getApellido() {
-		return apellido;
-	}
+    private long telefono;
 
-	public void setApellido(String apellido) {
-		this.apellido = apellido;
-	}
+    private String ciudad;
 
-	public long getTelefono() {
-		return telefono;
-	}
+    private String direccion;
 
-	public void setTelefono(long telefono) {
-		this.telefono = telefono;
-	}
+    private LocalDateTime fechaRegistro;
 
-	public String getEmail() {
-		return email;
-	}
+    @Enumerated(EnumType.STRING)
+    private Rol rol;
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    private boolean accountNonExpired;
+    private boolean accountNonLocked;
+    private boolean credentialsNonExpired;
+    private boolean enabled;
 
-	public String getPassword() {
-		return password;
-	}
+    public Usuario() {
+        this.accountNonExpired = true;
+        this.accountNonLocked = true;
+        this.credentialsNonExpired = true;
+        this.enabled = true;
+        this.rol = Rol.USUARIO;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public Usuario(String username, String password, String nombreCompleto,
+            String email, long telefono, String ciudad, String direccion,
+            LocalDateTime fechaRegistro) {
+        this();
+        this.username = username;
+        this.password = password;
+        this.nombreCompleto = nombreCompleto;
+        this.email = email;
+        this.telefono = telefono;
+        this.ciudad = ciudad;
+        this.direccion = direccion;
+        this.fechaRegistro = fechaRegistro;
+    }
 
-	public String getCiudad() {
-		return ciudad;
-	}
+    public Usuario(String username, String password, String nombreCompleto,
+            String email, long telefono, String ciudad, String direccion,
+            LocalDateTime fechaRegistro, Rol rol) {
+        this();
+        this.username = username;
+        this.password = password;
+        this.nombreCompleto = nombreCompleto;
+        this.email = email;
+        this.telefono = telefono;
+        this.ciudad = ciudad;
+        this.direccion = direccion;
+        this.fechaRegistro = fechaRegistro;
+        this.rol = rol;
+    }
 
-	public void setCiudad(String ciudad) {
-		this.ciudad = ciudad;
-	}
+    public enum Rol {
+        /** Usuario regular con permisos básicos */
+        USUARIO,
+        /** Administrador con permisos completos */
+        ADMIN
+    }
 
-	public String getDireccion() {
-		return direccion;
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+    }
 
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
-	}
+    @Override
+    public boolean isAccountNonExpired() { return accountNonExpired; }
 
-	public RolDeUsuario getRol() {
-		return rol;
-	}
+    @Override
+    public boolean isAccountNonLocked() { return accountNonLocked; }
 
-	public void setRol(RolDeUsuario rol) {
-		this.rol = rol;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() { return credentialsNonExpired; }
 
-	@Override
-	public String toString() {
-		return "Usuario [id=" + id + ", nombre=" + nombre + ", apellido=" + apellido + ", telefono=" + telefono
-				+ ", email=" + email + ", password=" + password + ", ciudad=" + ciudad + ", direccion=" + direccion
-				+ "]";
-	}
+    @Override
+    public boolean isEnabled() { return enabled; }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(apellido, ciudad, direccion, email, id, nombre, password, telefono);
-	}
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Usuario other = (Usuario) obj;
-		return Objects.equals(apellido, other.apellido) && Objects.equals(ciudad, other.ciudad)
-				&& Objects.equals(direccion, other.direccion) && Objects.equals(email, other.email)
-				&& Objects.equals(id, other.id) && Objects.equals(nombre, other.nombre)
-				&& Objects.equals(password, other.password) && telefono == other.telefono;
-	}
-	
-	
-	
-	
-	
-	
-	
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getNombreCompleto() { return nombreCompleto; }
+    public void setNombreCompleto(String nombreCompleto) { this.nombreCompleto = nombreCompleto; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public long getTelefono() { return telefono; }
+    public void setTelefono(long telefono) { this.telefono = telefono; }
+
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
+    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+
+    public Rol getRol() { return rol; }
+    public void setRol(Rol rol) { this.rol = rol; }
+
+    public void setAccountNonExpired(boolean accountNonExpired) { this.accountNonExpired = accountNonExpired; }
+    public void setAccountNonLocked(boolean accountNonLocked) { this.accountNonLocked = accountNonLocked; }
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) { this.credentialsNonExpired = credentialsNonExpired; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
+    @Override
+    public String toString() {
+        return "Usuario [id=" + id + ", username=" + username + ", nombreCompleto=" + nombreCompleto
+                + ", email=" + email + ", telefono=" + telefono + ", ciudad=" + ciudad
+                + ", direccion=" + direccion + ", fechaRegistro=" + fechaRegistro + ", rol=" + rol + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, email);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Usuario other = (Usuario) obj;
+        return Objects.equals(id, other.id)
+                && Objects.equals(username, other.username)
+                && Objects.equals(email, other.email);
+    }
 }

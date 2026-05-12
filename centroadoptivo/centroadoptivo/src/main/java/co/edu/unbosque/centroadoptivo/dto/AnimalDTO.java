@@ -68,6 +68,18 @@ public class AnimalDTO {
      */
     private AnimalEstado estado;
 
+    /**
+     * Identificador del usuario que publicó el animal.
+     * Se usa el ID para no exponer la entidad completa.
+     */
+    private long publicadorId;
+
+    /**
+     * Identificador del usuario que adoptó el animal.
+     * Es 0 mientras el animal esté disponible o pendiente.
+     */
+    private long adoptanteId;
+
     /** Constructor vacío. */
     public AnimalDTO() {
     }
@@ -88,11 +100,14 @@ public class AnimalDTO {
      * @param actualizadoEn  Fecha de última actualización
      * @param clasificacion  Clasificación detectada por IA
      * @param estado         Estado en el proceso de adopción
+     * @param publicadorId   ID del usuario que publicó el animal
+     * @param adoptanteId    ID del usuario que adoptó el animal
      */
     public AnimalDTO(String nombre, AnimalEdad edad, boolean esterilizado, boolean vacunado,
             String especie, String raza, String color, String observaciones, String imagen,
             LocalDateTime publicadoEn, LocalDateTime actualizadoEn,
-            AnimalClasificacion clasificacion, AnimalEstado estado) {
+            AnimalClasificacion clasificacion, AnimalEstado estado,
+            long publicadorId, long adoptanteId) {
         this.nombre = nombre;
         this.edad = edad;
         this.esterilizado = esterilizado;
@@ -106,6 +121,8 @@ public class AnimalDTO {
         this.actualizadoEn = actualizadoEn;
         this.clasificacion = clasificacion;
         this.estado = estado;
+        this.publicadorId = publicadorId;
+        this.adoptanteId = adoptanteId;
     }
 
     /**
@@ -276,6 +293,30 @@ public class AnimalDTO {
      */
     public void setEstado(AnimalEstado estado) { this.estado = estado; }
 
+    /**
+     * Obtiene el ID del usuario que publicó el animal.
+     * @return ID del publicador
+     */
+    public long getPublicadorId() { return publicadorId; }
+
+    /**
+     * Establece el ID del usuario que publicó el animal.
+     * @param publicadorId ID a asignar
+     */
+    public void setPublicadorId(long publicadorId) { this.publicadorId = publicadorId; }
+
+    /**
+     * Obtiene el ID del usuario que adoptó el animal.
+     * @return ID del adoptante, 0 si no ha sido adoptado
+     */
+    public long getAdoptanteId() { return adoptanteId; }
+
+    /**
+     * Establece el ID del usuario que adoptó el animal.
+     * @param adoptanteId ID a asignar
+     */
+    public void setAdoptanteId(long adoptanteId) { this.adoptanteId = adoptanteId; }
+
     @Override
     public String toString() {
         return "AnimalDTO [id=" + id + ", nombre=" + nombre + ", edad=" + edad
@@ -283,14 +324,15 @@ public class AnimalDTO {
                 + ", especie=" + especie + ", raza=" + raza + ", color=" + color
                 + ", observaciones=" + observaciones + ", imagen=" + imagen
                 + ", publicadoEn=" + publicadoEn + ", actualizadoEn=" + actualizadoEn
-                + ", clasificacion=" + clasificacion + ", estado=" + estado + "]";
+                + ", clasificacion=" + clasificacion + ", estado=" + estado
+                + ", publicadorId=" + publicadorId + ", adoptanteId=" + adoptanteId + "]";
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(actualizadoEn, clasificacion, color, edad, especie,
                 estado, esterilizado, id, imagen, nombre, observaciones,
-                publicadoEn, raza, vacunado);
+                publicadoEn, raza, vacunado, publicadorId, adoptanteId);
     }
 
     @Override
@@ -312,6 +354,8 @@ public class AnimalDTO {
                 && Objects.equals(observaciones, other.observaciones)
                 && Objects.equals(publicadoEn, other.publicadoEn)
                 && Objects.equals(raza, other.raza)
-                && vacunado == other.vacunado;
+                && vacunado == other.vacunado
+                && publicadorId == other.publicadorId
+                && adoptanteId == other.adoptanteId;
     }
 }
