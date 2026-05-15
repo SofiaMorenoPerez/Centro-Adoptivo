@@ -86,11 +86,17 @@ public class Usuario implements UserDetails {
         this.fechaRegistro = fechaRegistro;
         this.rol = rol;
     }
+    
+    public Usuario(String username, String password, Rol rol) {
+        this();
+        this.username = username;
+        this.password = password;
+        this.rol = rol;
+        this.fechaRegistro = LocalDateTime.now();
+    }
 
     public enum Rol {
-        /** Usuario regular con permisos básicos */
         USUARIO,
-        /** Administrador con permisos completos */
         ADMIN
     }
 
