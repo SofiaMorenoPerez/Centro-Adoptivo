@@ -5,7 +5,6 @@ import java.util.Objects;
 import co.edu.unbosque.centroadoptivo.entity.Usuario.Rol;
 
 public class UsuarioDTO {
-
     private Long id;
     private String username;
     private String password;
@@ -14,6 +13,7 @@ public class UsuarioDTO {
     private long telefono;
     private String ciudad;
     private String direccion;
+    private int edad;
     private LocalDateTime fechaRegistro;
     private Rol rol;
 
@@ -22,7 +22,7 @@ public class UsuarioDTO {
 
     public UsuarioDTO(String username, String password, String nombreCompleto,
             String email, long telefono, String ciudad, String direccion,
-            LocalDateTime fechaRegistro) {
+            int edad, LocalDateTime fechaRegistro) {
         this.username = username;
         this.password = password;
         this.nombreCompleto = nombreCompleto;
@@ -30,12 +30,13 @@ public class UsuarioDTO {
         this.telefono = telefono;
         this.ciudad = ciudad;
         this.direccion = direccion;
+        this.edad = edad;
         this.fechaRegistro = fechaRegistro;
     }
 
     public UsuarioDTO(String username, String password, String nombreCompleto,
             String email, long telefono, String ciudad, String direccion,
-            LocalDateTime fechaRegistro, Rol rol) {
+            int edad, LocalDateTime fechaRegistro, Rol rol) {
         this.username = username;
         this.password = password;
         this.nombreCompleto = nombreCompleto;
@@ -43,6 +44,7 @@ public class UsuarioDTO {
         this.telefono = telefono;
         this.ciudad = ciudad;
         this.direccion = direccion;
+        this.edad = edad;
         this.fechaRegistro = fechaRegistro;
         this.rol = rol;
     }
@@ -71,6 +73,9 @@ public class UsuarioDTO {
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
 
+    public int getEdad() { return edad; }
+    public void setEdad(int edad) { this.edad = edad; }
+
     public LocalDateTime getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
 
@@ -81,7 +86,8 @@ public class UsuarioDTO {
     public String toString() {
         return "UsuarioDTO [id=" + id + ", username=" + username + ", nombreCompleto=" + nombreCompleto
                 + ", email=" + email + ", telefono=" + telefono + ", ciudad=" + ciudad
-                + ", direccion=" + direccion + ", fechaRegistro=" + fechaRegistro + ", rol=" + rol + "]";
+                + ", direccion=" + direccion + ", edad=" + edad
+                + ", fechaRegistro=" + fechaRegistro + ", rol=" + rol + "]";
     }
 
     @Override
