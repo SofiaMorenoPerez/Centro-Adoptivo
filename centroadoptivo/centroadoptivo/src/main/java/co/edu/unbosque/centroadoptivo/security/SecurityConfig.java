@@ -23,7 +23,8 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
 
     public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthFilter, UserDetailsService userDetailsService) {
+            JwtAuthenticationFilter jwtAuthFilter,
+            UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
     }
@@ -31,25 +32,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(
-                        auth ->
-                                auth
-                                        .requestMatchers("/auth/**")
-                                        .permitAll()
-                                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                                        .permitAll()
-                                        .requestMatchers("/animal/getall", "/animal/getbyid/**")
-                                        .permitAll()
-                                        .requestMatchers("/animal/publicar", "/animal/adoptar/**")
-                                        .hasAnyRole("USUARIO", "ADMIN")
-                                        .requestMatchers("/usuario/getbyid/**", "/usuario/count", "/usuario/exists/**")
-                                        .hasAnyRole("USUARIO", "ADMIN")
-                                        .requestMatchers("/usuario/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers("/animal/**")
-                                        .hasRole("ADMIN")
-                                        .anyRequest()
-                                        .authenticated())
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers("/auth/**")
+                                .permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                                .permitAll()
+                                .requestMatchers("/animal/getall", "/animal/getbyid/**")
+                                .hasAnyRole("USUARIO", "ADMIN")
+                                .requestMatchers("/animal/publicar", "/animal/adoptar/**")
+                                .hasAnyRole("USUARIO", "ADMIN")
+                                .requestMatchers("/usuario/getbyid/**")
+                                .hasAnyRole("USUARIO", "ADMIN")
+                                .requestMatchers("/usuario/**")
+                                .hasRole("ADMIN")
+                                .requestMatchers("/animal/**")
+                                .hasRole("ADMIN")
+                                .anyRequest()
+                                .authenticated())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -60,8 +60,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder());
-        authProvider.setUserDetailsService(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
