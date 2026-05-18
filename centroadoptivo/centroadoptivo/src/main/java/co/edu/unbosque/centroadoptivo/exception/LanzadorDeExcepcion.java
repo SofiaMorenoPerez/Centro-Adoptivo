@@ -65,4 +65,34 @@ public class LanzadorDeExcepcion {
         if (edad < 18) throw new EdadException();
         if (edad > 100) throw new EdadException();
     }
+    public static void verificarNombreAnimal(String nombre) throws NombreException {
+        if (nombre == null || nombre.isBlank()) throw new NombreException();
+        if (!nombre.trim().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) throw new NombreException();
+        if (nombre.trim().length() < 2) throw new NombreException();
+    }
+
+    public static void verificarEspecie(String especie) throws EspecieException {
+        if (especie == null || especie.isBlank()) throw new EspecieException();
+        if (!especie.trim().matches("^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$")) throw new EspecieException();
+        if (especie.trim().length() < 2) throw new EspecieException();
+    }
+
+    public static void verificarRaza(String raza) throws RazaException {
+        if (raza == null || raza.isBlank()) throw new RazaException();
+        if (raza.trim().length() < 2) throw new RazaException();
+    }
+
+    public static void verificarObservaciones(String observaciones) throws ObservacionesException {
+        if (observaciones == null || observaciones.isBlank()) throw new ObservacionesException();
+        if (observaciones.trim().length() < 10) throw new ObservacionesException();
+        if (observaciones.trim().length() > 500) throw new ObservacionesException();
+    }
+
+    public static void verificarAnimalExiste(boolean existe) throws AnimalNoEncontradoException {
+        if (!existe) throw new AnimalNoEncontradoException();
+    }
+
+    public static void verificarValidacionIA(boolean aprobado) throws ValidacionIAException {
+        if (!aprobado) throw new ValidacionIAException();
+    }
 }

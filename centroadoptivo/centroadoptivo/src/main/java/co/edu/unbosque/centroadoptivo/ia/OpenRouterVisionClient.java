@@ -13,29 +13,23 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 @Component
-public class ChatGptVisionClient {
+public class OpenRouterVisionClient {
 
-    @Value("${openai.api.key}")
+    @Value("${openrouter.api.key}")
     private String apiKey;
 
-    private static final String URL = "https://api.openai.com/v1/chat/completions";
-    private static final String MODELO = "gpt-4o";
+    private static final String URL = "https://openrouter.ai/api/v1/chat/completions";
+
+    private static final String MODELO = "meta-llama/llama-3.2-11b-vision-instruct:free";
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(10))
+            .connectTimeout(Duration.ofSeconds(30))
             .build();
 
-    public String validarInformacionMascota(String especie, String raza, String descripcion) {
+    public String analizarClasificacion(String imagenBase64) {
 
-        String prompt = "Eres un validador de información de mascotas. " +
-                "Te voy a dar la siguiente información de una mascota: " +
-                "Especie: " + especie + ", Raza: " + raza + ", Descripción: " + descripcion + ". " +
-                "Responde UNICAMENTE con una de estas dos palabras: " +
-                "VALIDO si la información es coherente y real, " +
-                "NO_VALIDO si hay inconsistencias o información falsa.";
-
-        String body = construirBody(prompt);
+        String body = construirBody(imagenBase64);
 
         HttpRequest solicitud = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -56,11 +50,30 @@ public class ChatGptVisionClient {
         return extraerRespuesta(respuesta.body());
     }
 
-    private String construirBody(String prompt) {
+    private String construirBody(String imagenBase64) {
+
+        JsonObject imagenUrl = new JsonObject();
+        imagenUrl.addProperty("url", "data:image/jpeg;base64," + imagenBase64);
+
+        JsonObject partImagen = new JsonObject();
+        partImagen.addProperty("type", "image_url");
+        partImagen.add("image_url", imagenUrl);
+
+        // Parte del texto
+        JsonObject partTexto = new JsonObject();
+        partTexto.addProperty("type", "text");
+        partTexto.addProperty("text",
+                "Analiza esta imagen de un animal y responde UNICAMENTE " +
+                "con una de estas dos palabras: DOMESTICO o NO_DOMESTICO " +
+                "segun si el animal es domestico o salvaje.");
+
+        JsonArray content = new JsonArray();
+        content.add(partTexto);
+        content.add(partImagen);
 
         JsonObject mensaje = new JsonObject();
         mensaje.addProperty("role", "user");
-        mensaje.addProperty("content", prompt);
+        mensaje.add("content", content);
 
         JsonArray messages = new JsonArray();
         messages.add(mensaje);

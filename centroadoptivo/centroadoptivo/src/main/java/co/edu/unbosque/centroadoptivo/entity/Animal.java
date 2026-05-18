@@ -30,7 +30,7 @@ public class Animal {
      * Identificador único del animal, generado automáticamente
      * por la base de datos.
      */
-    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) long id;
+    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
 
     /**
      * Nombre del animal ingresado manualmente por el usuario publicador.

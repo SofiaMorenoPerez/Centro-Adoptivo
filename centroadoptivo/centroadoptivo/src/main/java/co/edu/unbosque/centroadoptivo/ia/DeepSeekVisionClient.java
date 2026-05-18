@@ -13,29 +13,37 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 @Component
-public class ClaudeVisionClient {
+public class DeepSeekVisionClient {
 
-    @Value("${claude.api.key}")
+    @Value("${deepseek.api.key}")
     private String apiKey;
 
-    private static final String URL = "https://api.anthropic.com/v1/messages";
-    private static final String MODELO = "claude-3-5-sonnet-20241022";
+    private static final String URL = "https://api.deepseek.com/chat/completions";
+    private static final String MODELO = "deepseek-chat";
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    public String analizarClasificacion(String imagenBase64) {
+    public String validarInformacionMascota(String especie, String raza, String descripcion) {
 
-        String body = construirBody(imagenBase64);
+        String prompt = "Eres un validador de información de mascotas. " +
+                "Te voy a dar la siguiente información: " +
+                "Especie: " + especie + ", Raza: " + raza + ", Descripción: " + descripcion + ". " +
+                "Verifica que la información sea coherente y realista. " +
+                "Por ejemplo que el peso, tamaño y características correspondan " +
+                "a la especie y raza indicada. " +
+                "Responde UNICAMENTE con una de estas palabras: " +
+                "VALIDO si la información es coherente, " +
+                "NO_VALIDO si hay inconsistencias.";
+
+        String body = construirBody(prompt);
 
         HttpRequest solicitud = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .uri(URI.create(URL))
-                .setHeader("User-Agent", "Java 11 HttpClient")
-                .setHeader("x-api-key", apiKey)
-                .setHeader("anthropic-version", "2023-06-01")
+                .setHeader("Authorization", "Bearer " + apiKey)
                 .setHeader("Content-Type", "application/json")
                 .build();
 
@@ -51,31 +59,11 @@ public class ClaudeVisionClient {
         return extraerRespuesta(respuesta.body());
     }
 
-    private String construirBody(String imagenBase64) {
-
-        JsonObject fuente = new JsonObject();
-        fuente.addProperty("type", "base64");
-        fuente.addProperty("media_type", "image/jpeg");
-        fuente.addProperty("data", imagenBase64);
-
-        JsonObject partImagen = new JsonObject();
-        partImagen.addProperty("type", "image");
-        partImagen.add("source", fuente);
-
-        JsonObject partTexto = new JsonObject();
-        partTexto.addProperty("type", "text");
-        partTexto.addProperty("text",
-                "Analiza esta imagen de un animal y responde UNICAMENTE " +
-                "con una de estas dos palabras: DOMESTICO o NO_DOMESTICO " +
-                "segun si el animal es domestico o salvaje.");
-
-        JsonArray content = new JsonArray();
-        content.add(partImagen);
-        content.add(partTexto);
+    private String construirBody(String prompt) {
 
         JsonObject mensaje = new JsonObject();
         mensaje.addProperty("role", "user");
-        mensaje.add("content", content);
+        mensaje.addProperty("content", prompt);
 
         JsonArray messages = new JsonArray();
         messages.add(mensaje);
@@ -90,10 +78,12 @@ public class ClaudeVisionClient {
 
     private String extraerRespuesta(String bodyRespuesta) {
         JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
-        return json.getAsJsonArray("content")
+        return json.getAsJsonArray("choices")
                 .get(0)
                 .getAsJsonObject()
-                .get("text")
+                .get("message")
+                .getAsJsonObject()
+                .get("content")
                 .getAsString()
                 .trim();
     }

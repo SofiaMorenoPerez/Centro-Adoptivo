@@ -51,7 +51,6 @@ public class LlavaVisionClient {
 
     private String construirBody(String imagenBase64) {
 
-        // Pregunta que le hacemos a LLaVA sobre la imagen
         JsonObject inputs = new JsonObject();
         inputs.addProperty("image", imagenBase64);
         inputs.addProperty("question",
