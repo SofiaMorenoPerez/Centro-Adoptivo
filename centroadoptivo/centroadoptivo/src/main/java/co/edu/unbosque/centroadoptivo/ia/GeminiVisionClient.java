@@ -92,4 +92,59 @@ public class GeminiVisionClient {
                 .getAsString()
                 .trim();
     }
+    
+    public String verificarCoincidenciaFotoDescripcion(String imagenBase64, String especie, String raza) {
+
+        String body = construirBodyConPrompt(imagenBase64,
+                "Analiza esta imagen y verifica si el animal corresponde a: " +
+                "Especie: " + especie + ", Raza: " + raza + ". " +
+                "Responde UNICAMENTE con: COINCIDE o NO_COINCIDE.");
+
+        HttpRequest solicitud = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .uri(URI.create(URL + apiKey))
+                .setHeader("User-Agent", "Java 11 HttpClient")
+                .setHeader("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> respuesta = null;
+        try {
+            respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return extraerRespuesta(respuesta.body());
+    }
+
+    private String construirBodyConPrompt(String imagenBase64, String prompt) {
+
+        JsonObject imagenParte = new JsonObject();
+        imagenParte.addProperty("mime_type", "image/jpeg");
+        imagenParte.addProperty("data", imagenBase64);
+
+        JsonObject inlineData = new JsonObject();
+        inlineData.add("inline_data", imagenParte);
+
+        JsonObject textoParte = new JsonObject();
+        textoParte.addProperty("text", prompt);
+
+        JsonArray partes = new JsonArray();
+        partes.add(inlineData);
+        partes.add(textoParte);
+
+        JsonObject contenido = new JsonObject();
+        contenido.add("parts", partes);
+
+        JsonArray contenidos = new JsonArray();
+        contenidos.add(contenido);
+
+        JsonObject bodyJson = new JsonObject();
+        bodyJson.add("contents", contenidos);
+
+        return new Gson().toJson(bodyJson);
+    }
+    
 }

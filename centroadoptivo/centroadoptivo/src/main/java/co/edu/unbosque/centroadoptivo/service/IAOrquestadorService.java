@@ -10,6 +10,7 @@ import co.edu.unbosque.centroadoptivo.ia.LlavaVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.MistralVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.OpenRouterVisionClient;
 
+
 @Service
 public class IAOrquestadorService {
 
