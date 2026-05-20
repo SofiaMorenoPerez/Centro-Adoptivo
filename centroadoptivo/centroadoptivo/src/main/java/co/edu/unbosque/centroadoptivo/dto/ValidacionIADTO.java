@@ -11,7 +11,7 @@ public class ValidacionIADTO {
     private int totalIAs;
     private String detalle;
     private LocalDateTime fechaValidacion;
-    private long animalId;
+    private Long animalId;
 
     public ValidacionIADTO() {}
 

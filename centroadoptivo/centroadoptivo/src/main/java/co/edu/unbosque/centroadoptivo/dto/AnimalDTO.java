@@ -23,7 +23,6 @@ public class AnimalDTO {
     private AnimalClasificacion clasificacion;
     private AnimalEstado estado;
 
-    // ✅ Long en lugar de long — permite null cuando no hay adoptante
     private Long publicadorId;
     private Long adoptanteId;
 
