@@ -1,28 +1,5 @@
 package co.edu.unbosque.centroadoptivo.service;
 
-import co.edu.unbosque.centroadoptivo.dto.AnimalDTO;
-import co.edu.unbosque.centroadoptivo.dto.ValidacionIADTO;
-import co.edu.unbosque.centroadoptivo.entity.Animal;
-import co.edu.unbosque.centroadoptivo.entity.Animal.AnimalEstado;
-import co.edu.unbosque.centroadoptivo.entity.Usuario;
-import co.edu.unbosque.centroadoptivo.entity.ValidacionIA;
-import co.edu.unbosque.centroadoptivo.exception.AnimalNoEncontradoException;
-import co.edu.unbosque.centroadoptivo.exception.ImagenException;
-import co.edu.unbosque.centroadoptivo.exception.LanzadorDeExcepcion;
-import co.edu.unbosque.centroadoptivo.exception.NombreException;
-import co.edu.unbosque.centroadoptivo.exception.ObservacionesException;
-import co.edu.unbosque.centroadoptivo.exception.RazaException;
-import co.edu.unbosque.centroadoptivo.exception.EspecieException;
-import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
-import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
-import co.edu.unbosque.centroadoptivo.repository.UsuarioRepository;
-import co.edu.unbosque.centroadoptivo.repository.ValidacionIARepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +9,29 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import co.edu.unbosque.centroadoptivo.dto.AnimalDTO;
+import co.edu.unbosque.centroadoptivo.dto.ValidacionIADTO;
+import co.edu.unbosque.centroadoptivo.entity.Animal;
+import co.edu.unbosque.centroadoptivo.entity.Animal.AnimalEstado;
+import co.edu.unbosque.centroadoptivo.entity.User;
+import co.edu.unbosque.centroadoptivo.entity.ValidacionIA;
+import co.edu.unbosque.centroadoptivo.exception.AnimalNoEncontradoException;
+import co.edu.unbosque.centroadoptivo.exception.EspecieException;
+import co.edu.unbosque.centroadoptivo.exception.ImagenException;
+import co.edu.unbosque.centroadoptivo.exception.LanzadorDeExcepcion;
+import co.edu.unbosque.centroadoptivo.exception.NombreException;
+import co.edu.unbosque.centroadoptivo.exception.ObservacionesException;
+import co.edu.unbosque.centroadoptivo.exception.RazaException;
+import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
+import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
+import co.edu.unbosque.centroadoptivo.repository.UserRepository;
+import co.edu.unbosque.centroadoptivo.repository.ValidacionIARepository;
+
 @Service
 public class AnimalService {
 
@@ -39,7 +39,7 @@ public class AnimalService {
     private AnimalRepository animalRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private ValidacionIARepository validacionIARepository;
@@ -71,7 +71,7 @@ public class AnimalService {
 
         String urlImagen = guardarImagen(imagen);
 
-        Usuario publicador = usuarioRepository.findById(dto.getPublicadorId()).get();
+        User publicador = userRepository.findById(dto.getPublicadorId()).get();
 
         Animal animal = new Animal();
         animal.setNombre(dto.getNombre());

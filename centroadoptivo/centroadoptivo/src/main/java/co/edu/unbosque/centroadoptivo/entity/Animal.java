@@ -115,7 +115,7 @@ public class Animal {
      */
     @ManyToOne
     @JoinColumn(name = "publicador_id")
-    private Usuario publicador;
+    private User publicador;
 
     /**
      * Usuario que adoptó el animal.
@@ -123,7 +123,7 @@ public class Animal {
      */
     @ManyToOne
     @JoinColumn(name = "adoptante_id")
-    private Usuario adoptante;
+    private User adoptante;
 
     /**
      * Etapa de vida del animal estimada visualmente
@@ -192,7 +192,7 @@ public class Animal {
             String especie, String raza, String color, String observaciones, String imagen,
             LocalDateTime publicadoEn, LocalDateTime actualizadoEn,
             AnimalClasificacion clasificacion, AnimalEstado estado,
-            Usuario publicador, Usuario adoptante) {
+            User publicador, User adoptante) {
         this.nombre = nombre;
         this.edad = edad;
         this.esterilizado = esterilizado;
@@ -214,13 +214,9 @@ public class Animal {
      * Obtiene el identificador único del animal.
      * @return id del animal
      */
-    public long getId() { return id; }
-
-    /**
-     * Establece el identificador único del animal.
-     * @param id identificador a asignar
-     */
-    public void setId(long id) { this.id = id; }
+    
+    
+    
 
     /**
      * Obtiene el nombre del animal.
@@ -228,7 +224,15 @@ public class Animal {
      */
     public String getNombre() { return nombre; }
 
-    /**
+    public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
      * Establece el nombre del animal.
      * @param nombre nombre a asignar
      */
@@ -382,62 +386,63 @@ public class Animal {
      * Obtiene el usuario que publicó el animal.
      * @return usuario publicador
      */
-    public Usuario getPublicador() { return publicador; }
+    
+    
+    
+    
+ 
 
-    /**
-     * Establece el usuario que publicó el animal.
-     * @param publicador usuario a asignar
-     */
-    public void setPublicador(Usuario publicador) { this.publicador = publicador; }
+    public User getPublicador() {
+		return publicador;
+	}
 
-    /**
-     * Obtiene el usuario que adoptó el animal.
-     * @return usuario adoptante, null si no ha sido adoptado
-     */
-    public Usuario getAdoptante() { return adoptante; }
+	public void setPublicador(User publicador) {
+		this.publicador = publicador;
+	}
 
-    /**
-     * Establece el usuario que adoptó el animal.
-     * @param adoptante usuario a asignar
-     */
-    public void setAdoptante(Usuario adoptante) { this.adoptante = adoptante; }
+	public User getAdoptante() {
+		return adoptante;
+	}
 
-    @Override
-    public String toString() {
-        return "Animal [id=" + id + ", nombre=" + nombre + ", edad=" + edad
-                + ", esterilizado=" + esterilizado + ", vacunado=" + vacunado
-                + ", especie=" + especie + ", raza=" + raza + ", color=" + color
-                + ", observaciones=" + observaciones + ", imagen=" + imagen
-                + ", publicadoEn=" + publicadoEn + ", actualizadoEn=" + actualizadoEn
-                + ", clasificacion=" + clasificacion + ", estado=" + estado + "]";
-    }
+	public void setAdoptante(User adoptante) {
+		this.adoptante = adoptante;
+	}
+	
+	
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(actualizadoEn, clasificacion, color, edad, especie,
-                estado, esterilizado, id, imagen, nombre, observaciones, publicadoEn,
-                raza, vacunado);
-    }
+	@Override
+	public String toString() {
+		return "Animal [id=" + id + ", nombre=" + nombre + ", edad=" + edad + ", esterilizado=" + esterilizado
+				+ ", vacunado=" + vacunado + ", especie=" + especie + ", raza=" + raza + ", color=" + color
+				+ ", observaciones=" + observaciones + ", imagen=" + imagen + ", publicadoEn=" + publicadoEn
+				+ ", actualizadoEn=" + actualizadoEn + ", clasificacion=" + clasificacion + ", estado=" + estado
+				+ ", publicador=" + publicador + ", adoptante=" + adoptante + "]";
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Animal other = (Animal) obj;
-        return Objects.equals(actualizadoEn, other.actualizadoEn)
-                && clasificacion == other.clasificacion
-                && Objects.equals(color, other.color)
-                && edad == other.edad
-                && Objects.equals(especie, other.especie)
-                && estado == other.estado
-                && esterilizado == other.esterilizado
-                && id == other.id
-                && Objects.equals(imagen, other.imagen)
-                && Objects.equals(nombre, other.nombre)
-                && Objects.equals(observaciones, other.observaciones)
-                && Objects.equals(publicadoEn, other.publicadoEn)
-                && Objects.equals(raza, other.raza)
-                && vacunado == other.vacunado;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(actualizadoEn, adoptante, clasificacion, color, edad, especie, estado, esterilizado, id,
+				imagen, nombre, observaciones, publicadoEn, publicador, raza, vacunado);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Animal other = (Animal) obj;
+		return Objects.equals(actualizadoEn, other.actualizadoEn) && Objects.equals(adoptante, other.adoptante)
+				&& clasificacion == other.clasificacion && Objects.equals(color, other.color) && edad == other.edad
+				&& Objects.equals(especie, other.especie) && estado == other.estado
+				&& esterilizado == other.esterilizado && Objects.equals(id, other.id)
+				&& Objects.equals(imagen, other.imagen) && Objects.equals(nombre, other.nombre)
+				&& Objects.equals(observaciones, other.observaciones) && Objects.equals(publicadoEn, other.publicadoEn)
+				&& Objects.equals(publicador, other.publicador) && Objects.equals(raza, other.raza)
+				&& vacunado == other.vacunado;
+	}
+
+	
 }
