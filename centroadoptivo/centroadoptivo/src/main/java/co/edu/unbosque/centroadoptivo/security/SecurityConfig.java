@@ -31,50 +31,29 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-
-                     
-                        .requestMatchers("/auth/**")
-                        .permitAll()
-
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                        .permitAll()
-
-                 
-                        .requestMatchers(
-                                "/animal/getall",
-                                "/animal/getbyid/**",
-                                "/animal/registrar",
-                                "/animal/adoptar/**",
-                                "/animal/mispublicaciones",
-                                "/animal/publicador/**",
-                                "/usuario/getbyid/**",
-                                "/usuario/editar/**",
-                                "/usuario/perfil/**"
-                        )
-                        .hasAnyRole("USER", "ADMIN")
-                        
-                        .requestMatchers("/animal/aceptar/**")
-                        .hasRole("ADMIN")
-
-                        .requestMatchers("/usuario/**")
-                        .hasRole("ADMIN")
-
-                        .requestMatchers("/animal/**")
-                        .hasRole("ADMIN")
-
-                        .anyRequest()
-                        .authenticated())
-
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers("/auth/**")
+                                .permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                                .permitAll()
+                                .requestMatchers("/animal/getall", "/animal/getbyid/**")
+                                .hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/animal/publicar", "/animal/adoptar/**")
+                                .hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/usuario/getbyid/**")
+                                .hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/usuario/**")
+                                .hasRole("ADMIN")
+                                .requestMatchers("/animal/**")
+                                .hasRole("ADMIN")
+                                .anyRequest()
+                                .authenticated())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-
-                .addFilterBefore(jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
