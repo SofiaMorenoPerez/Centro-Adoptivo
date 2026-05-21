@@ -47,7 +47,7 @@ public class UserController {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    // ─── CREATE ───────────────────────────────────────────────────────────────
+    
 
     @Operation(summary = "Crear usuario (JSON)")
     @PostMapping(path = "/createjson", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -113,7 +113,7 @@ public class UserController {
         else return new ResponseEntity<>("Error al crear usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // ─── READ ─────────────────────────────────────────────────────────────────
+    
 
     @Operation(summary = "Obtener todos los usuarios")
     @GetMapping("/getall")
@@ -147,7 +147,7 @@ public class UserController {
         return new ResponseEntity<>(count, HttpStatus.ACCEPTED);
     }
 
-    // ─── UPDATE ───────────────────────────────────────────────────────────────
+  
 
     @Operation(summary = "Actualizar usuario (JSON)")
     @PutMapping(path = "/updatejson", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -204,7 +204,7 @@ public class UserController {
         else return new ResponseEntity<>("Error al actualizar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // ─── DELETE ───────────────────────────────────────────────────────────────
+
 
     @Operation(summary = "Eliminar usuario por ID")
     @DeleteMapping("/deletebyid/{id}")
