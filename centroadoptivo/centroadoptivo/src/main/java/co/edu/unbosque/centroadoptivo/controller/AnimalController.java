@@ -61,7 +61,7 @@ public class AnimalController {
         try {
            
             String username = authentication.getName();
-            userRepository.findByUsername(username).ifPresent(user -> dto.setPublicadorId(user.getId()));
+            userRepository.findByUsername(username).ifPresent(user -> dto.setPublisherId(user.getId()));
 
             AnimalDTO resultado = animalService.registrarAnimal(dto, imagen);
             return new ResponseEntity<>(resultado, HttpStatus.CREATED);
