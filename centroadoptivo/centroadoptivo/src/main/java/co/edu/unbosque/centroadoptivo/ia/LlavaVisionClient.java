@@ -23,12 +23,12 @@ public class LlavaVisionClient {
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(30)) // LLaVA necesita más tiempo
+            .connectTimeout(Duration.ofSeconds(30))
             .build();
 
-    public String verificarBienestarAnimal(String imagenBase64) {
+    public String verificarBienestarAnimal(String imagenBase64, String color, String edad) {
 
-        String body = construirBody(imagenBase64);
+        String body = construirBody(imagenBase64, color, edad);
 
         HttpRequest solicitud = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -49,14 +49,17 @@ public class LlavaVisionClient {
         return extraerRespuesta(respuesta.body());
     }
 
-    private String construirBody(String imagenBase64) {
+    private String construirBody(String imagenBase64, String color, String edad) {
 
         JsonObject inputs = new JsonObject();
         inputs.addProperty("image", imagenBase64);
         inputs.addProperty("question",
-                "Look at this animal in the image. " +
-                "Does it appear to be healthy, well-fed and properly cared for? " +
-                "Answer ONLY with one word: SALUDABLE or NO_SALUDABLE.");
+                "Analyze this animal in the image and verify: " +
+                "1. Does it appear healthy and well cared for? " +
+                "2. Is its predominant color: " + color + "? " +
+                "3. Does its approximate life stage match: " + edad + "? " +
+                "Answer ONLY with one word: SALUDABLE if everything matches, " +
+                "NO_SALUDABLE if something does not match.");
 
         JsonObject bodyJson = new JsonObject();
         bodyJson.add("inputs", inputs);
