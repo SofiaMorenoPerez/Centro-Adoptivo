@@ -15,61 +15,97 @@ public class ValidacionIADTO {
 
     public ValidacionIADTO() {}
 
-    public ValidacionIADTO(boolean aprobado, int votos, int totalIAs,
-            String detalle, LocalDateTime fechaValidacion, long animalId) {
-        this.aprobado = aprobado;
-        this.votos = votos;
-        this.totalIAs = totalIAs;
-        this.detalle = detalle;
-        this.fechaValidacion = fechaValidacion;
-        this.animalId = animalId;
-    }
+	public ValidacionIADTO(boolean aprobado, int votos, int totalIAs, String detalle, LocalDateTime fechaValidacion,
+			Long animalId) {
+		super();
+		this.aprobado = aprobado;
+		this.votos = votos;
+		this.totalIAs = totalIAs;
+		this.detalle = detalle;
+		this.fechaValidacion = fechaValidacion;
+		this.animalId = animalId;
+	}
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+	public Long getId() {
+		return id;
+	}
 
-    public boolean isAprobado() { return aprobado; }
-    public void setAprobado(boolean aprobado) { this.aprobado = aprobado; }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public int getVotos() { return votos; }
-    public void setVotos(int votos) { this.votos = votos; }
+	public boolean isAprobado() {
+		return aprobado;
+	}
 
-    public int getTotalIAs() { return totalIAs; }
-    public void setTotalIAs(int totalIAs) { this.totalIAs = totalIAs; }
+	public void setAprobado(boolean aprobado) {
+		this.aprobado = aprobado;
+	}
 
-    public String getDetalle() { return detalle; }
-    public void setDetalle(String detalle) { this.detalle = detalle; }
+	public int getVotos() {
+		return votos;
+	}
 
-    public LocalDateTime getFechaValidacion() { return fechaValidacion; }
-    public void setFechaValidacion(LocalDateTime fechaValidacion) { this.fechaValidacion = fechaValidacion; }
+	public void setVotos(int votos) {
+		this.votos = votos;
+	}
 
-    public long getAnimalId() { return animalId; }
-    public void setAnimalId(long animalId) { this.animalId = animalId; }
+	public int getTotalIAs() {
+		return totalIAs;
+	}
 
-    @Override
-    public String toString() {
-        return "ValidacionIADTO [id=" + id + ", aprobado=" + aprobado + ", votos=" + votos
-                + ", totalIAs=" + totalIAs + ", detalle=" + detalle
-                + ", fechaValidacion=" + fechaValidacion + ", animalId=" + animalId + "]";
-    }
+	public void setTotalIAs(int totalIAs) {
+		this.totalIAs = totalIAs;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(aprobado, animalId, detalle, fechaValidacion, id, totalIAs, votos);
-    }
+	public String getDetalle() {
+		return detalle;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ValidacionIADTO other = (ValidacionIADTO) obj;
-        return aprobado == other.aprobado
-                && animalId == other.animalId
-                && Objects.equals(detalle, other.detalle)
-                && Objects.equals(fechaValidacion, other.fechaValidacion)
-                && Objects.equals(id, other.id)
-                && totalIAs == other.totalIAs
-                && votos == other.votos;
-    }
+	public void setDetalle(String detalle) {
+		this.detalle = detalle;
+	}
+
+	public LocalDateTime getFechaValidacion() {
+		return fechaValidacion;
+	}
+
+	public void setFechaValidacion(LocalDateTime fechaValidacion) {
+		this.fechaValidacion = fechaValidacion;
+	}
+
+	public Long getAnimalId() {
+		return animalId;
+	}
+
+	public void setAnimalId(Long animalId) {
+		this.animalId = animalId;
+	}
+
+	@Override
+	public String toString() {
+		return "ValidacionIADTO [id=" + id + ", aprobado=" + aprobado + ", votos=" + votos + ", totalIAs=" + totalIAs
+				+ ", detalle=" + detalle + ", fechaValidacion=" + fechaValidacion + ", animalId=" + animalId + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(animalId, aprobado, detalle, fechaValidacion, id, totalIAs, votos);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ValidacionIADTO other = (ValidacionIADTO) obj;
+		return Objects.equals(animalId, other.animalId) && aprobado == other.aprobado
+				&& Objects.equals(detalle, other.detalle) && Objects.equals(fechaValidacion, other.fechaValidacion)
+				&& Objects.equals(id, other.id) && totalIAs == other.totalIAs && votos == other.votos;
+	}
+
+    
 }
