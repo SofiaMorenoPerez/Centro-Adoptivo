@@ -11,9 +11,10 @@ import { Recibir } from './recibir/recibir';
 import { Admin } from './admin/admin';
 import { FormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
+import { Perfil } from './perfil/perfil';
 
 @NgModule({
-  declarations: [App, Inicio, Login, SignUp, Usuario, Dar, Recibir, Admin],
+  declarations: [App, Inicio, Login, SignUp, Usuario, Dar, Recibir, Admin, Perfil],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient()],
   bootstrap: [App],
