@@ -23,46 +23,196 @@ public class AnimalDTO {
     private AnimalClasificacion clasificacion;
     private AnimalEstado estado;
 
-    // ✅ Long en lugar de long — permite null cuando no hay adoptante
     private Long publicadorId;
     private Long adoptanteId;
 
     public AnimalDTO() {}
 
-    public Long getId()                                      { return id; }
-    public void setId(Long id)                              { this.id = id; }
-    public String getNombre()                                { return nombre; }
-    public void setNombre(String nombre)                    { this.nombre = nombre; }
-    public AnimalEdad getEdad()                              { return edad; }
-    public void setEdad(AnimalEdad edad)                    { this.edad = edad; }
-    public boolean isEsterilizado()                          { return esterilizado; }
-    public void setEsterilizado(boolean esterilizado)       { this.esterilizado = esterilizado; }
-    public boolean isVacunado()                              { return vacunado; }
-    public void setVacunado(boolean vacunado)               { this.vacunado = vacunado; }
-    public String getEspecie()                               { return especie; }
-    public void setEspecie(String especie)                  { this.especie = especie; }
-    public String getRaza()                                  { return raza; }
-    public void setRaza(String raza)                        { this.raza = raza; }
-    public String getColor()                                 { return color; }
-    public void setColor(String color)                      { this.color = color; }
-    public String getObservaciones()                         { return observaciones; }
-    public void setObservaciones(String observaciones)      { this.observaciones = observaciones; }
-    public String getImagen()                                { return imagen; }
-    public void setImagen(String imagen)                    { this.imagen = imagen; }
-    public LocalDateTime getPublicadoEn()                    { return publicadoEn; }
-    public void setPublicadoEn(LocalDateTime publicadoEn)   { this.publicadoEn = publicadoEn; }
-    public LocalDateTime getActualizadoEn()                  { return actualizadoEn; }
-    public void setActualizadoEn(LocalDateTime v)           { this.actualizadoEn = v; }
-    public AnimalClasificacion getClasificacion()            { return clasificacion; }
-    public void setClasificacion(AnimalClasificacion v)     { this.clasificacion = v; }
-    public AnimalEstado getEstado()                          { return estado; }
-    public void setEstado(AnimalEstado estado)               { this.estado = estado; }
-    public Long getPublicadorId()                            { return publicadorId; }
-    public void setPublicadorId(Long publicadorId)          { this.publicadorId = publicadorId; }
-    public Long getAdoptanteId()                             { return adoptanteId; }
-    public void setAdoptanteId(Long adoptanteId)            { this.adoptanteId = adoptanteId; }
+    
+    public AnimalDTO(String nombre, AnimalEdad edad, boolean esterilizado, boolean vacunado, String especie,
+			String raza, String color, String observaciones, String imagen, LocalDateTime publicadoEn,
+			LocalDateTime actualizadoEn, AnimalClasificacion clasificacion, AnimalEstado estado, Long publicadorId,
+			Long adoptanteId) {
+    	
+		super();
+		this.nombre = nombre;
+		this.edad = edad;
+		this.esterilizado = esterilizado;
+		this.vacunado = vacunado;
+		this.especie = especie;
+		this.raza = raza;
+		this.color = color;
+		this.observaciones = observaciones;
+		this.imagen = imagen;
+		this.publicadoEn = publicadoEn;
+		this.actualizadoEn = actualizadoEn;
+		this.clasificacion = clasificacion;
+		this.estado = estado;
+		this.publicadorId = publicadorId;
+		this.adoptanteId = adoptanteId;
+	}
+    
+	public Long getId() {
+		return id;
+	}
 
-    @Override
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+	public String getNombre() {
+		return nombre;
+	}
+
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+
+	public AnimalEdad getEdad() {
+		return edad;
+	}
+
+
+	public void setEdad(AnimalEdad edad) {
+		this.edad = edad;
+	}
+
+
+	public boolean isEsterilizado() {
+		return esterilizado;
+	}
+
+
+	public void setEsterilizado(boolean esterilizado) {
+		this.esterilizado = esterilizado;
+	}
+
+
+	public boolean isVacunado() {
+		return vacunado;
+	}
+
+
+	public void setVacunado(boolean vacunado) {
+		this.vacunado = vacunado;
+	}
+
+
+	public String getEspecie() {
+		return especie;
+	}
+
+
+	public void setEspecie(String especie) {
+		this.especie = especie;
+	}
+
+
+	public String getRaza() {
+		return raza;
+	}
+
+
+	public void setRaza(String raza) {
+		this.raza = raza;
+	}
+
+
+	public String getColor() {
+		return color;
+	}
+
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+
+	public String getObservaciones() {
+		return observaciones;
+	}
+
+
+	public void setObservaciones(String observaciones) {
+		this.observaciones = observaciones;
+	}
+
+
+	public String getImagen() {
+		return imagen;
+	}
+
+
+	public void setImagen(String imagen) {
+		this.imagen = imagen;
+	}
+
+
+	public LocalDateTime getPublicadoEn() {
+		return publicadoEn;
+	}
+
+
+	public void setPublicadoEn(LocalDateTime publicadoEn) {
+		this.publicadoEn = publicadoEn;
+	}
+
+
+	public LocalDateTime getActualizadoEn() {
+		return actualizadoEn;
+	}
+
+
+	public void setActualizadoEn(LocalDateTime actualizadoEn) {
+		this.actualizadoEn = actualizadoEn;
+	}
+
+
+	public AnimalClasificacion getClasificacion() {
+		return clasificacion;
+	}
+
+
+	public void setClasificacion(AnimalClasificacion clasificacion) {
+		this.clasificacion = clasificacion;
+	}
+
+
+	public AnimalEstado getEstado() {
+		return estado;
+	}
+
+
+	public void setEstado(AnimalEstado estado) {
+		this.estado = estado;
+	}
+
+
+	public Long getPublicadorId() {
+		return publicadorId;
+	}
+
+
+	public void setPublicadorId(Long publicadorId) {
+		this.publicadorId = publicadorId;
+	}
+
+
+	public Long getAdoptanteId() {
+		return adoptanteId;
+	}
+
+
+	public void setAdoptanteId(Long adoptanteId) {
+		this.adoptanteId = adoptanteId;
+	}
+
+
+	@Override
     public int hashCode() {
         return Objects.hash(actualizadoEn, clasificacion, color, edad, especie,
                 estado, esterilizado, id, imagen, nombre, observaciones,

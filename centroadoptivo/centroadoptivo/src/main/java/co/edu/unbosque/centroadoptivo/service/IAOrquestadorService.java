@@ -77,6 +77,14 @@ public class IAOrquestadorService {
         }
 
         boolean aprobado = votos >= 4;
-        return new ValidacionIADTO(aprobado, votos, totalIAs, detalle.toString(), null, 0);
+        ValidacionIADTO resultado = new ValidacionIADTO();
+        resultado.setAprobado(aprobado);
+        resultado.setVotos(votos);
+        resultado.setTotalIAs(totalIAs);
+        resultado.setDetalle(detalle.toString());    
+        
+        return resultado;
+        
     }
+      
 }
