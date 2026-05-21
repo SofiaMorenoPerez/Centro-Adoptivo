@@ -1,0 +1,132 @@
+.hero-section {
+  background-image:
+    linear-gradient(rgba(255,182,193,0.5), rgba(173,216,230,0.55)),
+    url('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1400&q=80');
+  height: 500px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 1rem;
+}
+
+.logo-icon {
+  font-size: 4rem;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.2);
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: #fff;
+  margin: 0;
+  font-style: italic;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.15);
+  opacity: 0.95;
+}
+
+.btn-ingresar {
+  margin-top: 8px;
+  background: #fff;
+  color: #e87fa0;
+  border: 2px solid #e87fa0;
+  padding: 12px 36px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(232,127,160,0.2);
+}
+
+.btn-ingresar:hover {
+  background: #e87fa0;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.info-section {
+  text-align: center;
+  padding: 50px 20px 20px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #d46a8a;
+  margin-bottom: 14px;
+}
+
+.section-desc {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.7;
+}
+
+.cards-section {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 40px 20px 60px;
+}
+
+.info-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(232,127,160,0.1);
+  padding: 36px 28px;
+  width: 220px;
+  text-align: center;
+  border-top: 4px solid #f4b8cb;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.info-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 28px rgba(106,179,212,0.2);
+}
+
+.card-icon {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+}
+
+.info-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #d46a8a;
+  margin-bottom: 8px;
+}
+
+.info-card p {
+  font-size: 0.88rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+.footer-custom {
+  background: linear-gradient(90deg, #fce4ec, #e3f2fd);
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: #999;
+  border-top: 1px solid #f0d6e0;
+}

@@ -1,0 +1,113 @@
+<!-- NAVBAR -->
+<nav class="navbar-usuario">
+  <div class="navbar-brand" (click)="volver()" style="cursor:pointer">
+    <span>🐾</span>
+    <span class="brand-name">SIS Pets</span>
+  </div>
+</nav>
+
+<div class="dar-container">
+  <div class="dar-card">
+
+    <!-- HEADER -->
+    <div class="dar-header">
+      <h2 class="dar-titulo">Dar en Adopción 🐾</h2>
+      <p class="dar-subtitulo">
+        Completa los datos de tu mascota. Nuestra IA analizará la foto
+        para detectar automáticamente la especie, raza, color y edad.
+      </p>
+    </div>
+
+    <!-- MENSAJES -->
+    <div *ngIf="error" class="mensaje-error">
+      <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+    </div>
+    <div *ngIf="exito" class="mensaje-exito">
+      <i class="fa-solid fa-circle-check"></i> {{ exito }}
+    </div>
+
+    <!-- UPLOAD FOTO -->
+    <div class="foto-section">
+      <label class="foto-label">Foto del Animal *</label>
+      <div class="foto-upload" (click)="fileInput.click()">
+        <div *ngIf="!imagenPreview" class="foto-placeholder">
+          <i class="fa-solid fa-camera"></i>
+          <p>Haz clic para subir una foto</p>
+          <span>La IA analizará la imagen automáticamente</span>
+        </div>
+        <img *ngIf="imagenPreview" [src]="imagenPreview" class="foto-preview" alt="Preview" />
+        <input #fileInput type="file" accept="image/*" (change)="onImagenSeleccionada($event)" hidden />
+      </div>
+      <p class="foto-hint" *ngIf="imagenPreview">
+        <i class="fa-solid fa-circle-check" style="color:#00c896"></i>
+        Foto cargada. La IA detectará especie, raza, color y edad.
+      </p>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="campos-grid">
+
+      <div class="campo campo-full">
+        <label>Nombre del Animal *</label>
+        <input type="text" [(ngModel)]="nombre" placeholder="¿Cómo se llama tu mascota?" />
+      </div>
+
+      <div class="campo campo-full">
+        <label>Edad del Animal *</label>
+        <select [(ngModel)]="edad">
+          <option value="">Selecciona una opción</option>
+          <option value="CACHORRO">🐣 Cachorro (menos de 1 año)</option>
+          <option value="JOVEN">🐾 Joven (1 a 3 años)</option>
+          <option value="ADULTO">🐶 Adulto (3 a 7 años)</option>
+          <option value="MAYOR">🦴 Mayor (más de 7 años)</option>
+        </select>
+      </div>
+
+      <div class="campo campo-full">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="observaciones" placeholder="Cuéntanos sobre su comportamiento, salud, historia..." rows="4"></textarea>
+      </div>
+
+      <div class="campo campo-full">
+        <label class="label-checks">Estado de salud</label>
+        <div class="checks-row">
+          <label class="check-item">
+            <input type="checkbox" [(ngModel)]="esterilizado" />
+            <span class="check-custom"></span>
+            <span class="check-label">🔪 Esterilizado</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" [(ngModel)]="vacunado" />
+            <span class="check-custom"></span>
+            <span class="check-label">💉 Vacunado</span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INFO IA -->
+    <div class="ia-info">
+      <i class="fa-solid fa-robot"></i>
+      <div>
+        <strong>Detección automática por IA</strong>
+        <p>A partir de la foto, detectaremos automáticamente: especie, raza, color, edad y clasificación del animal.</p>
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="botones-fila">
+      <button class="btn-guardar" (click)="guardar()">
+        <i class="fa-solid fa-paw"></i> Registrar Animal
+      </button>
+      <button class="btn-volver" (click)="volver()">
+        <i class="fa-solid fa-arrow-left"></i> Cancelar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer-custom">
+  <p>🐾 Centro de Adopción SIS Pets — Todos los derechos reservados 2025</p>
+</footer>

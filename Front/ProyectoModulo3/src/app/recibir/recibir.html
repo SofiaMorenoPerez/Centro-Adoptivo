@@ -1,0 +1,42 @@
+<!-- NAVBAR -->
+<nav class="navbar-usuario">
+  <div class="navbar-brand" (click)="volver()" style="cursor:pointer">
+    <span>🐾</span>
+    <span class="brand-name">SIS Pets</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-recibir">
+  <h1>Encuentra tu compañero ideal 🐾</h1>
+  <p>Estos animales están listos para encontrar un hogar lleno de amor</p>
+
+  <div class="filtros">
+    <select [(ngModel)]="filtroEspecie">
+      <option value="">Todas las especies</option>
+      <option value="Perro">🐶 Perros</option>
+      <option value="Gato">🐱 Gatos</option>
+      <option value="Conejo">🐰 Conejos</option>
+    </select>
+
+    <select [(ngModel)]="filtroEdad">
+      <option value="">Todas las edades</option>
+      <option value="CACHORRO">🐣 Cachorro</option>
+      <option value="JOVEN">🐾 Joven</option>
+      <option value="ADULTO">🐶 Adulto</option>
+      <option value="MAYOR">🦴 Mayor</option>
+    </select>
+  </div>
+</div>
+
+<!-- ANIMALES -->
+<section class="animales-section">
+  <div class="sin-resultados">
+    <span>🐾</span>
+    <p>Próximamente encontrarás aquí los animales disponibles para adopción.</p>
+  </div>
+</section>
+
+<footer class="footer-custom">
+  <p>🐾 Centro de Adopción SIS Pets — Todos los derechos reservados 2025</p>
+</footer>

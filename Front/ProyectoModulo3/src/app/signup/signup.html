@@ -1,0 +1,83 @@
+<div class="signup-wrapper">
+
+  <div class="signup-left">
+    <div class="brand">
+      <span class="brand-icon">🐾</span>
+      <h1 class="brand-title">SIS Pets</h1>
+      <p class="brand-sub">Centro de Adopción</p>
+    </div>
+    <p class="brand-desc">
+      Únete a nuestra comunidad y ayuda a<br>
+      encontrarle un hogar a cada patita.
+    </p>
+  </div>
+
+  <div class="signup-right">
+    <div class="signup-card">
+      <h2 class="signup-title">Crear Cuenta</h2>
+      <p class="signup-subtitle">Completa tus datos para registrarte</p>
+
+      <div *ngIf="error" class="mensaje-error">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+      </div>
+
+      <div *ngIf="exito" class="mensaje-exito">
+        <i class="fa-solid fa-circle-check"></i> {{ exito }}
+      </div>
+
+      <div class="campos-grid">
+
+        <div class="campo campo-full">
+          <label>Nombre Completo</label>
+          <input type="text" [(ngModel)]="nombreCompleto" placeholder="Tu nombre completo" />
+        </div>
+
+        <div class="campo campo-full">
+          <label>Username</label>
+          <input type="text" [(ngModel)]="username" placeholder="Elige un nombre de usuario" />
+        </div>
+
+        <div class="campo">
+          <label>Correo Electrónico</label>
+          <input type="email" [(ngModel)]="email" placeholder="correo@ejemplo.com" />
+        </div>
+
+        <div class="campo">
+          <label>Teléfono</label>
+          <input type="number" [(ngModel)]="telefono" placeholder="Tu teléfono" />
+        </div>
+
+        <div class="campo">
+          <label>Ciudad</label>
+          <input type="text" [(ngModel)]="ciudad" placeholder="Tu ciudad" />
+        </div>
+
+        <div class="campo">
+          <label>Dirección</label>
+          <input type="text" [(ngModel)]="direccion" placeholder="Tu dirección" />
+        </div>
+
+        <div class="campo">
+          <label>Contraseña</label>
+          <input type="password" [(ngModel)]="password" placeholder="Contraseña" />
+        </div>
+
+        <div class="campo">
+          <label>Confirmar Contraseña</label>
+          <input type="password" [(ngModel)]="confirmar" placeholder="Repite tu contraseña" />
+        </div>
+
+      </div>
+
+      <button class="btn-guardar" (click)="guardar()">
+        <i class="fa-solid fa-user-plus"></i> Crear Cuenta
+      </button>
+
+      <button class="btn-volver" (click)="volver()">
+        <i class="fa-solid fa-arrow-left"></i> Volver al login
+      </button>
+
+    </div>
+  </div>
+
+</div>
