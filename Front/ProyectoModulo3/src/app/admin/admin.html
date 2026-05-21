@@ -1,1 +1,168 @@
-<p>admin works!</p>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span>🐾</span>
+      <span class="brand-name">SIS Pets</span>
+      <span class="brand-admin">Admin</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.activo]="vista === 'transacciones'" (click)="cambiarVista('transacciones')">
+        <i class="fa-solid fa-arrows-left-right"></i> Transacciones
+      </button>
+      <button class="nav-item" [class.activo]="vista === 'usuarios'" (click)="cambiarVista('usuarios')">
+        <i class="fa-solid fa-users"></i> Usuarios
+      </button>
+      <button class="nav-item" [class.activo]="vista === 'animales'" (click)="cambiarVista('animales')">
+        <i class="fa-solid fa-paw"></i> Animales
+      </button>
+      <button class="nav-item" [class.activo]="vista === 'admins'" (click)="cambiarVista('admins')">
+        <i class="fa-solid fa-user-shield"></i> Administradores
+      </button>
+    </nav>
+
+    <button class="btn-cerrar" (click)="cerrarSesion()">
+      <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+    </button>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="admin-main">
+
+    <!-- TRANSACCIONES -->
+    <div *ngIf="vista === 'transacciones'">
+      <div class="seccion-header">
+        <h2><i class="fa-solid fa-arrows-left-right"></i> Transacciones</h2>
+        <p>Aprueba o rechaza las solicitudes de adopción entre usuarios.</p>
+      </div>
+
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Animal</th>
+            <th>Donante</th>
+            <th>Adoptante</th>
+            <th>Estado IA</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td colspan="7" class="sin-datos">
+              <span>🐾</span> Las transacciones aparecerán aquí cuando se conecte el back
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USUARIOS -->
+    <div *ngIf="vista === 'usuarios'">
+      <div class="seccion-header">
+        <h2><i class="fa-solid fa-users"></i> Usuarios</h2>
+        <p>Gestiona los usuarios registrados en el sistema.</p>
+      </div>
+
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre Completo</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Ciudad</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td colspan="7" class="sin-datos">
+              <span>🐾</span> Los usuarios aparecerán aquí cuando se conecte el back
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANIMALES -->
+    <div *ngIf="vista === 'animales'">
+      <div class="seccion-header">
+        <h2><i class="fa-solid fa-paw"></i> Animales</h2>
+        <p>Gestiona los animales registrados y su validación por IA.</p>
+      </div>
+
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Especie</th>
+            <th>Raza</th>
+            <th>Edad</th>
+            <th>Publicador</th>
+            <th>Estado IA</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td colspan="10" class="sin-datos">
+              <span>🐾</span> Los animales aparecerán aquí cuando se conecte el back
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADMINS -->
+    <div *ngIf="vista === 'admins'">
+      <div class="seccion-header">
+        <h2><i class="fa-solid fa-user-shield"></i> Administradores</h2>
+        <p>Gestiona los administradores del sistema.</p>
+      </div>
+
+      <div class="acciones-top">
+        <button class="btn-nuevo">
+          <i class="fa-solid fa-plus"></i> Nuevo Administrador
+        </button>
+      </div>
+
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre Completo</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Ciudad</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td colspan="7" class="sin-datos">
+              <span>🐾</span> Los administradores aparecerán aquí cuando se conecte el back
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
