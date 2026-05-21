@@ -9,9 +9,10 @@ import { SignUp } from './signup/signup';
 import { Usuario } from './usuario/usuario';
 import { Dar } from './dar/dar';
 import { Recibir } from './recibir/recibir';
+import { Admin } from './admin/admin';
 
 @NgModule({
-  declarations: [App, Inicio, Login, SignUp, Usuario, Dar, Recibir],
+  declarations: [App, Inicio, Login, SignUp, Usuario, Dar, Recibir, Admin],
   imports: [BrowserModule, AppRoutingModule, FormsModule],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [App],

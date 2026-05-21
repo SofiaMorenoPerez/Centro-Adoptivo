@@ -6,6 +6,7 @@ import { SignUp } from './signup/signup';
 import { Usuario } from './usuario/usuario';
 import { Dar } from './dar/dar';
 import { Recibir } from './recibir/recibir';
+import { Admin } from './admin/admin';
 
 
 const routes: Routes = [
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'usuario', component: Usuario },
   { path: 'dar', component: Dar },
   { path: 'recibir', component: Recibir },
+  { path: 'admin', component: Admin },
 ];
 
 @NgModule({
