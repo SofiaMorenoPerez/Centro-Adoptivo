@@ -12,7 +12,6 @@ export class AuthService {
   private readonly urlbase: string = 'http://localhost:8081';
 
   login(username: string, password: string) {
-
     return this.cliente.post<{ token: string, role: string }>(
       this.urlbase + '/auth/login',
       { username, password }

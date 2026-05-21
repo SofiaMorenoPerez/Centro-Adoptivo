@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-perfil',
@@ -21,8 +22,33 @@ export class Perfil {
 
   constructor(
     private router: Router,
+    private userService: UserService,
     private authService: AuthService
   ) {}
+
+  ngOnInit(): void {
+    this.cargarPerfil();
+  }
+
+  cargarPerfil() {
+    this.userService.getPerfil().subscribe({
+
+      next: (usuario) => {
+        this.username = usuario.username;
+        this.fullName = usuario.fullName;
+        this.email = usuario.email;
+        this.phone = usuario.phone;
+        this.city = usuario.city;
+        this.address = usuario.address;
+        this.age = usuario.age;
+      },
+
+      error: (error) => {
+        console.log(error);
+      }
+    });
+
+  }
 
   activarEdicion() {
     this.editando = true;
