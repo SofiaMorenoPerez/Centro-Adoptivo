@@ -113,7 +113,7 @@ public class UserController {
         else return new ResponseEntity<>("Error al crear usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-   
+    
 
     @Operation(summary = "Obtener todos los usuarios")
     @GetMapping("/getall")
@@ -147,7 +147,8 @@ public class UserController {
         return new ResponseEntity<>(count, HttpStatus.ACCEPTED);
     }
 
-    
+  
+
     @Operation(summary = "Actualizar usuario (JSON)")
     @PutMapping(path = "/updatejson", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateWithJSON(@RequestParam Long id, @RequestBody UserDTO newUser) {
@@ -202,6 +203,7 @@ public class UserController {
         else if (status == 9)  return new ResponseEntity<>("La dirección no es válida", HttpStatus.BAD_REQUEST);
         else return new ResponseEntity<>("Error al actualizar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 
 
     @Operation(summary = "Eliminar usuario por ID")

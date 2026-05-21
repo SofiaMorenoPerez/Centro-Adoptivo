@@ -17,20 +17,20 @@ public class Auditoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    // Quién hizo la acción (username)
     private String usuarioEjecutor;
 
- 
+    // Qué hizo: CREATE_USER, DELETE_USER, UPDATE_USER, LOGIN, etc.
     private String accion;
 
-  
+    // Descripción legible: "Creó usuario con username=juan"
     @Column(length = 500)
     private String descripcion;
 
-  
+    // Cuándo
     private LocalDateTime fecha;
 
-
+    // Si fue exitoso o no
     private boolean exitoso;
 
     public Auditoria() {}

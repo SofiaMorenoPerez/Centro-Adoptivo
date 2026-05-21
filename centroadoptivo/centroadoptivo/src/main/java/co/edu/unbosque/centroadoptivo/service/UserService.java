@@ -38,7 +38,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 
     public UserService() {}
 
- 
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     /** Encripta los campos sensibles de la entidad antes de persistir */
     private void encryptUser(User entity) {
@@ -82,7 +82,7 @@ public class UserService implements CRUDOperation<UserDTO> {
     @Override
     public int create(UserDTO data) {
 
-     
+        
         try {
             LanzadorDeExcepcion.verificarUsername(data.getUsername());
         } catch (UsernameException e) { return 1; }
@@ -122,12 +122,12 @@ public class UserService implements CRUDOperation<UserDTO> {
             } catch (EdadException e) { return 8; }
         }
 
-  
+        
         if (userRepo.findByUsername(AESUtil.encrypt(data.getUsername())).isPresent()) return 9;
         if (data.getEmail() != null &&
             userRepo.findByEmail(AESUtil.encrypt(data.getEmail())).isPresent()) return 10;
 
-     
+        
         User entity = modelMapper.map(data, User.class);
         entity.setPassword(passwordEncoder.encode(data.getPassword()));
         entity.setRegistrationDate(LocalDateTime.now());
@@ -137,13 +137,12 @@ public class UserService implements CRUDOperation<UserDTO> {
         return 0;
     }
 
-
+    
 
     @Override
     public List<UserDTO> getAll() {
         List<User> entityList = userRepo.findAll();
         List<UserDTO> dtoList = new ArrayList<>();
-        // toDTO desencripta cada entidad antes de mapear
         entityList.forEach(entity -> dtoList.add(toDTO(entity)));
         return dtoList;
     }
@@ -160,7 +159,7 @@ public class UserService implements CRUDOperation<UserDTO> {
         Optional<User> found = userRepo.findById(id);
         if (!found.isPresent()) return 2;
 
-
+      
         if (newData.getPassword() != null) {
             try {
                 LanzadorDeExcepcion.verificarPassword(newData.getPassword());
@@ -197,14 +196,14 @@ public class UserService implements CRUDOperation<UserDTO> {
             } catch (DireccionException e) { return 9; }
         }
 
-
+       
         if (newData.getUsername() != null) {
             Optional<User> newFound = userRepo.findByUsername(
                 AESUtil.encrypt(newData.getUsername()));
             if (newFound.isPresent() && !newFound.get().getId().equals(id)) return 1;
         }
 
-       
+        
         User temp = found.get();
         if (newData.getUsername() != null)
             temp.setUsername(AESUtil.encrypt(newData.getUsername()));
@@ -237,7 +236,7 @@ public class UserService implements CRUDOperation<UserDTO> {
         return 1;
     }
 
-
+    
     public int deleteByUsername(String username) {
        
         Optional<User> found = userRepo.findByUsername(AESUtil.encrypt(username));

@@ -31,60 +31,60 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-      http.csrf(csrf -> csrf.disable())
-          .authorizeHttpRequests(
-              auth ->
-              
-              auth.requestMatchers("/auth/**")
-              .permitAll()
-              .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth ->
+                
+				                auth.requestMatchers("/auth/**")
+				                .permitAll()
+				                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+				                .permitAll()
+                        
 
-        
-              .requestMatchers(
-                  "/usuario/create",
-                  "/usuario/createjson"
-              ).permitAll()
+                                
+                                .requestMatchers(
+                                    "/usuario/create",
+                                    "/usuario/createjson"
+                                ).permitAll()
 
-           
-              .requestMatchers(
-                  "/animal/getall",
-                  "/animal/getbyid/**"
-              ).hasAnyRole("USER", "ADMIN")
+                                
+                                .requestMatchers(
+                                    "/animal/getall",
+                                    "/animal/getbyid/**"
+                                ).hasAnyRole("USER", "ADMIN")
 
-             
-              .requestMatchers(
-                  "/animal/registrar",
-                  "/animal/adoptar/**",
-                  "/animal/mispublicaciones",
-                  "/animal/publicador/**"
-              ).hasAnyRole("USER", "ADMIN")
+                             
+                                .requestMatchers(
+                                    "/animal/registrar",
+                                    "/animal/adoptar/**",
+                                    "/animal/mispublicaciones",
+                                    "/animal/publicador/**"
+                                ).hasAnyRole("USER", "ADMIN")
 
-           
-              .requestMatchers(
-                  "/usuario/getbyid/**",
-                  "/usuario/perfil/**",
-                  "/usuario/editar/**"
-              ).hasAnyRole("USER", "ADMIN")
+                               
+                                .requestMatchers(
+                                    "/usuario/getbyid/**",
+                                    "/usuario/perfil/**",
+                                    "/usuario/editar/**"
+                                ).hasAnyRole("USER", "ADMIN")
 
-            
-              .requestMatchers("/animal/aceptar/**").hasRole("ADMIN")
+                                
+                                .requestMatchers("/animal/aceptar/**").hasRole("ADMIN")
 
-            
-              .requestMatchers("/usuario/**").hasRole("ADMIN")
+                               
+                                .requestMatchers("/usuario/**").hasRole("ADMIN")
 
-          
-              .requestMatchers("/animal/**").hasRole("ADMIN")
+                  
+                                .requestMatchers("/animal/**").hasRole("ADMIN")
 
-       
-              .anyRequest().authenticated())
-          .sessionManagement(
-              session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .authenticationProvider(authenticationProvider())
-          .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                                
+                                .anyRequest().authenticated())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-      return http.build();
+        return http.build();
     }
-
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
