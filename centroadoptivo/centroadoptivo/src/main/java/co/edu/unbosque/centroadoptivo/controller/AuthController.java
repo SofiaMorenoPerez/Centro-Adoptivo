@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.unbosque.centroadoptivo.dto.UserDTO;
 import co.edu.unbosque.centroadoptivo.entity.User;
 import co.edu.unbosque.centroadoptivo.security.JwtUtil;
+import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 import co.edu.unbosque.centroadoptivo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,11 +28,14 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final AuditoriaService auditoriaService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+            UserService userService, AuditoriaService auditoriaService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Operation(summary = "Iniciar sesión de usuario")
@@ -51,8 +55,14 @@ public class AuthController {
                 role = user.getRole().name();
             }
 
+            auditoriaService.registrar(loginRequest.getUsername(), "LOGIN",
+                "Inicio de sesión exitoso", true);
+
             return ResponseEntity.ok(new AuthResponse(jwt, role));
+
         } catch (AuthenticationException e) {
+            auditoriaService.registrar(loginRequest.getUsername(), "LOGIN",
+                "Intento de login fallido", false);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Nombre de usuario o contraseña inválidos o usuario no encontrado");
         }
@@ -77,7 +87,6 @@ public class AuthController {
     }
 
     private static class AuthResponse {
-
         private final String token;
         private final String role;
 
