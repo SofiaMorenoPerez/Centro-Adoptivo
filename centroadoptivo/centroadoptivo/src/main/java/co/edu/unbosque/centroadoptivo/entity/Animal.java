@@ -114,16 +114,16 @@ public class Animal {
      * Un usuario puede publicar múltiples animales.
      */
     @ManyToOne
-    @JoinColumn(name = "publicador_id")
-    private User publicador;
+    @JoinColumn(name = "publisher_id")
+    private User publisher;
 
     /**
      * Usuario que adoptó el animal.
      * Es nulo mientras el animal esté disponible o pendiente.
      */
     @ManyToOne
-    @JoinColumn(name = "adoptante_id")
-    private User adoptante;
+    @JoinColumn(name = "adopter_id")
+    private User adopter;
 
     /**
      * Etapa de vida del animal estimada visualmente
@@ -192,7 +192,7 @@ public class Animal {
             String especie, String raza, String color, String observaciones, String imagen,
             LocalDateTime publicadoEn, LocalDateTime actualizadoEn,
             AnimalClasificacion clasificacion, AnimalEstado estado,
-            User publicador, User adoptante) {
+            User publisher, User adopter) {
         this.nombre = nombre;
         this.edad = edad;
         this.esterilizado = esterilizado;
@@ -206,8 +206,8 @@ public class Animal {
         this.actualizadoEn = actualizadoEn;
         this.clasificacion = clasificacion;
         this.estado = estado;
-        this.publicador = publicador;
-        this.adoptante = adoptante;
+        this.publisher = publisher;
+        this.adopter = adopter;
     }
 
     /**
@@ -382,67 +382,50 @@ public class Animal {
      */
     public void setEstado(AnimalEstado estado) { this.estado = estado; }
 
-    /**
-     * Obtiene el usuario que publicó el animal.
-     * @return usuario publicador
-     */
-    
-    
-    
-    
- 
-
-    public User getPublicador() {
-		return publicador;
+	public User getPublisher() {
+		return publisher;
 	}
 
-	public void setPublicador(User publicador) {
-		this.publicador = publicador;
+	public void setPublisher(User publisher) {
+		this.publisher = publisher;
 	}
 
-	public User getAdoptante() {
-		return adoptante;
+	public User getAdopter() {
+		return adopter;
 	}
 
-	public void setAdoptante(User adoptante) {
-		this.adoptante = adoptante;
+	public void setAdopter(User adopter) {
+		this.adopter = adopter;
 	}
-	
-	
 
 	@Override
 	public String toString() {
-		return "Animal [id=" + id + ", nombre=" + nombre + ", edad=" + edad + ", esterilizado=" + esterilizado
-				+ ", vacunado=" + vacunado + ", especie=" + especie + ", raza=" + raza + ", color=" + color
-				+ ", observaciones=" + observaciones + ", imagen=" + imagen + ", publicadoEn=" + publicadoEn
-				+ ", actualizadoEn=" + actualizadoEn + ", clasificacion=" + clasificacion + ", estado=" + estado
-				+ ", publicador=" + publicador + ", adoptante=" + adoptante + "]";
+	    return "Animal [id=" + id
+	            + ", nombre=" + nombre
+	            + ", especie=" + especie
+	            + ", raza=" + raza
+	            + ", estado=" + estado
+	            + "]";
 	}
-
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash(actualizadoEn, adoptante, clasificacion, color, edad, especie, estado, esterilizado, id,
-				imagen, nombre, observaciones, publicadoEn, publicador, raza, vacunado);
+	    return Objects.hash(id);
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Animal other = (Animal) obj;
-		return Objects.equals(actualizadoEn, other.actualizadoEn) && Objects.equals(adoptante, other.adoptante)
-				&& clasificacion == other.clasificacion && Objects.equals(color, other.color) && edad == other.edad
-				&& Objects.equals(especie, other.especie) && estado == other.estado
-				&& esterilizado == other.esterilizado && Objects.equals(id, other.id)
-				&& Objects.equals(imagen, other.imagen) && Objects.equals(nombre, other.nombre)
-				&& Objects.equals(observaciones, other.observaciones) && Objects.equals(publicadoEn, other.publicadoEn)
-				&& Objects.equals(publicador, other.publicador) && Objects.equals(raza, other.raza)
-				&& vacunado == other.vacunado;
-	}
+	    if (this == obj)
+	        return true;
 
-	
+	    if (obj == null || getClass() != obj.getClass())
+	        return false;
+
+	    Animal other = (Animal) obj;
+
+	    return Objects.equals(id, other.id);
+	}
+    
+    
+
 }

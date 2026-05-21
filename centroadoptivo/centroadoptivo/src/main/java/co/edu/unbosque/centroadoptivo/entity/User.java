@@ -183,41 +183,32 @@ public class User implements UserDetails {
     
 
     @Override
-	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", password=" + password + ", fullName=" + fullName
-				+ ", email=" + email + ", phone=" + phone + ", city=" + city + ", address=" + address + ", age=" + age
-				+ ", registrationDate=" + registrationDate + ", role=" + role + ", accountNonExpired="
-				+ accountNonExpired + ", accountNonLocked=" + accountNonLocked + ", credentialsNonExpired="
-				+ credentialsNonExpired + ", enabled=" + enabled + ", publishedAnimals=" + publishedAnimals
-				+ ", adoptedAnimals=" + adoptedAnimals + "]";
-	}
+    public String toString() {
+        return "User [id=" + id
+                + ", username=" + username
+                + ", fullName=" + fullName
+                + ", email=" + email
+                + ", role=" + role
+                + "]";
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(accountNonExpired, accountNonLocked, address, adoptedAnimals, age, city,
-				credentialsNonExpired, email, enabled, fullName, id, password, phone, publishedAnimals,
-				registrationDate, role, username);
-	}
+        if (obj == null || getClass() != obj.getClass())
+            return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		User other = (User) obj;
-		return accountNonExpired == other.accountNonExpired && accountNonLocked == other.accountNonLocked
-				&& Objects.equals(address, other.address) && Objects.equals(adoptedAnimals, other.adoptedAnimals)
-				&& age == other.age && Objects.equals(city, other.city)
-				&& credentialsNonExpired == other.credentialsNonExpired && Objects.equals(email, other.email)
-				&& enabled == other.enabled && Objects.equals(fullName, other.fullName) && Objects.equals(id, other.id)
-				&& Objects.equals(password, other.password) && Objects.equals(phone, other.phone)
-				&& Objects.equals(publishedAnimals, other.publishedAnimals)
-				&& Objects.equals(registrationDate, other.registrationDate) && role == other.role
-				&& Objects.equals(username, other.username);
-	}
+        User other = (User) obj;
+
+        return Objects.equals(id, other.id);
+    }
 
 	
 }
