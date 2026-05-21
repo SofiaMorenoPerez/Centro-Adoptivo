@@ -50,25 +50,33 @@ public class UserDTO {
     public Role getRole()                          { return role; }
     public void setRole(Role role)                { this.role = role; }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(address, age, city, email, fullName, id, password, phone, role, username);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UserDTO other = (UserDTO) obj;
-		return Objects.equals(address, other.address) && age == other.age && Objects.equals(city, other.city)
-				&& Objects.equals(email, other.email) && Objects.equals(fullName, other.fullName)
-				&& Objects.equals(id, other.id) && Objects.equals(password, other.password)
-				&& Objects.equals(phone, other.phone) && role == other.role && Objects.equals(username, other.username);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        UserDTO other = (UserDTO) obj;
+
+        return Objects.equals(id, other.id);
+    }
+    
+    @Override
+    public String toString() {
+        return "UserDTO [id=" + id
+                + ", username=" + username
+                + ", fullName=" + fullName
+                + ", email=" + email
+                + ", role=" + role
+                + "]";
+    }
 
     
 }
