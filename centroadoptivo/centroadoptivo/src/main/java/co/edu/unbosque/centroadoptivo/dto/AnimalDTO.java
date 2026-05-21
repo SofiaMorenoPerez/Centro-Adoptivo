@@ -23,16 +23,16 @@ public class AnimalDTO {
     private AnimalClasificacion clasificacion;
     private AnimalEstado estado;
 
-    private Long publicadorId;
-    private Long adoptanteId;
+    private Long publisherId;
+    private Long adopterId;
 
     public AnimalDTO() {}
 
     
     public AnimalDTO(String nombre, AnimalEdad edad, boolean esterilizado, boolean vacunado, String especie,
 			String raza, String color, String observaciones, String imagen, LocalDateTime publicadoEn,
-			LocalDateTime actualizadoEn, AnimalClasificacion clasificacion, AnimalEstado estado, Long publicadorId,
-			Long adoptanteId) {
+			LocalDateTime actualizadoEn, AnimalClasificacion clasificacion, AnimalEstado estado, Long publisherId,
+			Long adopterId) {
     	
 		super();
 		this.nombre = nombre;
@@ -48,8 +48,8 @@ public class AnimalDTO {
 		this.actualizadoEn = actualizadoEn;
 		this.clasificacion = clasificacion;
 		this.estado = estado;
-		this.publicadorId = publicadorId;
-		this.adoptanteId = adoptanteId;
+		this.publisherId = publisherId;
+		this.adopterId = adopterId;
 	}
     
 	public Long getId() {
@@ -192,61 +192,50 @@ public class AnimalDTO {
 	}
 
 
-	public Long getPublicadorId() {
-		return publicadorId;
+	
+
+	public Long getPublisherId() {
+		return publisherId;
 	}
 
 
-	public void setPublicadorId(Long publicadorId) {
-		this.publicadorId = publicadorId;
+	public void setPublisherId(Long publisherId) {
+		this.publisherId = publisherId;
 	}
 
 
-	public Long getAdoptanteId() {
-		return adoptanteId;
+	public Long getAdopterId() {
+		return adopterId;
 	}
 
 
-	public void setAdoptanteId(Long adoptanteId) {
-		this.adoptanteId = adoptanteId;
+	public void setAdopterId(Long adopterId) {
+		this.adopterId = adopterId;
 	}
 
 
 	@Override
-    public int hashCode() {
-        return Objects.hash(actualizadoEn, clasificacion, color, edad, especie,
-                estado, esterilizado, id, imagen, nombre, observaciones,
-                publicadoEn, raza, vacunado, publicadorId, adoptanteId);
-    }
+	public int hashCode() {
+	    return Objects.hash(id);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        AnimalDTO other = (AnimalDTO) obj;
-        return Objects.equals(actualizadoEn, other.actualizadoEn)
-                && clasificacion == other.clasificacion
-                && Objects.equals(color, other.color)
-                && edad == other.edad
-                && Objects.equals(especie, other.especie)
-                && estado == other.estado
-                && esterilizado == other.esterilizado
-                && Objects.equals(id, other.id)        // ✅ Objects.equals para Long
-                && Objects.equals(imagen, other.imagen)
-                && Objects.equals(nombre, other.nombre)
-                && Objects.equals(observaciones, other.observaciones)
-                && Objects.equals(publicadoEn, other.publicadoEn)
-                && Objects.equals(raza, other.raza)
-                && vacunado == other.vacunado
-                && Objects.equals(publicadorId, other.publicadorId)
-                && Objects.equals(adoptanteId, other.adoptanteId);
-    }
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj)
+	        return true;
+
+	    if (obj == null || getClass() != obj.getClass())
+	        return false;
+
+	    AnimalDTO other = (AnimalDTO) obj;
+
+	    return Objects.equals(id, other.id);
+	}
 
     @Override
     public String toString() {
         return "AnimalDTO [id=" + id + ", nombre=" + nombre + ", especie=" + especie
-                + ", raza=" + raza + ", estado=" + estado + ", publicadorId=" + publicadorId
-                + ", adoptanteId=" + adoptanteId + "]";
+                + ", raza=" + raza + ", estado=" + estado + ", publisherId=" + publisherId
+                + ", adopterId=" + adopterId + "]";
     }
 }
