@@ -21,15 +21,11 @@
         <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
       </div>
 
-      <div *ngIf="exito" class="mensaje-exito">
-        <i class="fa-solid fa-circle-check"></i> {{ exito }}
-      </div>
-
       <div class="campos-grid">
 
         <div class="campo campo-full">
           <label>Nombre Completo</label>
-          <input type="text" [(ngModel)]="nombreCompleto" placeholder="Tu nombre completo" />
+          <input type="text" [(ngModel)]="fullName" placeholder="Tu nombre completo" />
         </div>
 
         <div class="campo campo-full">
@@ -44,17 +40,22 @@
 
         <div class="campo">
           <label>Teléfono</label>
-          <input type="number" [(ngModel)]="telefono" placeholder="Tu teléfono" />
+          <input type="number" [(ngModel)]="phone" placeholder="Tu teléfono" />
+        </div>
+
+        <div class="campo">
+          <label>Edad</label>
+          <input type="number" [(ngModel)]="age" placeholder="Tu edad" />
         </div>
 
         <div class="campo">
           <label>Ciudad</label>
-          <input type="text" [(ngModel)]="ciudad" placeholder="Tu ciudad" />
+          <input type="text" [(ngModel)]="city" placeholder="Tu ciudad" />
         </div>
 
         <div class="campo">
           <label>Dirección</label>
-          <input type="text" [(ngModel)]="direccion" placeholder="Tu dirección" />
+          <input type="text" [(ngModel)]="address" placeholder="Tu dirección" />
         </div>
 
         <div class="campo">
@@ -64,16 +65,16 @@
 
         <div class="campo">
           <label>Confirmar Contraseña</label>
-          <input type="password" [(ngModel)]="confirmar" placeholder="Repite tu contraseña" />
+          <input type="password" [(ngModel)]="confirmarPassword" placeholder="Repite tu contraseña" />
         </div>
 
       </div>
 
-      <button class="btn-guardar" (click)="guardar()">
+      <button class="btn-guardar" (click)="registrar()">
         <i class="fa-solid fa-user-plus"></i> Crear Cuenta
       </button>
 
-      <button class="btn-volver" (click)="volver()">
+      <button class="btn-volver" (click)="irLogin()">
         <i class="fa-solid fa-arrow-left"></i> Volver al login
       </button>
 
