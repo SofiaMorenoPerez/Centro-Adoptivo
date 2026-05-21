@@ -12,217 +12,75 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Entidad que representa un animal registrado en el sistema
- * del centro de adopción. Los atributos de especie, raza, color,
- * clasificación y edad son detectados automáticamente por inteligencia
- * artificial a partir de la imagen cargada. El nombre es ingresado
- * manualmente por el usuario publicador.
- *
- * @author Centro Adoptivo Unbosque
- * @version 1.0
- */
 @Entity
 @Table(name = "animal")
 public class Animal {
 
-    /**
-     * Identificador único del animal, generado automáticamente
-     * por la base de datos.
-     */
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
 
-    /**
-     * Nombre del animal ingresado manualmente por el usuario publicador.
-     */
-    private String nombre;
-
-    /**
-     * Etapa de vida del animal estimada por inteligencia artificial.
-     *
-     * @see AnimalEdad
-     */
-    private @Enumerated(EnumType.STRING) AnimalEdad edad;
-
-    /**
-     * Indica si el animal ha sido esterilizado.
-     */
-    private boolean esterilizado;
-
-    /**
-     * Indica si el animal cuenta con vacunas aplicadas.
-     */
-    private boolean vacunado;
-
-    /**
-     * Especie del animal detectada por inteligencia artificial.
-     * Por ejemplo: perro, gato, conejo.
-     */
-    private String especie;
-
-    /**
-     * Raza del animal detectada por inteligencia artificial.
-     * Por ejemplo: Golden Retriever, Siamés.
-     */
-    private String raza;
-
-    /**
-     * Color o colores predominantes del animal
-     * detectados por inteligencia artificial.
-     */
+    private String name;
+    private @Enumerated(EnumType.STRING) AnimalAge age;
+    private boolean sterilized;
+    private boolean vaccinated;
+    private String species;
+    private String breed;
     private String color;
+    private String observations;
+    private String image;
+    private LocalDateTime publishedAt;
+    private LocalDateTime updatedAt;
+    private @Enumerated(EnumType.STRING) AnimalClassification classification;
+    private @Enumerated(EnumType.STRING) AnimalStatus status;
 
-    /**
-     * Observaciones adicionales sobre la salud o
-     * comportamiento del animal ingresadas por el usuario publicador.
-     */
-    private String observaciones;
-
-    /**
-     * URL de la imagen del animal almacenada en el servidor
-     * o servicio de almacenamiento externo.
-     */
-    private String imagen;
-
-    /**
-     * Fecha y hora en que el animal fue registrado en el sistema.
-     */
-    private LocalDateTime publicadoEn;
-
-    /**
-     * Fecha y hora de la última actualización del registro del animal.
-     */
-    private LocalDateTime actualizadoEn;
-
-    /**
-     * Clasificación del animal determinada por inteligencia artificial.
-     * Indica si es doméstico o no doméstico.
-     *
-     * @see AnimalClasificacion
-     */
-    private @Enumerated(EnumType.STRING) AnimalClasificacion clasificacion;
-
-    /**
-     * Estado actual del animal dentro del proceso de adopción.
-     *
-     * @see AnimalEstado
-     */
-    private @Enumerated(EnumType.STRING) AnimalEstado estado;
-
-    /**
-     * Usuario que publicó el animal en el sistema.
-     * Un usuario puede publicar múltiples animales.
-     */
     @ManyToOne
     @JoinColumn(name = "publisher_id")
     private User publisher;
 
-    /**
-     * Usuario que adoptó el animal.
-     * Es nulo mientras el animal esté disponible o pendiente.
-     */
     @ManyToOne
     @JoinColumn(name = "adopter_id")
     private User adopter;
 
-    /**
-     * Etapa de vida del animal estimada visualmente
-     * por inteligencia artificial a partir de la imagen cargada.
-     */
-    public enum AnimalEdad {
-        /** Animal en etapa de cría, menor de 1 año */
-        CACHORRO,
-        /** Animal joven, entre 1 y 3 años */
-        JOVEN,
-        /** Animal en etapa adulta, entre 3 y 7 años */
-        ADULTO,
-        /** Animal de edad avanzada, mayor de 7 años */
-        MAYOR
+    public enum AnimalAge {
+        PUPPY,
+        YOUNG,
+        ADULT,
+        SENIOR
     }
 
-    /**
-     * Clasificación del animal según su naturaleza.
-     */
-    public enum AnimalClasificacion {
-        /** Animal doméstico apto para convivir en hogar */
-        DOMESTICO,
-        /** Animal no doméstico o salvaje */
-        NO_DOMESTICO
+    public enum AnimalClassification {
+        DOMESTIC,
+        NON_DOMESTIC
     }
 
-    /**
-     * Estado del animal dentro del flujo de adopción.
-     */
-    public enum AnimalEstado {
-        /** Animal disponible para adopción */
-        DISPONIBLE,
-        /** Animal con solicitud de adopción en proceso */
-        PENDIENTE,
-        /** Animal ya adoptado */
-        ADOPTADO
+    public enum AnimalStatus {
+        AVAILABLE,
+        PENDING,
+        ADOPTED
     }
 
-    /**
-     * Constructor vacío requerido por JPA.
-     */
-    public Animal() {
-    }
+    public Animal() {}
 
-    /**
-     * Constructor completo para crear una instancia de Animal
-     * con todos sus atributos.
-     *
-     * @param nombre         Nombre del animal ingresado por el usuario
-     * @param edad           Etapa de vida estimada por IA
-     * @param esterilizado   Indica si está esterilizado
-     * @param vacunado       Indica si está vacunado
-     * @param especie        Especie detectada por IA
-     * @param raza           Raza detectada por IA
-     * @param color          Color detectado por IA
-     * @param observaciones  Observaciones ingresadas por el usuario
-     * @param imagen         URL de la imagen del animal
-     * @param publicadoEn    Fecha de publicación
-     * @param actualizadoEn  Fecha de última actualización
-     * @param clasificacion  Clasificación detectada por IA
-     * @param estado         Estado en el proceso de adopción
-     * @param publicador     Usuario que publicó el animal
-     * @param adoptante      Usuario que adoptó el animal
-     */
-    public Animal(String nombre, AnimalEdad edad, boolean esterilizado, boolean vacunado,
-            String especie, String raza, String color, String observaciones, String imagen,
-            LocalDateTime publicadoEn, LocalDateTime actualizadoEn,
-            AnimalClasificacion clasificacion, AnimalEstado estado,
+    public Animal(String name, AnimalAge age, boolean sterilized, boolean vaccinated,
+            String species, String breed, String color, String observations, String image,
+            LocalDateTime publishedAt, LocalDateTime updatedAt,
+            AnimalClassification classification, AnimalStatus status,
             User publisher, User adopter) {
-        this.nombre = nombre;
-        this.edad = edad;
-        this.esterilizado = esterilizado;
-        this.vacunado = vacunado;
-        this.especie = especie;
-        this.raza = raza;
+        this.name = name;
+        this.age = age;
+        this.sterilized = sterilized;
+        this.vaccinated = vaccinated;
+        this.species = species;
+        this.breed = breed;
         this.color = color;
-        this.observaciones = observaciones;
-        this.imagen = imagen;
-        this.publicadoEn = publicadoEn;
-        this.actualizadoEn = actualizadoEn;
-        this.clasificacion = clasificacion;
-        this.estado = estado;
+        this.observations = observations;
+        this.image = image;
+        this.publishedAt = publishedAt;
+        this.updatedAt = updatedAt;
+        this.classification = classification;
+        this.status = status;
         this.publisher = publisher;
         this.adopter = adopter;
     }
-
-    /**
-     * Obtiene el identificador único del animal.
-     * @return id del animal
-     */
-    
-    
-    
-
-    /**
-     * Obtiene el nombre del animal.
-     * @return nombre del animal
-     */
-    public String getNombre() { return nombre; }
 
     public Long getId() {
 		return id;
@@ -232,155 +90,109 @@ public class Animal {
 		this.id = id;
 	}
 
-	/**
-     * Establece el nombre del animal.
-     * @param nombre nombre a asignar
-     */
-    public void setNombre(String nombre) { this.nombre = nombre; }
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Obtiene la etapa de vida del animal.
-     * @return edad del animal
-     */
-    public AnimalEdad getEdad() { return edad; }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    /**
-     * Establece la etapa de vida del animal.
-     * @param edad etapa de vida a asignar
-     */
-    public void setEdad(AnimalEdad edad) { this.edad = edad; }
+	public AnimalAge getAge() {
+		return age;
+	}
 
-    /**
-     * Indica si el animal está esterilizado.
-     * @return true si está esterilizado
-     */
-    public boolean isEsterilizado() { return esterilizado; }
+	public void setAge(AnimalAge age) {
+		this.age = age;
+	}
 
-    /**
-     * Establece si el animal está esterilizado.
-     * @param esterilizado valor a asignar
-     */
-    public void setEsterilizado(boolean esterilizado) { this.esterilizado = esterilizado; }
+	public boolean isSterilized() {
+		return sterilized;
+	}
 
-    /**
-     * Indica si el animal está vacunado.
-     * @return true si está vacunado
-     */
-    public boolean isVacunado() { return vacunado; }
+	public void setSterilized(boolean sterilized) {
+		this.sterilized = sterilized;
+	}
 
-    /**
-     * Establece si el animal está vacunado.
-     * @param vacunado valor a asignar
-     */
-    public void setVacunado(boolean vacunado) { this.vacunado = vacunado; }
+	public boolean isVaccinated() {
+		return vaccinated;
+	}
 
-    /**
-     * Obtiene la especie del animal.
-     * @return especie del animal
-     */
-    public String getEspecie() { return especie; }
+	public void setVaccinated(boolean vaccinated) {
+		this.vaccinated = vaccinated;
+	}
 
-    /**
-     * Establece la especie del animal.
-     * @param especie especie a asignar
-     */
-    public void setEspecie(String especie) { this.especie = especie; }
+	public String getSpecies() {
+		return species;
+	}
 
-    /**
-     * Obtiene la raza del animal.
-     * @return raza del animal
-     */
-    public String getRaza() { return raza; }
+	public void setSpecies(String species) {
+		this.species = species;
+	}
 
-    /**
-     * Establece la raza del animal.
-     * @param raza raza a asignar
-     */
-    public void setRaza(String raza) { this.raza = raza; }
+	public String getBreed() {
+		return breed;
+	}
 
-    /**
-     * Obtiene el color predominante del animal.
-     * @return color del animal
-     */
-    public String getColor() { return color; }
+	public void setBreed(String breed) {
+		this.breed = breed;
+	}
 
-    /**
-     * Establece el color predominante del animal.
-     * @param color color a asignar
-     */
-    public void setColor(String color) { this.color = color; }
+	public String getColor() {
+		return color;
+	}
 
-    /**
-     * Obtiene las observaciones del animal.
-     * @return observaciones del animal
-     */
-    public String getObservaciones() { return observaciones; }
+	public void setColor(String color) {
+		this.color = color;
+	}
 
-    /**
-     * Establece las observaciones del animal.
-     * @param observaciones observaciones a asignar
-     */
-    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+	public String getObservations() {
+		return observations;
+	}
 
-    /**
-     * Obtiene la URL de la imagen del animal.
-     * @return URL de la imagen
-     */
-    public String getImagen() { return imagen; }
+	public void setObservations(String observations) {
+		this.observations = observations;
+	}
 
-    /**
-     * Establece la URL de la imagen del animal.
-     * @param imagen URL a asignar
-     */
-    public void setImagen(String imagen) { this.imagen = imagen; }
+	public String getImage() {
+		return image;
+	}
 
-    /**
-     * Obtiene la fecha de publicación del animal.
-     * @return fecha de publicación
-     */
-    public LocalDateTime getPublicadoEn() { return publicadoEn; }
+	public void setImage(String image) {
+		this.image = image;
+	}
 
-    /**
-     * Establece la fecha de publicación del animal.
-     * @param publicadoEn fecha a asignar
-     */
-    public void setPublicadoEn(LocalDateTime publicadoEn) { this.publicadoEn = publicadoEn; }
+	public LocalDateTime getPublishedAt() {
+		return publishedAt;
+	}
 
-    /**
-     * Obtiene la fecha de última actualización del animal.
-     * @return fecha de actualización
-     */
-    public LocalDateTime getActualizadoEn() { return actualizadoEn; }
+	public void setPublishedAt(LocalDateTime publishedAt) {
+		this.publishedAt = publishedAt;
+	}
 
-    /**
-     * Establece la fecha de última actualización del animal.
-     * @param actualizadoEn fecha a asignar
-     */
-    public void setActualizadoEn(LocalDateTime actualizadoEn) { this.actualizadoEn = actualizadoEn; }
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
 
-    /**
-     * Obtiene la clasificación del animal.
-     * @return clasificación del animal
-     */
-    public AnimalClasificacion getClasificacion() { return clasificacion; }
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 
-    /**
-     * Establece la clasificación del animal.
-     * @param clasificacion clasificación a asignar
-     */
-    public void setClasificacion(AnimalClasificacion clasificacion) { this.clasificacion = clasificacion; }
+	public AnimalClassification getClassification() {
+		return classification;
+	}
 
-    /**
-     * Obtiene el estado actual del animal en el proceso de adopción.
-     * @return estado del animal
-     */
-    public AnimalEstado getEstado() { return estado; }
+	public void setClassification(AnimalClassification classification) {
+		this.classification = classification;
+	}
 
-    /**
-     * Establece el estado del animal en el proceso de adopción.
-     * @param estado estado a asignar
-     */
-    public void setEstado(AnimalEstado estado) { this.estado = estado; }
+	public AnimalStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(AnimalStatus status) {
+		this.status = status;
+	}
 
 	public User getPublisher() {
 		return publisher;
@@ -399,33 +211,24 @@ public class Animal {
 	}
 
 	@Override
-	public String toString() {
-	    return "Animal [id=" + id
-	            + ", nombre=" + nombre
-	            + ", especie=" + especie
-	            + ", raza=" + raza
-	            + ", estado=" + estado
-	            + "]";
-	}
-	
-	@Override
-	public int hashCode() {
-	    return Objects.hash(id);
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-	    if (this == obj)
-	        return true;
+    public String toString() {
+        return "Animal [id=" + id
+                + ", name=" + name
+                + ", species=" + species
+                + ", breed=" + breed
+                + ", status=" + status + "]";
+    }
 
-	    if (obj == null || getClass() != obj.getClass())
-	        return false;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
-	    Animal other = (Animal) obj;
-
-	    return Objects.equals(id, other.id);
-	}
-    
-    
-
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Animal other = (Animal) obj;
+        return Objects.equals(id, other.id);
+    }
 }
