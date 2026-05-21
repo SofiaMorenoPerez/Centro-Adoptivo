@@ -78,7 +78,7 @@ public class AnimalService {
         String urlImagen = guardarImagen(imagen);
 
 
-        Optional<User> publicadorOpt = userRepository.findById(dto.getPublicadorId());
+        Optional<User> publicadorOpt = userRepository.findById(dto.getPublisherId());
         if (!publicadorOpt.isPresent()) throw new UserNotFoundException();
 
         Animal animal = new Animal();
@@ -94,8 +94,8 @@ public class AnimalService {
         animal.setClasificacion(dto.getClasificacion());
         animal.setPublicadoEn(LocalDateTime.now());
         animal.setActualizadoEn(LocalDateTime.now());
-        animal.setPublicador(publicadorOpt.get());
-        animal.setAdoptante(null);
+        animal.setPublisher(publicadorOpt.get());
+        animal.setAdopter(null);
 
         if (resultadoValidacion.isAprobado()) {
             animal.setEstado(AnimalEstado.DISPONIBLE);
@@ -187,8 +187,8 @@ public class AnimalService {
         dto.setActualizadoEn(animal.getActualizadoEn());
         dto.setClasificacion(animal.getClasificacion());
         dto.setEstado(animal.getEstado());
-        dto.setPublicadorId(animal.getPublicador() != null ? animal.getPublicador().getId() : null);
-        dto.setAdoptanteId(animal.getAdoptante() != null ? animal.getAdoptante().getId() : null);
+        dto.setPublisherId(animal.getPublisher() != null ? animal.getPublisher().getId() : null);
+        dto.setAdopterId(animal.getAdopter() != null ? animal.getAdopter().getId() : null);
         return dto;
     }
 }
