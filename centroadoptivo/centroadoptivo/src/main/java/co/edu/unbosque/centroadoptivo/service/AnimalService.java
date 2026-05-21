@@ -1,5 +1,6 @@
 package co.edu.unbosque.centroadoptivo.service;
 
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,6 +8,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import co.edu.unbosque.centroadoptivo.exception.LanzadorDeExcepcion;
 import co.edu.unbosque.centroadoptivo.exception.NombreException;
 import co.edu.unbosque.centroadoptivo.exception.ObservacionesException;
 import co.edu.unbosque.centroadoptivo.exception.RazaException;
+import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
 import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
@@ -50,9 +53,12 @@ public class AnimalService {
     @Value("${app.imagenes.directorio:uploads/animales}")
     private String directorioImagenes;
 
+    public AnimalService() {}
+
     public AnimalDTO registrarAnimal(AnimalDTO dto, MultipartFile imagen)
             throws NombreException, EspecieException, RazaException,
-            ObservacionesException, ImagenException, ValidacionIAException, IOException {
+            ObservacionesException, ImagenException, ValidacionIAException,
+            UserNotFoundException, IOException {
 
         LanzadorDeExcepcion.verificarNombreAnimal(dto.getNombre());
         LanzadorDeExcepcion.verificarEspecie(dto.getEspecie());
@@ -71,7 +77,9 @@ public class AnimalService {
 
         String urlImagen = guardarImagen(imagen);
 
-        User publicador = userRepository.findById(dto.getPublicadorId()).get();
+
+        Optional<User> publicadorOpt = userRepository.findById(dto.getPublicadorId());
+        if (!publicadorOpt.isPresent()) throw new UserNotFoundException();
 
         Animal animal = new Animal();
         animal.setNombre(dto.getNombre());
@@ -86,7 +94,7 @@ public class AnimalService {
         animal.setClasificacion(dto.getClasificacion());
         animal.setPublicadoEn(LocalDateTime.now());
         animal.setActualizadoEn(LocalDateTime.now());
-        animal.setPublicador(publicador);
+        animal.setPublicador(publicadorOpt.get());
         animal.setAdoptante(null);
 
         if (resultadoValidacion.isAprobado()) {
@@ -179,8 +187,8 @@ public class AnimalService {
         dto.setActualizadoEn(animal.getActualizadoEn());
         dto.setClasificacion(animal.getClasificacion());
         dto.setEstado(animal.getEstado());
-        dto.setPublicadorId(animal.getPublicador() != null ? animal.getPublicador().getId() : 0);
-        dto.setAdoptanteId(animal.getAdoptante() != null ? animal.getAdoptante().getId() : 0);
+        dto.setPublicadorId(animal.getPublicador() != null ? animal.getPublicador().getId() : null);
+        dto.setAdoptanteId(animal.getAdoptante() != null ? animal.getAdoptante().getId() : null);
         return dto;
     }
 }

@@ -3,8 +3,11 @@ package co.edu.unbosque.centroadoptivo.exception;
 import org.springframework.web.multipart.MultipartFile;
 
 public class LanzadorDeExcepcion {
+	
+	public static void verificarUsuarioExiste(boolean existe) throws UserNotFoundException {
+        if (!existe) throw new UserNotFoundException();
+    }
 
-    
 
     public static void verificarUsername(String username) throws UsernameException {
         if (username == null || username.isBlank()) throw new UsernameException();
@@ -62,7 +65,6 @@ public class LanzadorDeExcepcion {
         if (edad > 100) throw new EdadException();
     }
 
-    // ── Animal ───────────────────────────────────────────
 
     public static void verificarNombreAnimal(String nombre) throws NombreException {
         if (nombre == null || nombre.isBlank()) throw new NombreException();
