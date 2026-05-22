@@ -5,6 +5,29 @@
     <span class="brand-name">SIS Pets</span>
   </div>
   <div class="navbar-right">
+
+    <!-- CAMPANA DE NOTIFICACIONES -->
+    <div class="campana-menu">
+      <button class="btn-campana" (click)="toggleCampana()">
+        <i class="fa-solid fa-bell"></i>
+        <span class="badge-count" *ngIf="cantidadNoLeidas > 0">{{ cantidadNoLeidas }}</span>
+      </button>
+      <div class="dropdown-campana" *ngIf="menuCampana">
+        <div class="campana-header">
+          <strong>Notificaciones</strong>
+        </div>
+        <ul>
+          <li *ngIf="notificaciones.length === 0" class="sin-notifs">
+            No tienes notificaciones
+          </li>
+          <li *ngFor="let notif of notificaciones" [class.no-leida]="!notif.leida">
+            <i class="fa-solid fa-paw"></i> {{ notif.mensaje }}
+            <span class="notif-fecha">{{ notif.creadaEn | date:'dd/MM/yyyy HH:mm' }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
     <div class="perfil-menu">
       <button class="btn-tuerca" (click)="toggleMenu()">
         <i class="fa-solid fa-gear"></i>
