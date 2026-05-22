@@ -97,8 +97,9 @@
 
     <!-- BOTONES -->
     <div class="botones-fila">
-      <button class="btn-guardar" (click)="guardar()">
-        <i class="fa-solid fa-paw"></i> Registrar Animal
+      <button class="btn-guardar" (click)="guardar()" [disabled]="cargando">
+        <i class="fa-solid fa-paw"></i>
+        {{ cargando ? 'Validando con IA...' : 'Registrar Animal' }}
       </button>
       <button class="btn-volver" (click)="volver()">
         <i class="fa-solid fa-arrow-left"></i> Cancelar
@@ -109,5 +110,5 @@
 </div>
 
 <footer class="footer-custom">
-  <p>🐾 Centro de Adopción SIS Pets — Todos los derechos reservados 2025</p>
+  <p>🐾 Centro de Adopción SIS Pets </p>
 </footer>
