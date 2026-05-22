@@ -1,19 +1,18 @@
 export interface AnimalModel {
-
   id: number;
-  nombre: string;
-  edad: string;
-  esterilizado: boolean;
-  vacunado: boolean;
-  especie: string;
-  raza: string;
+  name: string;
+  age: string;
+  sterilized: boolean;
+  vaccinated: boolean;
+  species: string;
+  breed: string;
   color: string;
-  observaciones: string;
-  imagen: string;
-  publicadoEn: string;
-  actualizadoEn: string;
-  clasificacion: string;
-  estado: string;
-  publicadorId: number;
-  adoptanteId: number | null;
+  observations: string;
+  image: string;
+  publishedAt: string;
+  updatedAt: string;
+  classification: string;
+  status: string;
+  publisherId: number;
+  adopterId: number | null;
 }
