@@ -105,4 +105,20 @@ public class LanzadorDeExcepcion {
     public static void verificarValidacionIA(boolean aprobado) throws ValidacionIAException {
         if (!aprobado) throw new ValidacionIAException();
     }
+    
+    public static void verificarSolicitudExiste(boolean existe) throws SolicitudNoEncontradaException {
+        if (!existe) throw new SolicitudNoEncontradaException();
+    }
+
+    public static void verificarAnimalDisponible(boolean disponible) throws AnimalNoDisponibleException {
+        if (!disponible) throw new AnimalNoDisponibleException();
+    }
+
+    public static void verificarSolicitudPendiente(boolean pendiente) throws SolicitudNoPendienteException {
+        if (!pendiente) throw new SolicitudNoPendienteException();
+    }
+
+    public static void verificarSolicitudDuplicada(boolean existe) throws SolicitudDuplicadaException {
+        if (existe) throw new SolicitudDuplicadaException();
+    }
 }

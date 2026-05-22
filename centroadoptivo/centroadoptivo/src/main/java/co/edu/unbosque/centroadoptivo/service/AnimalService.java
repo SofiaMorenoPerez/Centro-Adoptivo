@@ -17,6 +17,8 @@ import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
 import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
 import co.edu.unbosque.centroadoptivo.repository.ValidacionIARepository;
+import co.edu.unbosque.centroadoptivo.util.AESUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -38,7 +41,7 @@ public class AnimalService {
     private AnimalRepository animalRepository;
 
     @Autowired
-    private UserRepository usuarioRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private ValidacionIARepository validacionIARepository;
@@ -49,7 +52,9 @@ public class AnimalService {
     @Value("${app.imagenes.directorio:uploads/animales}")
     private String directorioImagenes;
 
-    public AnimalDTO registrarAnimal(AnimalDTO dto, MultipartFile imagen)
+    
+
+    public AnimalDTO registrarAnimal(AnimalDTO dto, MultipartFile imagen, String usernameActual)
             throws NombreException, EspecieException, RazaException,
             ObservacionesException, ImagenException, ValidacionIAException, IOException {
 
@@ -59,9 +64,13 @@ public class AnimalService {
         LanzadorDeExcepcion.verificarObservaciones(dto.getObservations());
         LanzadorDeExcepcion.verificarImagen(imagen);
 
+
+        User publisher = userRepository
+                .findByUsername(AESUtil.encrypt(usernameActual))
+                .orElseThrow(() -> new RuntimeException("Usuario publicador no encontrado"));
+
         String imagenBase64 = Base64.getEncoder().encodeToString(imagen.getBytes());
 
-        // Llamada al orquestador con todos los campos necesarios
         ValidacionIADTO resultadoValidacion = iaOrquestadorService.validarMascota(
                 imagenBase64,
                 dto.getSpecies(),
@@ -72,7 +81,6 @@ public class AnimalService {
                 dto.getObservations()
         );
 
-        // Si las IAs rechazan, no se guarda el animal
         if (!resultadoValidacion.isAprobado()) {
             throw new ValidacionIAException(
                 "La información del animal no coincide con la imagen. " +
@@ -81,7 +89,6 @@ public class AnimalService {
         }
 
         String urlImagen = guardarImagen(imagen);
-        User publisher = usuarioRepository.findById(dto.getPublisherId()).get();
 
         Animal animal = new Animal();
         animal.setName(dto.getName());
@@ -115,8 +122,16 @@ public class AnimalService {
         return convertirADTO(savedAnimal);
     }
 
+
     public List<AnimalDTO> obtenerAnimalesDisponibles() {
         return animalRepository.findByStatus(AnimalStatus.AVAILABLE)
+                .stream()
+                .map(this::convertirADTO)
+                .toList();
+    }
+
+    public List<AnimalDTO> obtenerTodos() {
+        return animalRepository.findAll()
                 .stream()
                 .map(this::convertirADTO)
                 .toList();
@@ -133,6 +148,8 @@ public class AnimalService {
                 .map(this::convertirADTO)
                 .toList();
     }
+
+    
 
     public AnimalDTO actualizarAnimal(Long id, AnimalDTO dto)
             throws AnimalNoEncontradoException, NombreException, ObservacionesException {
@@ -151,10 +168,14 @@ public class AnimalService {
         return convertirADTO(animalRepository.save(animal));
     }
 
+   
+
     public void eliminarAnimal(Long id) throws AnimalNoEncontradoException {
         LanzadorDeExcepcion.verificarAnimalExiste(animalRepository.existsById(id));
         animalRepository.deleteById(id);
     }
+
+   
 
     private String guardarImagen(MultipartFile imagen) throws IOException {
         Path directorio = Paths.get(directorioImagenes);
@@ -186,5 +207,16 @@ public class AnimalService {
         dto.setPublisherId(animal.getPublisher() != null ? animal.getPublisher().getId() : null);
         dto.setAdopterId(animal.getAdopter() != null ? animal.getAdopter().getId() : null);
         return dto;
+    }
+
+    public Optional<Animal> findById(Long id) {
+        return animalRepository.findById(id);
+    }
+    
+    public Long obtenerIdPorUsername(String username) {
+        return userRepository
+            .findByUsername(AESUtil.encrypt(username))
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"))
+            .getId();
     }
 }
