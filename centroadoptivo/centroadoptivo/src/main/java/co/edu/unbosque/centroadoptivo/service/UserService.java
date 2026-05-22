@@ -131,8 +131,13 @@ public class UserService implements CRUDOperation<UserDTO> {
         User entity = modelMapper.map(data, User.class);
         entity.setPassword(passwordEncoder.encode(data.getPassword()));
         entity.setRegistrationDate(LocalDateTime.now());
+        if (entity.getRole() == null) entity.setRole(User.Role.USER); // ← fix principal
         if (data.getRole() != null) entity.setRole(data.getRole());
-        encryptUser(entity); 
+        entity.setAccountNonExpired(true);      // ← evita que ModelMapper los deje en false
+        entity.setAccountNonLocked(true);
+        entity.setCredentialsNonExpired(true);
+        entity.setEnabled(true);
+        encryptUser(entity);
         userRepo.save(entity);
         return 0;
     }

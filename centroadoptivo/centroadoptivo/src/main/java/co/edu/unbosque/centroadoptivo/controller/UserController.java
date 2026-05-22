@@ -23,6 +23,7 @@ import co.edu.unbosque.centroadoptivo.dto.UserDTO;
 import co.edu.unbosque.centroadoptivo.entity.User.Role;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 import co.edu.unbosque.centroadoptivo.service.UserService;
+import co.edu.unbosque.centroadoptivo.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,7 +47,6 @@ public class UserController {
     private String getUsuarioActual() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
-
     
 
     @Operation(summary = "Crear usuario (JSON)")
