@@ -8,6 +8,27 @@
       <span class="brand-admin">Admin</span>
     </div>
 
+    <!-- CAMPANA -->
+    <div class="campana-wrap">
+      <button class="btn-campana" (click)="toggleCampana()">
+        <i class="fa-solid fa-bell"></i>
+        <span class="badge-count" *ngIf="cantidadNoLeidas > 0">{{ cantidadNoLeidas }}</span>
+        Notificaciones
+      </button>
+      <div class="dropdown-campana" *ngIf="menuCampana">
+        <div class="campana-header"><strong>Notificaciones</strong></div>
+        <ul>
+          <li *ngIf="notificaciones.length === 0" class="sin-notifs">
+            No tienes notificaciones
+          </li>
+          <li *ngFor="let notif of notificaciones" [class.no-leida]="!notif.leida">
+            <i class="fa-solid fa-paw"></i> {{ notif.mensaje }}
+            <span class="notif-fecha">{{ notif.creadaEn | date:'dd/MM/yyyy HH:mm' }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
     <nav class="sidebar-nav">
       <button class="nav-item" [class.activo]="vista === 'transacciones'" (click)="cambiarVista('transacciones')">
         <i class="fa-solid fa-arrows-left-right"></i> Transacciones
@@ -31,30 +52,54 @@
   <!-- CONTENIDO -->
   <main class="admin-main">
 
+    <!-- MENSAJES GLOBALES -->
+    <div *ngIf="error" class="mensaje-error">
+      <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+    </div>
+    <div *ngIf="exito" class="mensaje-exito">
+      <i class="fa-solid fa-circle-check"></i> {{ exito }}
+    </div>
+    <div *ngIf="cargando" class="mensaje-cargando">
+      <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+    </div>
+
     <!-- TRANSACCIONES -->
     <div *ngIf="vista === 'transacciones'">
       <div class="seccion-header">
         <h2><i class="fa-solid fa-arrows-left-right"></i> Transacciones</h2>
         <p>Aprueba o rechaza las solicitudes de adopción entre usuarios.</p>
       </div>
-
       <div class="tabla-wrap">
         <table class="tabla">
           <thead>
           <tr>
             <th>ID</th>
             <th>Animal</th>
-            <th>Donante</th>
             <th>Adoptante</th>
-            <th>Estado IA</th>
+            <th>Fecha</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
-          <tr>
-            <td colspan="7" class="sin-datos">
-              <span>🐾</span> Las transacciones aparecerán aquí cuando se conecte el back
+          <tr *ngIf="solicitudes.length === 0">
+            <td colspan="6" class="sin-datos">
+              <span>🐾</span> No hay solicitudes pendientes
+            </td>
+          </tr>
+          <tr *ngFor="let s of solicitudes">
+            <td>{{ s.id }}</td>
+            <td>{{ s.animalName }}</td>
+            <td>{{ s.adopterUsername }}</td>
+            <td>{{ s.requestDate | date:'dd/MM/yyyy' }}</td>
+            <td><span class="badge-estado">{{ s.status }}</span></td>
+            <td>
+              <button class="btn-aprobar" (click)="aprobar(s.id)">
+                <i class="fa-solid fa-check"></i> Aprobar
+              </button>
+              <button class="btn-rechazar" (click)="abrirModalRechazar(s.id)">
+                <i class="fa-solid fa-x"></i> Rechazar
+              </button>
             </td>
           </tr>
           </tbody>
@@ -68,7 +113,6 @@
         <h2><i class="fa-solid fa-users"></i> Usuarios</h2>
         <p>Gestiona los usuarios registrados en el sistema.</p>
       </div>
-
       <div class="tabla-wrap">
         <table class="tabla">
           <thead>
@@ -83,9 +127,22 @@
           </tr>
           </thead>
           <tbody>
-          <tr>
+          <tr *ngIf="usuarios.length === 0">
             <td colspan="7" class="sin-datos">
-              <span>🐾</span> Los usuarios aparecerán aquí cuando se conecte el back
+              <span>🐾</span> No hay usuarios registrados
+            </td>
+          </tr>
+          <tr *ngFor="let u of usuarios">
+            <td>{{ u.id }}</td>
+            <td>{{ u.fullName }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.phone }}</td>
+            <td>{{ u.city }}</td>
+            <td>
+              <button class="btn-rechazar" (click)="eliminarUsuario(u.id)">
+                <i class="fa-solid fa-trash"></i> Eliminar
+              </button>
             </td>
           </tr>
           </tbody>
@@ -99,27 +156,38 @@
         <h2><i class="fa-solid fa-paw"></i> Animales</h2>
         <p>Gestiona los animales registrados y su validación por IA.</p>
       </div>
-
       <div class="tabla-wrap">
         <table class="tabla">
           <thead>
           <tr>
             <th>ID</th>
-            <th>Foto</th>
             <th>Nombre</th>
             <th>Especie</th>
             <th>Raza</th>
             <th>Edad</th>
-            <th>Publicador</th>
             <th>Estado IA</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
-          <tr>
-            <td colspan="10" class="sin-datos">
-              <span>🐾</span> Los animales aparecerán aquí cuando se conecte el back
+          <tr *ngIf="animales.length === 0">
+            <td colspan="8" class="sin-datos">
+              <span>🐾</span> No hay animales registrados
+            </td>
+          </tr>
+          <tr *ngFor="let a of animales">
+            <td>{{ a.id }}</td>
+            <td>{{ a.name }}</td>
+            <td>{{ a.species }}</td>
+            <td>{{ a.breed }}</td>
+            <td>{{ a.age }}</td>
+            <td><span class="badge-estado">{{ a.classification }}</span></td>
+            <td><span class="badge-estado">{{ a.status }}</span></td>
+            <td>
+              <button class="btn-rechazar" (click)="eliminarAnimal(a.id)">
+                <i class="fa-solid fa-trash"></i> Eliminar
+              </button>
             </td>
           </tr>
           </tbody>
@@ -133,13 +201,6 @@
         <h2><i class="fa-solid fa-user-shield"></i> Administradores</h2>
         <p>Gestiona los administradores del sistema.</p>
       </div>
-
-      <div class="acciones-top">
-        <button class="btn-nuevo">
-          <i class="fa-solid fa-plus"></i> Nuevo Administrador
-        </button>
-      </div>
-
       <div class="tabla-wrap">
         <table class="tabla">
           <thead>
@@ -154,9 +215,22 @@
           </tr>
           </thead>
           <tbody>
-          <tr>
+          <tr *ngIf="admins.length === 0">
             <td colspan="7" class="sin-datos">
-              <span>🐾</span> Los administradores aparecerán aquí cuando se conecte el back
+              <span>🐾</span> No hay administradores registrados
+            </td>
+          </tr>
+          <tr *ngFor="let a of admins">
+            <td>{{ a.id }}</td>
+            <td>{{ a.fullName }}</td>
+            <td>{{ a.username }}</td>
+            <td>{{ a.email }}</td>
+            <td>{{ a.phone }}</td>
+            <td>{{ a.city }}</td>
+            <td>
+              <button class="btn-rechazar" (click)="eliminarUsuario(a.id)">
+                <i class="fa-solid fa-trash"></i> Eliminar
+              </button>
             </td>
           </tr>
           </tbody>
@@ -165,4 +239,20 @@
     </div>
 
   </main>
+</div>
+
+<!-- MODAL RECHAZAR -->
+<div class="modal-overlay" *ngIf="modalRechazar">
+  <div class="modal-card">
+    <h3>Razón de rechazo</h3>
+    <textarea [(ngModel)]="razonRechazo" placeholder="Escribe la razón del rechazo..." rows="4"></textarea>
+    <div class="modal-botones">
+      <button class="btn-rechazar" (click)="confirmarRechazo()">
+        <i class="fa-solid fa-x"></i> Confirmar Rechazo
+      </button>
+      <button class="btn-cancelar" (click)="cancelarRechazo()">
+        Cancelar
+      </button>
+    </div>
+  </div>
 </div>
