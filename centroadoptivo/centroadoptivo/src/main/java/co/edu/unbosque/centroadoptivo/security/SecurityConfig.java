@@ -32,72 +32,63 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth ->
-                
-				                auth.requestMatchers("/auth/**")
-				                .permitAll()
-				                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-				                .permitAll()
-                        
+            .authorizeHttpRequests(auth -> auth
 
-                                
-                                .requestMatchers(
-                                    "/usuario/create",
-                                    "/usuario/createjson"
-                                ).permitAll()
+                // ── Público ──────────────────────────────────────────
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/usuario/create", "/usuario/createjson").permitAll()
 
-                                
-                                .requestMatchers(
-                                        "/animal/getall",
-                                        "/animal/getbyid/**",
-                                        "/animal/registrar",
-                                        "/animal/mispublicaciones",
-                                        "/animal/publicador/**"
-                                    ).hasAnyRole("USER", "ADMIN")
+                // ── USER y ADMIN: animales ────────────────────────────
+                .requestMatchers(
+                    "/animal/getall",
+                    "/animal/getbyid/**",
+                    "/animal/registrar",
+                    "/animal/mispublicaciones",
+                    "/animal/publicador/**"
+                ).hasAnyRole("USER", "ADMIN")
 
-                                 
-                                    .requestMatchers(
-                                        "/usuario/getbyid/**",
-                                        "/usuario/perfil/**",
-                                        "/usuario/editar/**"
-                                    ).hasAnyRole("USER", "ADMIN")
+                // ── USER y ADMIN: perfil usuario ──────────────────────
+                .requestMatchers(
+                    "/usuario/getbyid/**",
+                    "/usuario/perfil/**",
+                    "/usuario/editar/**"
+                ).hasAnyRole("USER", "ADMIN")
 
-                       
-                                    .requestMatchers(
-                                        "/solicitud/crear",
-                                        "/solicitud/missolicitudes",
-                                        "/solicitud/animal/**"
-                                    ).hasAnyRole("USER", "ADMIN")
+                // ── USER y ADMIN: solicitudes (crear y ver las suyas) ─
+                .requestMatchers(
+                    "/solicitud/crear",
+                    "/solicitud/missolicitudes",
+                    "/solicitud/animal/**"
+                ).hasAnyRole("USER", "ADMIN")
 
-                        
-                                    .requestMatchers("/notificacion/**").hasAnyRole("USER", "ADMIN")
+                // ── USER y ADMIN: notificaciones ──────────────────────
+                .requestMatchers("/notificacion/**").hasAnyRole("USER", "ADMIN")
 
-                                    
-                                    .requestMatchers(
-                                        "/solicitud/aprobar/**",
-                                        "/solicitud/rechazar/**",
-                                        "/solicitud/pendientes"
-                                    ).hasRole("ADMIN")
+                // ── Solo ADMIN: aprobar/rechazar solicitudes ──────────
+                .requestMatchers(
+                    "/solicitud/aprobar/**",
+                    "/solicitud/rechazar/**",
+                    "/solicitud/pendientes"
+                ).hasRole("ADMIN")
 
-                   
-                                    .requestMatchers(
-                                        "/animal/getallAdmin",
-                                        "/animal/delete/**",
-                                        "/animal/update/**"
-                                    ).hasRole("ADMIN")
+                // ── Solo ADMIN: gestión de animales ───────────────────
+                .requestMatchers(
+                    "/animal/getallAdmin",
+                    "/animal/delete/**",
+                    "/animal/update/**"
+                ).hasRole("ADMIN")
 
-                 
-                                    .requestMatchers("/usuario/**").hasRole("ADMIN")
+                // ── Solo ADMIN: gestión de usuarios ───────────────────
+                .requestMatchers("/usuario/**").hasRole("ADMIN")
 
-                 
-                                    .requestMatchers("/animal/**").hasRole("ADMIN")
-
-                                  
-                                    .anyRequest().authenticated())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // ── Cualquier otra cosa requiere autenticación ────────
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
