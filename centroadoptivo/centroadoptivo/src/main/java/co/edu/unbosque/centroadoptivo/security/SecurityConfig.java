@@ -48,36 +48,52 @@ public class SecurityConfig {
 
                                 
                                 .requestMatchers(
-                                    "/animal/getall",
-                                    "/animal/getbyid/**"
-                                ).hasAnyRole("USER", "ADMIN")
+                                        "/animal/getall",
+                                        "/animal/getbyid/**",
+                                        "/animal/registrar",
+                                        "/animal/mispublicaciones",
+                                        "/animal/publicador/**"
+                                    ).hasAnyRole("USER", "ADMIN")
 
-                             
-                                .requestMatchers(
-                                    "/animal/registrar",
-                                    "/animal/adoptar/**",
-                                    "/animal/mispublicaciones",
-                                    "/animal/publicador/**"
-                                ).hasAnyRole("USER", "ADMIN")
+                                 
+                                    .requestMatchers(
+                                        "/usuario/getbyid/**",
+                                        "/usuario/perfil/**",
+                                        "/usuario/editar/**"
+                                    ).hasAnyRole("USER", "ADMIN")
 
-                               
-                                .requestMatchers(
-                                    "/usuario/getbyid/**",
-                                    "/usuario/perfil/**",
-                                    "/usuario/editar/**"
-                                ).hasAnyRole("USER", "ADMIN")
+                       
+                                    .requestMatchers(
+                                        "/solicitud/crear",
+                                        "/solicitud/missolicitudes",
+                                        "/solicitud/animal/**"
+                                    ).hasAnyRole("USER", "ADMIN")
 
-                                
-                                .requestMatchers("/animal/aceptar/**").hasRole("ADMIN")
+                        
+                                    .requestMatchers("/notificacion/**").hasAnyRole("USER", "ADMIN")
 
-                               
-                                .requestMatchers("/usuario/**").hasRole("ADMIN")
+                                    
+                                    .requestMatchers(
+                                        "/solicitud/aprobar/**",
+                                        "/solicitud/rechazar/**",
+                                        "/solicitud/pendientes"
+                                    ).hasRole("ADMIN")
 
-                  
-                                .requestMatchers("/animal/**").hasRole("ADMIN")
+                   
+                                    .requestMatchers(
+                                        "/animal/getallAdmin",
+                                        "/animal/delete/**",
+                                        "/animal/update/**"
+                                    ).hasRole("ADMIN")
 
-                                
-                                .anyRequest().authenticated())
+                 
+                                    .requestMatchers("/usuario/**").hasRole("ADMIN")
+
+                 
+                                    .requestMatchers("/animal/**").hasRole("ADMIN")
+
+                                  
+                                    .anyRequest().authenticated())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

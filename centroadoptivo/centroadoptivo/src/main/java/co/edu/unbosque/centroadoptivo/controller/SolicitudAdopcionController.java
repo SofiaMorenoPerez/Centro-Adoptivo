@@ -45,12 +45,7 @@ public class SolicitudAdopcionController {
     private AuditoriaService auditoriaService;
 
     private String getUsuarioActual() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        try {
-            return AESUtil.decrypt(username);
-        } catch (Exception e) {
-            return username;
-        }
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     @Operation(summary = "Crear solicitud de adopción")
