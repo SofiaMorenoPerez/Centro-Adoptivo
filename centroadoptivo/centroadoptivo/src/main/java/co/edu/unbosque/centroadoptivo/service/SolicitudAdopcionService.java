@@ -6,9 +6,18 @@ import co.edu.unbosque.centroadoptivo.entity.Animal.AnimalStatus;
 import co.edu.unbosque.centroadoptivo.entity.SolicitudAdopcion;
 import co.edu.unbosque.centroadoptivo.entity.SolicitudAdopcion.RequestStatus;
 import co.edu.unbosque.centroadoptivo.entity.User;
+import co.edu.unbosque.centroadoptivo.exception.AnimalNoDisponibleException;
+import co.edu.unbosque.centroadoptivo.exception.AnimalNoEncontradoException;
+import co.edu.unbosque.centroadoptivo.exception.LanzadorDeExcepcion;
+import co.edu.unbosque.centroadoptivo.exception.SolicitudDuplicadaException;
+import co.edu.unbosque.centroadoptivo.exception.SolicitudNoEncontradaException;
+import co.edu.unbosque.centroadoptivo.exception.SolicitudNoPendienteException;
+import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.SolicitudAdopcionRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
+import co.edu.unbosque.centroadoptivo.util.AESUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,23 +36,28 @@ public class SolicitudAdopcionService {
     @Autowired
     private UserRepository userRepository;
 
-    // Adoptante crea una solicitud
-    public SolicitudAdopcionDTO crearSolicitud(Long animalId, Long adopterId) {
+    @Autowired
+    private NotificacionService notificacionService;
 
-        Animal animal = animalRepository.findById(animalId)
-                .orElseThrow(() -> new RuntimeException("Animal no encontrado"));
+    public SolicitudAdopcionDTO crearSolicitud(Long animalId, String usernameActual)
+            throws AnimalNoEncontradoException, AnimalNoDisponibleException,
+            SolicitudDuplicadaException, UserNotFoundException {
 
-        User adopter = userRepository.findById(adopterId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        LanzadorDeExcepcion.verificarAnimalExiste(animalRepository.existsById(animalId));
 
-        if (!animal.getStatus().equals(AnimalStatus.AVAILABLE)) {
-            throw new RuntimeException("El animal no está disponible para adopción");
-        }
+        Animal animal = animalRepository.findById(animalId).get();
 
-        if (solicitudRepository.existsByAnimalIdAndAdopterIdAndStatus(
-                animalId, adopterId, RequestStatus.PENDING)) {
-            throw new RuntimeException("Ya tienes una solicitud pendiente para este animal");
-        }
+        LanzadorDeExcepcion.verificarAnimalDisponible(
+                animal.getStatus().equals(AnimalStatus.AVAILABLE));
+
+        String encryptedUsername = AESUtil.encrypt(usernameActual);
+        LanzadorDeExcepcion.verificarUsuarioExiste(
+                userRepository.existsByUsername(encryptedUsername));
+        User adopter = userRepository.findByUsername(encryptedUsername).get();
+
+        LanzadorDeExcepcion.verificarSolicitudDuplicada(
+                solicitudRepository.existsByAnimalIdAndAdopterIdAndStatus(
+                        animalId, adopter.getId(), RequestStatus.PENDING));
 
         animal.setStatus(AnimalStatus.PENDING);
         animalRepository.save(animal);
@@ -51,17 +65,33 @@ public class SolicitudAdopcionService {
         SolicitudAdopcion solicitud = new SolicitudAdopcion(
                 animal, adopter, LocalDateTime.now(), RequestStatus.PENDING);
 
-        return convertirADTO(solicitudRepository.save(solicitud));
+        SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
+
+        notificacionService.enviar(
+                "El usuario " + adopter.getUsername()
+                + " ha solicitado adoptar a " + animal.getName(),
+                animal.getPublisher()
+        );
+
+        notificacionService.enviar(
+                "Tu solicitud para adoptar a " + animal.getName()
+                + " ha sido enviada y está pendiente de aprobación",
+                adopter
+        );
+
+        return convertirADTO(guardada);
     }
 
-    public SolicitudAdopcionDTO aprobarSolicitud(Long solicitudId) {
+    public SolicitudAdopcionDTO aprobarSolicitud(Long solicitudId)
+            throws SolicitudNoEncontradaException, SolicitudNoPendienteException {
 
-        SolicitudAdopcion solicitud = solicitudRepository.findById(solicitudId)
-                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+        LanzadorDeExcepcion.verificarSolicitudExiste(
+                solicitudRepository.existsById(solicitudId));
 
-        if (!solicitud.getStatus().equals(RequestStatus.PENDING)) {
-            throw new RuntimeException("La solicitud no está en estado pendiente");
-        }
+        SolicitudAdopcion solicitud = solicitudRepository.findById(solicitudId).get();
+
+        LanzadorDeExcepcion.verificarSolicitudPendiente(
+                solicitud.getStatus().equals(RequestStatus.PENDING));
 
         solicitud.setStatus(RequestStatus.APPROVED);
         solicitud.setResolutionDate(LocalDateTime.now());
@@ -71,17 +101,34 @@ public class SolicitudAdopcionService {
         animal.setAdopter(solicitud.getAdopter());
         animalRepository.save(animal);
 
-        return convertirADTO(solicitudRepository.save(solicitud));
+        SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
+
+        notificacionService.enviar(
+                "¡Felicitaciones! Tu solicitud para adoptar a "
+                + animal.getName() + " fue aprobada",
+                solicitud.getAdopter()
+        );
+
+        notificacionService.enviar(
+                "La adopción de " + animal.getName()
+                + " por el usuario " + solicitud.getAdopter().getUsername()
+                + " fue aprobada exitosamente",
+                animal.getPublisher()
+        );
+
+        return convertirADTO(guardada);
     }
 
-    public SolicitudAdopcionDTO rechazarSolicitud(Long solicitudId, String rejectionReason) {
+    public SolicitudAdopcionDTO rechazarSolicitud(Long solicitudId, String rejectionReason)
+            throws SolicitudNoEncontradaException, SolicitudNoPendienteException {
 
-        SolicitudAdopcion solicitud = solicitudRepository.findById(solicitudId)
-                .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+        LanzadorDeExcepcion.verificarSolicitudExiste(
+                solicitudRepository.existsById(solicitudId));
 
-        if (!solicitud.getStatus().equals(RequestStatus.PENDING)) {
-            throw new RuntimeException("La solicitud no está en estado pendiente");
-        }
+        SolicitudAdopcion solicitud = solicitudRepository.findById(solicitudId).get();
+
+        LanzadorDeExcepcion.verificarSolicitudPendiente(
+                solicitud.getStatus().equals(RequestStatus.PENDING));
 
         solicitud.setStatus(RequestStatus.REJECTED);
         solicitud.setRejectionReason(rejectionReason);
@@ -91,7 +138,15 @@ public class SolicitudAdopcionService {
         animal.setStatus(AnimalStatus.AVAILABLE);
         animalRepository.save(animal);
 
-        return convertirADTO(solicitudRepository.save(solicitud));
+        SolicitudAdopcion guardada = solicitudRepository.save(solicitud);
+
+        notificacionService.enviar(
+                "Tu solicitud para adoptar a " + animal.getName()
+                + " fue rechazada. Razón: " + rejectionReason,
+                solicitud.getAdopter()
+        );
+
+        return convertirADTO(guardada);
     }
 
     public List<SolicitudAdopcionDTO> obtenerPendientes() {
@@ -113,6 +168,13 @@ public class SolicitudAdopcionService {
                 .stream()
                 .map(this::convertirADTO)
                 .toList();
+    }
+
+    public Long obtenerIdPorUsername(String username) throws UserNotFoundException {
+        String encryptedUsername = AESUtil.encrypt(username);
+        LanzadorDeExcepcion.verificarUsuarioExiste(
+                userRepository.existsByUsername(encryptedUsername));
+        return userRepository.findByUsername(encryptedUsername).get().getId();
     }
 
     private SolicitudAdopcionDTO convertirADTO(SolicitudAdopcion solicitud) {
