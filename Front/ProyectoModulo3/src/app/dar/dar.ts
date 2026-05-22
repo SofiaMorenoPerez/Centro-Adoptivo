@@ -9,26 +9,27 @@ import { AnimalService } from '../services/animal.service';
   styleUrl: './dar.css'
 })
 export class Dar {
-  nombre: string = '';
-  edad: string = '';
-  esterilizado: boolean = false;
-  vacunado: boolean = false;
+  nombre = '';
+  edad = '';
+  esterilizado= false;
+  vacunado = false;
   observaciones: string = '';
   imagenPreview: string | null = null;
   imagenArchivo: File | null = null;
-  error: string = '';
-  exito: string = '';
-  cargando: boolean = false;
+  error = '';
+  exito = '';
+  cargando = false;
 
   constructor(private router: Router, private animalService: AnimalService) {}
 
-  onImagenSeleccionada(event: any) {
-    const archivo = event.target.files[0];
+  onImagenSeleccionada(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
     if (archivo) {
       this.imagenArchivo = archivo;
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagenPreview = e.target.result;
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.imagenPreview = e.target?.result as string;
       };
       reader.readAsDataURL(archivo);
     }
