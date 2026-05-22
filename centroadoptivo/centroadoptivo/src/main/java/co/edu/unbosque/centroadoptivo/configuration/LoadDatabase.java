@@ -34,7 +34,7 @@ public class LoadDatabase {
             } else {
               
                 User adminUser = new User(
-                    AESUtil.encrypt("admin"),
+                    AESUtil.encrypt("admin1"),
                     passwordEncoder.encode(adminPassword),
                     User.Role.ADMIN
                 );
@@ -47,7 +47,7 @@ public class LoadDatabase {
                 log.info("El usuario normal ya existe, omitiendo creación...");
             } else {
                 User normalUser = new User(
-                    AESUtil.encrypt("normaluser"),
+                    AESUtil.encrypt("normaluser1"),
                     passwordEncoder.encode(userPassword),
                     User.Role.USER
                 );
