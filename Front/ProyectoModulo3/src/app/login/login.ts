@@ -8,16 +8,12 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-
 export class Login {
   usuario: string = '';
   contrasena: string = '';
   error: string = '';
 
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ingresar() {
     if (!this.usuario || this.usuario.trim() === '') {
@@ -33,6 +29,7 @@ export class Login {
       next: (response) => {
         this.authService.guardarToken(response.token);
         this.authService.guardarRol(response.role);
+        this.authService.guardarId(response.id); // ← nuevo
         if (response.role === 'ADMIN') {
           this.router.navigate(['/admin']);
         } else {
@@ -45,11 +42,6 @@ export class Login {
     });
   }
 
-  irSignUp() {
-    this.router.navigate(['/sign-up']);
-  }
-
-  volver() {
-    this.router.navigate(['/inicio']);
-  }
+  irSignUp() { this.router.navigate(['/sign-up']); }
+  volver() { this.router.navigate(['/inicio']); }
 }
