@@ -38,7 +38,7 @@ public class UserService implements CRUDOperation<UserDTO> {
 
     public UserService() {}
 
-    // ─── Helpers ──────────────────────────────────────────────────────────────
+    
 
     /** Encripta los campos sensibles de la entidad antes de persistir */
     private void encryptUser(User entity) {
@@ -81,8 +81,6 @@ public class UserService implements CRUDOperation<UserDTO> {
     
     @Override
     public int create(UserDTO data) {
-
-        
         try {
             LanzadorDeExcepcion.verificarUsername(data.getUsername());
         } catch (UsernameException e) { return 1; }
@@ -131,9 +129,9 @@ public class UserService implements CRUDOperation<UserDTO> {
         User entity = modelMapper.map(data, User.class);
         entity.setPassword(passwordEncoder.encode(data.getPassword()));
         entity.setRegistrationDate(LocalDateTime.now());
-        if (entity.getRole() == null) entity.setRole(User.Role.USER); // ← fix principal
+        if (entity.getRole() == null) entity.setRole(User.Role.USER); 
         if (data.getRole() != null) entity.setRole(data.getRole());
-        entity.setAccountNonExpired(true);      // ← evita que ModelMapper los deje en false
+        entity.setAccountNonExpired(true);      
         entity.setAccountNonLocked(true);
         entity.setCredentialsNonExpired(true);
         entity.setEnabled(true);
