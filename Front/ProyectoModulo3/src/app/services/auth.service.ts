@@ -1,14 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
   private cliente = inject(HttpClient);
-
   private readonly urlbase: string = 'http://localhost:8081';
 
   login(username: string, password: string) {
@@ -16,7 +14,6 @@ export class AuthService {
       this.urlbase + '/auth/login',
       { username, password }
     );
-
   }
 
   register(
@@ -29,47 +26,29 @@ export class AuthService {
     address: string,
     age: number
   ) {
-
     return this.cliente.post(
       this.urlbase + '/auth/register',
-      {
-        username,
-        password,
-        fullName,
-        email,
-        phone,
-        city,
-        address,
-        age
-      },
+      { username, password, fullName, email, phone, city, address, age },
       { responseType: 'text' }
     );
-
   }
 
   guardarToken(token: string): void {
-    localStorage.setItem('token', token);
-  }
+    localStorage.setItem('token', token); }
 
   guardarRol(role: string): void {
-    localStorage.setItem('role', role);
-  }
+    localStorage.setItem('role', role); }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
-  }
+    return localStorage.getItem('token'); }
 
   getRol(): string | null {
-    return localStorage.getItem('role');
-  }
+    return localStorage.getItem('role'); }
 
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
   }
-
-  estaAutenticado(): boolean {
-    return this.getToken() !== null;
-  }
-
+  
+  estaAutenticado(): boolean { return this.getToken() !== null; }
 }
