@@ -19,6 +19,7 @@ import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
 import co.edu.unbosque.centroadoptivo.repository.ValidacionIARepository;
 import co.edu.unbosque.centroadoptivo.util.AESUtil;
+import co.edu.unbosque.centroadoptivo.util.ImageUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,43 +53,79 @@ public class AnimalService {
     @Value("${app.imagenes.directorio:uploads/animales}")
     private String directorioImagenes;
 
-    public AnimalDTO registrarAnimal(AnimalDTO dto, MultipartFile imagen, String usernameActual)
-            throws NombreException, EspecieException, RazaException, ObservacionesException,
-            ImagenException, ValidacionIAException, UserNotFoundException, IOException {
+    public AnimalDTO registrarAnimal(
+            AnimalDTO dto,
+            MultipartFile imagen,
+            String usernameActual)
 
-        LanzadorDeExcepcion.verificarNombreAnimal(dto.getName());
-        LanzadorDeExcepcion.verificarEspecie(dto.getSpecies());
-        LanzadorDeExcepcion.verificarRaza(dto.getBreed());
-        LanzadorDeExcepcion.verificarObservaciones(dto.getObservations());
-        LanzadorDeExcepcion.verificarImagen(imagen);
+            throws NombreException,
+            EspecieException,
+            RazaException,
+            ObservacionesException,
+            ImagenException,
+            ValidacionIAException,
+            UserNotFoundException,
+            IOException {
 
-        String encryptedUsername = AESUtil.encrypt(usernameActual);
+        LanzadorDeExcepcion.verificarNombreAnimal(
+                dto.getName());
+
+        LanzadorDeExcepcion.verificarEspecie(
+                dto.getSpecies());
+
+        LanzadorDeExcepcion.verificarRaza(
+                dto.getBreed());
+
+        LanzadorDeExcepcion.verificarObservaciones(
+                dto.getObservations());
+
+        LanzadorDeExcepcion.verificarImagen(
+                imagen);
+
+        String encryptedUsername =
+                AESUtil.encrypt(usernameActual);
+
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        User publisher = userRepository.findByUsername(encryptedUsername).get();
+                userRepository.existsByUsername(
+                        encryptedUsername));
 
-        String imagenBase64 = Base64.getEncoder().encodeToString(imagen.getBytes());
+        User publisher =
+                userRepository.findByUsername(
+                        encryptedUsername).get();
 
-        ValidacionIADTO resultadoValidacion = iaOrquestadorService.validarMascota(
-                imagenBase64,
-                dto.getSpecies(),
-                dto.getBreed(),
-                dto.getColor(),
-                dto.getAge().name(),
-                dto.getClassification().name(),
-                dto.getObservations()
-        );
+        byte[] imagenBytes =
+                ImageUtil.obtenerBytes(imagen);
+
+        String imagenBase64 =
+                ImageUtil.convertirABase64(
+                        imagenBytes);
+
+        ValidacionIADTO resultadoValidacion =
+                iaOrquestadorService.validarMascota(
+                        imagenBase64,
+                        imagenBytes,
+                        dto.getSpecies(),
+                        dto.getBreed(),
+                        dto.getColor(),
+                        dto.getAge().name(),
+                        dto.getClassification().name(),
+                        dto.getObservations()
+                );
 
         if (!resultadoValidacion.isAprobado()) {
+
             throw new ValidacionIAException(
-                "La información del animal no coincide con la imagen. " +
-                "Detalle: " + resultadoValidacion.getDetalle()
+                    "La información del animal no coincide con la imagen. "
+                    + "Detalle: "
+                    + resultadoValidacion.getDetalle()
             );
         }
 
-        String urlImagen = guardarImagen(imagen);
+        String urlImagen =
+                guardarImagen(imagen);
 
         Animal animal = new Animal();
+
         animal.setName(dto.getName());
         animal.setSpecies(dto.getSpecies());
         animal.setBreed(dto.getBreed());
@@ -100,115 +136,247 @@ public class AnimalService {
         animal.setObservations(dto.getObservations());
         animal.setImage(urlImagen);
         animal.setClassification(dto.getClassification());
-        animal.setStatus(AnimalStatus.AVAILABLE);
-        animal.setPublishedAt(LocalDateTime.now());
-        animal.setUpdatedAt(LocalDateTime.now());
+
+        animal.setStatus(
+                AnimalStatus.AVAILABLE);
+
+        animal.setPublishedAt(
+                LocalDateTime.now());
+
+        animal.setUpdatedAt(
+                LocalDateTime.now());
+
         animal.setPublisher(publisher);
+
         animal.setAdopter(null);
 
-        Animal savedAnimal = animalRepository.save(animal);
+        Animal savedAnimal =
+                animalRepository.save(animal);
 
-        ValidacionIA validacion = new ValidacionIA(
-                resultadoValidacion.isAprobado(),
-                resultadoValidacion.getVotos(),
-                resultadoValidacion.getTotalIAs(),
-                resultadoValidacion.getDetalle(),
-                LocalDateTime.now(),
-                savedAnimal
-        );
-        validacionIARepository.save(validacion);
+        ValidacionIA validacion =
+                new ValidacionIA(
+                        resultadoValidacion.isAprobado(),
+                        resultadoValidacion.getVotos(),
+                        resultadoValidacion.getTotalIAs(),
+                        resultadoValidacion.getDetalle(),
+                        LocalDateTime.now(),
+                        savedAnimal
+                );
+
+        validacionIARepository.save(
+                validacion);
 
         return convertirADTO(savedAnimal);
     }
 
     public List<AnimalDTO> obtenerAnimalesDisponibles() {
-        return animalRepository.findByStatus(AnimalStatus.AVAILABLE)
+
+        return animalRepository
+                .findByStatus(
+                        AnimalStatus.AVAILABLE)
                 .stream()
                 .map(this::convertirADTO)
                 .toList();
     }
 
     public List<AnimalDTO> obtenerTodos() {
-        return animalRepository.findAll()
+
+        return animalRepository
+                .findAll()
                 .stream()
                 .map(this::convertirADTO)
                 .toList();
     }
 
-    public AnimalDTO obtenerAnimalPorId(Long id) throws AnimalNoEncontradoException {
-        LanzadorDeExcepcion.verificarAnimalExiste(animalRepository.existsById(id));
-        return convertirADTO(animalRepository.findById(id).get());
+    public AnimalDTO obtenerAnimalPorId(
+            Long id)
+
+            throws AnimalNoEncontradoException {
+
+        LanzadorDeExcepcion
+                .verificarAnimalExiste(
+                        animalRepository.existsById(id));
+
+        return convertirADTO(
+                animalRepository.findById(id).get());
     }
 
-    public List<AnimalDTO> obtenerAnimalesPorPublicador(Long publisherId) {
-        return animalRepository.findByPublisherId(publisherId)
+    public List<AnimalDTO> obtenerAnimalesPorPublicador(
+            Long publisherId) {
+
+        return animalRepository
+                .findByPublisherId(publisherId)
                 .stream()
                 .map(this::convertirADTO)
                 .toList();
     }
 
-    public AnimalDTO actualizarAnimal(Long id, AnimalDTO dto)
-            throws AnimalNoEncontradoException, NombreException, ObservacionesException {
+    public AnimalDTO actualizarAnimal(
+            Long id,
+            AnimalDTO dto)
 
-        LanzadorDeExcepcion.verificarAnimalExiste(animalRepository.existsById(id));
-        LanzadorDeExcepcion.verificarNombreAnimal(dto.getName());
-        LanzadorDeExcepcion.verificarObservaciones(dto.getObservations());
+            throws AnimalNoEncontradoException,
+            NombreException,
+            ObservacionesException {
 
-        Animal animal = animalRepository.findById(id).get();
+        LanzadorDeExcepcion
+                .verificarAnimalExiste(
+                        animalRepository.existsById(id));
+
+        LanzadorDeExcepcion
+                .verificarNombreAnimal(
+                        dto.getName());
+
+        LanzadorDeExcepcion
+                .verificarObservaciones(
+                        dto.getObservations());
+
+        Animal animal =
+                animalRepository.findById(id).get();
+
         animal.setName(dto.getName());
-        animal.setObservations(dto.getObservations());
-        animal.setSterilized(dto.isSterilized());
-        animal.setVaccinated(dto.isVaccinated());
-        animal.setUpdatedAt(LocalDateTime.now());
 
-        return convertirADTO(animalRepository.save(animal));
+        animal.setObservations(
+                dto.getObservations());
+
+        animal.setSterilized(
+                dto.isSterilized());
+
+        animal.setVaccinated(
+                dto.isVaccinated());
+
+        animal.setUpdatedAt(
+                LocalDateTime.now());
+
+        return convertirADTO(
+                animalRepository.save(animal));
     }
 
-    public void eliminarAnimal(Long id) throws AnimalNoEncontradoException {
-        LanzadorDeExcepcion.verificarAnimalExiste(animalRepository.existsById(id));
+    public void eliminarAnimal(
+            Long id)
+
+            throws AnimalNoEncontradoException {
+
+        LanzadorDeExcepcion
+                .verificarAnimalExiste(
+                        animalRepository.existsById(id));
+
         animalRepository.deleteById(id);
     }
 
-    public Long obtenerIdPorUsername(String username) throws UserNotFoundException {
-        String encryptedUsername = AESUtil.encrypt(username);
-        LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        return userRepository.findByUsername(encryptedUsername).get().getId();
+    public Long obtenerIdPorUsername(
+            String username)
+
+            throws UserNotFoundException {
+
+        String encryptedUsername =
+                AESUtil.encrypt(username);
+
+        LanzadorDeExcepcion
+                .verificarUsuarioExiste(
+                        userRepository.existsByUsername(
+                                encryptedUsername));
+
+        return userRepository
+                .findByUsername(
+                        encryptedUsername)
+                .get()
+                .getId();
     }
 
-    public Optional<Animal> findById(Long id) {
+    public Optional<Animal> findById(
+            Long id) {
+
         return animalRepository.findById(id);
     }
 
-    private String guardarImagen(MultipartFile imagen) throws IOException {
-        Path directorio = Paths.get(directorioImagenes);
+    private String guardarImagen(
+            MultipartFile imagen)
+            throws IOException {
+
+        Path directorio =
+                Paths.get(directorioImagenes);
+
         if (!Files.exists(directorio)) {
-            Files.createDirectories(directorio);
+
+            Files.createDirectories(
+                    directorio);
         }
-        String nombreArchivo = UUID.randomUUID() + "_" + imagen.getOriginalFilename();
-        Path destino = directorio.resolve(nombreArchivo);
-        Files.copy(imagen.getInputStream(), destino);
-        return "/" + directorioImagenes + "/" + nombreArchivo;
+
+        String nombreArchivo =
+                UUID.randomUUID()
+                + "_"
+                + imagen.getOriginalFilename();
+
+        Path destino =
+                directorio.resolve(
+                        nombreArchivo);
+
+        Files.copy(
+                imagen.getInputStream(),
+                destino);
+
+        return "/"
+                + directorioImagenes
+                + "/"
+                + nombreArchivo;
     }
 
-    private AnimalDTO convertirADTO(Animal animal) {
-        AnimalDTO dto = new AnimalDTO();
+    private AnimalDTO convertirADTO(
+            Animal animal) {
+
+        AnimalDTO dto =
+                new AnimalDTO();
+
         dto.setId(animal.getId());
+
         dto.setName(animal.getName());
+
         dto.setAge(animal.getAge());
-        dto.setSterilized(animal.isSterilized());
-        dto.setVaccinated(animal.isVaccinated());
-        dto.setSpecies(animal.getSpecies());
-        dto.setBreed(animal.getBreed());
-        dto.setColor(animal.getColor());
-        dto.setObservations(animal.getObservations());
-        dto.setImage(animal.getImage());
-        dto.setPublishedAt(animal.getPublishedAt());
-        dto.setUpdatedAt(animal.getUpdatedAt());
-        dto.setClassification(animal.getClassification());
-        dto.setStatus(animal.getStatus());
-        dto.setPublisherId(animal.getPublisher() != null ? animal.getPublisher().getId() : null);
-        dto.setAdopterId(animal.getAdopter() != null ? animal.getAdopter().getId() : null);
+
+        dto.setSterilized(
+                animal.isSterilized());
+
+        dto.setVaccinated(
+                animal.isVaccinated());
+
+        dto.setSpecies(
+                animal.getSpecies());
+
+        dto.setBreed(
+                animal.getBreed());
+
+        dto.setColor(
+                animal.getColor());
+
+        dto.setObservations(
+                animal.getObservations());
+
+        dto.setImage(
+                animal.getImage());
+
+        dto.setPublishedAt(
+                animal.getPublishedAt());
+
+        dto.setUpdatedAt(
+                animal.getUpdatedAt());
+
+        dto.setClassification(
+                animal.getClassification());
+
+        dto.setStatus(
+                animal.getStatus());
+
+        dto.setPublisherId(
+                animal.getPublisher() != null
+                        ? animal.getPublisher().getId()
+                        : null);
+
+        dto.setAdopterId(
+                animal.getAdopter() != null
+                        ? animal.getAdopter().getId()
+                        : null);
+
         return dto;
     }
 }
