@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,12 +17,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    /**
-     * Define componentes reutilizables para la documentación OpenAPI. Incluye ejemplos de respuestas
-     * comunes para mejorar la documentación.
-     *
-     * @return Configuración personalizada de OpenAPI
-     */
     @Bean
     public OpenAPI customOpenAPI() {
 
@@ -57,7 +52,7 @@ public class OpenApiConfig {
                 + "    <li>Obtén un token JWT usando el endpoint <code>/auth/login</code></li>"
                 + "    <li>Copia el token recibido en la respuesta</li>"
                 + "    <li>Haz clic en el botón \"Authorize\" en la parte superior de esta página</li>"
-                + "    <li>En el campo \"Value\", escribe: <code>Bearer tu_token_jwt</code></li>"
+                + "    <li>En el campo \"Value\", pega solo el token sin escribir Bearer</li>"
                 + "    <li>Haz clic en \"Authorize\" y luego en \"Close\"</li>"
                 + "</ol>"
                 + "<p>Ahora podrás acceder a los endpoints protegidos.</p>";
@@ -86,6 +81,7 @@ public class OpenApiConfig {
 
         return new OpenAPI()
                 .info(info)
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth")) // ← línea agregada
                 .components(
                         new Components()
                                 .addSecuritySchemes("bearerAuth", securityScheme)
