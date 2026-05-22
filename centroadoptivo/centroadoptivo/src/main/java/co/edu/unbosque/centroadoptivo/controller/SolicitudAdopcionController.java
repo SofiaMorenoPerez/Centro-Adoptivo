@@ -1,5 +1,21 @@
 package co.edu.unbosque.centroadoptivo.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import co.edu.unbosque.centroadoptivo.dto.SolicitudAdopcionDTO;
 import co.edu.unbosque.centroadoptivo.exception.AnimalNoDisponibleException;
 import co.edu.unbosque.centroadoptivo.exception.AnimalNoEncontradoException;
@@ -9,19 +25,10 @@ import co.edu.unbosque.centroadoptivo.exception.SolicitudNoPendienteException;
 import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 import co.edu.unbosque.centroadoptivo.service.SolicitudAdopcionService;
-
+import co.edu.unbosque.centroadoptivo.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/solicitud")
@@ -38,7 +45,12 @@ public class SolicitudAdopcionController {
     private AuditoriaService auditoriaService;
 
     private String getUsuarioActual() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        try {
+            return AESUtil.decrypt(username);
+        } catch (Exception e) {
+            return username;
+        }
     }
 
     @Operation(summary = "Crear solicitud de adopción")

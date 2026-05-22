@@ -24,6 +24,7 @@ public class NotificacionService {
     @Autowired
     private UserRepository userRepository;
 
+    // Llamado internamente desde SolicitudAdopcionService
     public void enviar(String mensaje, User destinatario) {
         notificacionRepository.save(new Notificacion(mensaje, destinatario));
     }
