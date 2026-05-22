@@ -1,23 +1,28 @@
 package co.edu.unbosque.centroadoptivo.controller;
 
-import co.edu.unbosque.centroadoptivo.dto.NotificacionDTO;
-import co.edu.unbosque.centroadoptivo.exception.NotificacionNoEncontradaException;
-import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
-import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
-import co.edu.unbosque.centroadoptivo.service.NotificacionService;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import co.edu.unbosque.centroadoptivo.dto.NotificacionDTO;
+import co.edu.unbosque.centroadoptivo.exception.NotificacionNoEncontradaException;
+import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
+import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
+import co.edu.unbosque.centroadoptivo.service.NotificacionService;
+import co.edu.unbosque.centroadoptivo.util.AESUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/notificacion")
@@ -34,9 +39,14 @@ public class NotificacionController {
     private AuditoriaService auditoriaService;
 
     private String getUsuarioActual() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        try {
+            return AESUtil.decrypt(username);
+        } catch (Exception e) {
+            return username;
+        }
     }
-
+    
     @Operation(summary = "Obtener todas mis notificaciones")
     @GetMapping("/mis")
     public ResponseEntity<?> getMis() {
