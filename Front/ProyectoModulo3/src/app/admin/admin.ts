@@ -17,25 +17,25 @@ import { NotificacionModel } from '../models/notificacion.model';
   styleUrl: './admin.css'
 })
 export class Admin implements OnInit {
-  vista: string = 'transacciones';
-  menuCampana: boolean = false;
+  vista = 'transacciones';
+  menuCampana = false;
 
   usuarios: UserModel[] = [];
   admins: UserModel[] = [];
   animales: AnimalModel[] = [];
   solicitudes: SolicitudModel[] = [];
   notificaciones: NotificacionModel[] = [];
-  cantidadNoLeidas: number = 0;
+  cantidadNoLeidas = 0;
 
   // Estados
-  cargando: boolean = false;
-  error: string = '';
-  exito: string = '';
+  cargando = false;
+  error = '';
+  exito = '';
 
 
-  modalRechazar: boolean = false;
+  modalRechazar = false;
   solicitudSeleccionada: number | null = null;
-  razonRechazo: string = '';
+  razonRechazo = '';
 
   constructor(
     private router: Router,
@@ -65,6 +65,7 @@ export class Admin implements OnInit {
       case 'usuarios':      this.cargarUsuarios();    break;
       case 'animales':      this.cargarAnimales();    break;
       case 'admins':        this.cargarAdmins();      break;
+      default:              break;
     }
   }
 
@@ -75,7 +76,7 @@ export class Admin implements OnInit {
         this.notificaciones = notifs;
         this.cantidadNoLeidas = notifs.filter(n => !n.leida).length;
       },
-      error: () => {}
+      error: () => {  }
     });
   }
 
@@ -85,9 +86,9 @@ export class Admin implements OnInit {
       this.notificacionService.marcarTodasLeidas().subscribe({
         next: () => {
           this.cantidadNoLeidas = 0;
-          this.notificaciones.forEach(n => n.leida = true);
+          this.notificaciones.forEach(n => { n.leida = true; }); // ← fix 1
         },
-        error: () => {}
+        error: () => {  }
       });
     }
   }
@@ -130,7 +131,11 @@ export class Admin implements OnInit {
       this.error = 'Debes ingresar una razón de rechazo.';
       return;
     }
-    this.solicitudService.rechazar(this.solicitudSeleccionada!, this.razonRechazo).subscribe({
+    if (this.solicitudSeleccionada === null) {
+      this.error = 'No hay solicitud seleccionada.';
+      return;
+    }
+    this.solicitudService.rechazar(this.solicitudSeleccionada, this.razonRechazo).subscribe({
       next: () => {
         this.exito = 'Solicitud rechazada exitosamente.';
         this.modalRechazar = false;
