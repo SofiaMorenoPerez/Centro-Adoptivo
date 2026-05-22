@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { UserModel } from '../models/user.model';
 
 @Component({
   selector: 'app-perfil',
@@ -9,16 +10,19 @@ import { UserService } from '../services/user.service';
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css']
 })
-export class Perfil {
+export class Perfil implements OnInit {
 
-  username: string = 'isa123';
-  fullName: string = 'Isabella Moreno';
-  email: string = 'isa@gmail.com';
-  phone: string = '3001234567';
-  city: string = 'Bogotá';
-  address: string = 'Calle 123';
-  age: number = 20;
+  id: number = 0;
+  username: string = '';
+  fullName: string = '';
+  email: string = '';
+  phone: string = '';
+  city: string = '';
+  address: string = '';
+  age: number = 0;
   editando: boolean = false;
+  error: string = '';
+  exito: string = '';
 
   constructor(
     private router: Router,
@@ -30,10 +34,10 @@ export class Perfil {
     this.cargarPerfil();
   }
 
-  cargarPerfil() {
+  cargarPerfil(): void {
     this.userService.getPerfil().subscribe({
-
       next: (usuario) => {
+        this.id = usuario.id;
         this.username = usuario.username;
         this.fullName = usuario.fullName;
         this.email = usuario.email;
@@ -42,28 +46,58 @@ export class Perfil {
         this.address = usuario.address;
         this.age = usuario.age;
       },
-
-      error: (error) => {
-        console.log(error);
+      error: () => {
+        this.error = 'Error al cargar el perfil';
       }
     });
-
   }
 
-  activarEdicion() {
+  activarEdicion(): void {
     this.editando = true;
+    this.error = '';
+    this.exito = '';
   }
 
-  guardarCambios() {
-    this.editando = false;
+  guardarCambios(): void {
+    const usuario: UserModel = {
+      id: this.id,
+      username: this.username,
+      fullName: this.fullName,
+      email: this.email,
+      phone: this.phone,
+      city: this.city,
+      address: this.address,
+      age: this.age,
+      role: this.authService.getRol() || ''
+    };
+
+    this.userService.update(usuario).subscribe({
+      next: () => {
+        this.editando = false;
+        this.exito = 'Perfil actualizado exitosamente';
+        this.error = '';
+      },
+      error: (err) => {
+        this.error = err.error;
+        this.exito = '';
+      }
+    });
   }
 
-  eliminarCuenta() {
-    this.authService.logout();
-    this.router.navigate(['/inicio']);
+  eliminarCuenta(): void {
+    const id = this.authService.getId();
+    this.userService.delete(id).subscribe({
+      next: () => {
+        this.authService.logout();
+        this.router.navigate(['/inicio']);
+      },
+      error: () => {
+        this.error = 'Error al eliminar la cuenta';
+      }
+    });
   }
 
-  volver() {
+  volver(): void {
     this.router.navigate(['/usuario']);
   }
 }
