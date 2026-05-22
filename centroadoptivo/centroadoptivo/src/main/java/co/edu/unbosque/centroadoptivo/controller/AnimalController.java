@@ -8,6 +8,7 @@ import co.edu.unbosque.centroadoptivo.exception.ObservacionesException;
 import co.edu.unbosque.centroadoptivo.exception.RazaException;
 import co.edu.unbosque.centroadoptivo.exception.EspecieException;
 import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
+import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.service.AnimalService;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 
@@ -44,14 +45,12 @@ public class AnimalController {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-
     @Operation(summary = "Registrar animal con validación IA")
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @RequestPart("data") AnimalDTO dto,
             @RequestPart("image") MultipartFile image) {
         try {
-
             AnimalDTO resultado = animalService.registrarAnimal(dto, image, getUsuarioActual());
             auditoriaService.registrar(getUsuarioActual(), "REGISTER_ANIMAL",
                 "Registró animal con nombre=" + dto.getName(), true);
@@ -76,6 +75,9 @@ public class AnimalController {
         } catch (ImagenException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("La imagen no es válida (debe ser JPG o PNG, máximo 5MB)");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Usuario no encontrado");
         } catch (IOException e) {
             auditoriaService.registrar(getUsuarioActual(), "REGISTER_ANIMAL",
                 "Error al guardar imagen del animal=" + dto.getName(), false);
@@ -83,8 +85,6 @@ public class AnimalController {
                 .body("Error al guardar la imagen");
         }
     }
-
-
 
     @Operation(summary = "Obtener todos los animales disponibles")
     @GetMapping("/getall")
@@ -122,18 +122,16 @@ public class AnimalController {
     @Operation(summary = "Mis publicaciones (usuario autenticado)")
     @GetMapping("/mispublicaciones")
     public ResponseEntity<?> misPublicaciones() {
-
         try {
             Long publisherId = animalService.obtenerIdPorUsername(getUsuarioActual());
             List<AnimalDTO> list = animalService.obtenerAnimalesPorPublicador(publisherId);
             if (list.isEmpty()) return ResponseEntity.noContent().build();
             return ResponseEntity.ok(list);
-        } catch (Exception e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("No se encontraron publicaciones");
+                .body("Usuario no encontrado");
         }
     }
-
 
     @Operation(summary = "Actualizar animal")
     @PutMapping("/update/{id}")

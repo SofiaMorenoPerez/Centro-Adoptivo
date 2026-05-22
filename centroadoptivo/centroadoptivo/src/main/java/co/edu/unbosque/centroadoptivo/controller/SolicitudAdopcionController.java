@@ -6,6 +6,7 @@ import co.edu.unbosque.centroadoptivo.exception.AnimalNoEncontradoException;
 import co.edu.unbosque.centroadoptivo.exception.SolicitudDuplicadaException;
 import co.edu.unbosque.centroadoptivo.exception.SolicitudNoEncontradaException;
 import co.edu.unbosque.centroadoptivo.exception.SolicitudNoPendienteException;
+import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 import co.edu.unbosque.centroadoptivo.service.SolicitudAdopcionService;
 
@@ -58,6 +59,9 @@ public class SolicitudAdopcionController {
         } catch (SolicitudDuplicadaException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("Ya tienes una solicitud pendiente para este animal");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Usuario no encontrado");
         }
     }
 
@@ -114,9 +118,9 @@ public class SolicitudAdopcionController {
             List<SolicitudAdopcionDTO> list = solicitudService.obtenerPorAdoptante(adopterId);
             if (list.isEmpty()) return ResponseEntity.noContent().build();
             return ResponseEntity.ok(list);
-        } catch (Exception e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No se encontraron solicitudes");
+                    .body("Usuario no encontrado");
         }
     }
 

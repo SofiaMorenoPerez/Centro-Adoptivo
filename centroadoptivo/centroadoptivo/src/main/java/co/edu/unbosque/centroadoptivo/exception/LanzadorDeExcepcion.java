@@ -121,4 +121,9 @@ public class LanzadorDeExcepcion {
     public static void verificarSolicitudDuplicada(boolean existe) throws SolicitudDuplicadaException {
         if (existe) throw new SolicitudDuplicadaException();
     }
+    
+    public static void verificarNotificacionExiste(boolean existe) throws NotificacionNoEncontradaException {
+        if (!existe) throw new NotificacionNoEncontradaException();
+    }
+    
 }

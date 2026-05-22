@@ -14,6 +14,7 @@ import co.edu.unbosque.centroadoptivo.exception.ObservacionesException;
 import co.edu.unbosque.centroadoptivo.exception.RazaException;
 import co.edu.unbosque.centroadoptivo.exception.EspecieException;
 import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
+import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
 import co.edu.unbosque.centroadoptivo.repository.ValidacionIARepository;
@@ -52,11 +53,9 @@ public class AnimalService {
     @Value("${app.imagenes.directorio:uploads/animales}")
     private String directorioImagenes;
 
-    
-
     public AnimalDTO registrarAnimal(AnimalDTO dto, MultipartFile imagen, String usernameActual)
-            throws NombreException, EspecieException, RazaException,
-            ObservacionesException, ImagenException, ValidacionIAException, IOException {
+            throws NombreException, EspecieException, RazaException, ObservacionesException,
+            ImagenException, ValidacionIAException, UserNotFoundException, IOException {
 
         LanzadorDeExcepcion.verificarNombreAnimal(dto.getName());
         LanzadorDeExcepcion.verificarEspecie(dto.getSpecies());
@@ -64,10 +63,10 @@ public class AnimalService {
         LanzadorDeExcepcion.verificarObservaciones(dto.getObservations());
         LanzadorDeExcepcion.verificarImagen(imagen);
 
-
-        User publisher = userRepository
-                .findByUsername(AESUtil.encrypt(usernameActual))
-                .orElseThrow(() -> new RuntimeException("Usuario publicador no encontrado"));
+        String encryptedUsername = AESUtil.encrypt(usernameActual);
+        LanzadorDeExcepcion.verificarUsuarioExiste(
+                userRepository.existsByUsername(encryptedUsername));
+        User publisher = userRepository.findByUsername(encryptedUsername).get();
 
         String imagenBase64 = Base64.getEncoder().encodeToString(imagen.getBytes());
 
@@ -122,7 +121,6 @@ public class AnimalService {
         return convertirADTO(savedAnimal);
     }
 
-
     public List<AnimalDTO> obtenerAnimalesDisponibles() {
         return animalRepository.findByStatus(AnimalStatus.AVAILABLE)
                 .stream()
@@ -149,8 +147,6 @@ public class AnimalService {
                 .toList();
     }
 
-    
-
     public AnimalDTO actualizarAnimal(Long id, AnimalDTO dto)
             throws AnimalNoEncontradoException, NombreException, ObservacionesException {
 
@@ -168,14 +164,21 @@ public class AnimalService {
         return convertirADTO(animalRepository.save(animal));
     }
 
-   
-
     public void eliminarAnimal(Long id) throws AnimalNoEncontradoException {
         LanzadorDeExcepcion.verificarAnimalExiste(animalRepository.existsById(id));
         animalRepository.deleteById(id);
     }
 
-   
+    public Long obtenerIdPorUsername(String username) throws UserNotFoundException {
+        String encryptedUsername = AESUtil.encrypt(username);
+        LanzadorDeExcepcion.verificarUsuarioExiste(
+                userRepository.existsByUsername(encryptedUsername));
+        return userRepository.findByUsername(encryptedUsername).get().getId();
+    }
+
+    public Optional<Animal> findById(Long id) {
+        return animalRepository.findById(id);
+    }
 
     private String guardarImagen(MultipartFile imagen) throws IOException {
         Path directorio = Paths.get(directorioImagenes);
@@ -207,16 +210,5 @@ public class AnimalService {
         dto.setPublisherId(animal.getPublisher() != null ? animal.getPublisher().getId() : null);
         dto.setAdopterId(animal.getAdopter() != null ? animal.getAdopter().getId() : null);
         return dto;
-    }
-
-    public Optional<Animal> findById(Long id) {
-        return animalRepository.findById(id);
-    }
-    
-    public Long obtenerIdPorUsername(String username) {
-        return userRepository
-            .findByUsername(AESUtil.encrypt(username))
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"))
-            .getId();
     }
 }
