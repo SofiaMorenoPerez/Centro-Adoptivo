@@ -50,15 +50,17 @@ public class AuthController {
             String jwt = jwtUtil.generateToken(userDetails);
 
             String role = null;
+            Long userId = null;
             if (userDetails instanceof User) {
                 User user = (User) userDetails;
                 role = user.getRole().name();
+                userId = user.getId();
             }
 
             auditoriaService.registrar(loginRequest.getUsername(), "LOGIN",
                 "Inicio de sesión exitoso", true);
 
-            return ResponseEntity.ok(new AuthResponse(jwt, role));
+            return ResponseEntity.ok(new AuthResponse(jwt, role, userId));
 
         } catch (AuthenticationException e) {
             auditoriaService.registrar(loginRequest.getUsername(), "LOGIN",
@@ -89,13 +91,16 @@ public class AuthController {
     private static class AuthResponse {
         private final String token;
         private final String role;
+        private final Long id;
 
-        public AuthResponse(String token, String role) {
+        public AuthResponse(String token, String role, Long id) {
             this.token = token;
             this.role = role;
+            this.id = id;
         }
 
         public String getToken() { return token; }
         public String getRole()  { return role; }
+        public Long getId()      { return id; }
     }
 }
