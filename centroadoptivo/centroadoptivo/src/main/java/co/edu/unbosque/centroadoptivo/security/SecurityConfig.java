@@ -33,23 +33,67 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth ->
-                        auth
-                                .requestMatchers("/auth/**")
-                                .permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                                .permitAll()
-                                .requestMatchers("/animal/getall", "/animal/getbyid/**")
-                                .hasAnyRole("USER", "ADMIN")
-                                .requestMatchers("/animal/publicar", "/animal/adoptar/**")
-                                .hasAnyRole("USER", "ADMIN")
-                                .requestMatchers("/usuario/getbyid/**")
-                                .hasAnyRole("USER", "ADMIN")
-                                .requestMatchers("/usuario/**")
-                                .hasRole("ADMIN")
-                                .requestMatchers("/animal/**")
-                                .hasRole("ADMIN")
-                                .anyRequest()
-                                .authenticated())
+                
+				                auth.requestMatchers("/auth/**")
+				                .permitAll()
+				                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+				                .permitAll()
+                        
+
+                                
+                                .requestMatchers(
+                                    "/usuario/create",
+                                    "/usuario/createjson"
+                                ).permitAll()
+
+                                
+                                .requestMatchers(
+                                        "/animal/getall",
+                                        "/animal/getbyid/**",
+                                        "/animal/registrar",
+                                        "/animal/mispublicaciones",
+                                        "/animal/publicador/**"
+                                    ).hasAnyRole("USER", "ADMIN")
+
+                                 
+                                    .requestMatchers(
+                                        "/usuario/getbyid/**",
+                                        "/usuario/perfil/**",
+                                        "/usuario/editar/**"
+                                    ).hasAnyRole("USER", "ADMIN")
+
+                       
+                                    .requestMatchers(
+                                        "/solicitud/crear",
+                                        "/solicitud/missolicitudes",
+                                        "/solicitud/animal/**"
+                                    ).hasAnyRole("USER", "ADMIN")
+
+                        
+                                    .requestMatchers("/notificacion/**").hasAnyRole("USER", "ADMIN")
+
+                                    
+                                    .requestMatchers(
+                                        "/solicitud/aprobar/**",
+                                        "/solicitud/rechazar/**",
+                                        "/solicitud/pendientes"
+                                    ).hasRole("ADMIN")
+
+                   
+                                    .requestMatchers(
+                                        "/animal/getallAdmin",
+                                        "/animal/delete/**",
+                                        "/animal/update/**"
+                                    ).hasRole("ADMIN")
+
+                 
+                                    .requestMatchers("/usuario/**").hasRole("ADMIN")
+
+                 
+                                    .requestMatchers("/animal/**").hasRole("ADMIN")
+
+                                  
+                                    .anyRequest().authenticated())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

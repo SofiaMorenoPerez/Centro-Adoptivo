@@ -2,14 +2,12 @@ package co.edu.unbosque.centroadoptivo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import co.edu.unbosque.centroadoptivo.dto.ValidacionIADTO;
 import co.edu.unbosque.centroadoptivo.ia.DeepSeekVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.GeminiVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.LlavaVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.MistralVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.OpenRouterVisionClient;
-
 
 @Service
 public class IAOrquestadorService {
@@ -30,7 +28,7 @@ public class IAOrquestadorService {
     private MistralVisionClient mistralClient;
 
     public ValidacionIADTO validarMascota(String imagenBase64, String especie,
-            String raza, String descripcion) {
+            String raza, String color, String edad, String clasificacion, String descripcion) {
 
         int votos = 0;
         int totalIAs = 5;
@@ -38,7 +36,7 @@ public class IAOrquestadorService {
 
         try {
             String resultado = openRouterClient.analizarClasificacion(imagenBase64);
-            if (resultado.equals("DOMESTICO")) votos++;
+            if (resultado.equalsIgnoreCase(clasificacion)) votos++;
             detalle.append("OpenRouter: ").append(resultado).append(" | ");
         } catch (Exception e) {
             detalle.append("OpenRouter: ERROR | ");
@@ -61,7 +59,7 @@ public class IAOrquestadorService {
         }
 
         try {
-            String resultado = llavaClient.verificarBienestarAnimal(imagenBase64);
+            String resultado = llavaClient.verificarBienestarAnimal(imagenBase64, color, edad);
             if (resultado.equals("SALUDABLE")) votos++;
             detalle.append("LLaVA: ").append(resultado).append(" | ");
         } catch (Exception e) {
@@ -77,6 +75,13 @@ public class IAOrquestadorService {
         }
 
         boolean aprobado = votos >= 4;
-        return new ValidacionIADTO(aprobado, votos, totalIAs, detalle.toString(), null, 0);
+
+        ValidacionIADTO resultado = new ValidacionIADTO();
+        resultado.setAprobado(aprobado);
+        resultado.setVotos(votos);
+        resultado.setTotalIAs(totalIAs);
+        resultado.setDetalle(detalle.toString());
+
+        return resultado;
     }
 }

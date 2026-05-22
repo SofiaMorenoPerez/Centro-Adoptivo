@@ -3,8 +3,11 @@ package co.edu.unbosque.centroadoptivo.exception;
 import org.springframework.web.multipart.MultipartFile;
 
 public class LanzadorDeExcepcion {
+	
+	public static void verificarUsuarioExiste(boolean existe) throws UserNotFoundException {
+        if (!existe) throw new UserNotFoundException();
+    }
 
-    
 
     public static void verificarUsername(String username) throws UsernameException {
         if (username == null || username.isBlank()) throw new UsernameException();
@@ -62,7 +65,6 @@ public class LanzadorDeExcepcion {
         if (edad > 100) throw new EdadException();
     }
 
-    // ── Animal ───────────────────────────────────────────
 
     public static void verificarNombreAnimal(String nombre) throws NombreException {
         if (nombre == null || nombre.isBlank()) throw new NombreException();
@@ -103,4 +105,25 @@ public class LanzadorDeExcepcion {
     public static void verificarValidacionIA(boolean aprobado) throws ValidacionIAException {
         if (!aprobado) throw new ValidacionIAException();
     }
+    
+    public static void verificarSolicitudExiste(boolean existe) throws SolicitudNoEncontradaException {
+        if (!existe) throw new SolicitudNoEncontradaException();
+    }
+
+    public static void verificarAnimalDisponible(boolean disponible) throws AnimalNoDisponibleException {
+        if (!disponible) throw new AnimalNoDisponibleException();
+    }
+
+    public static void verificarSolicitudPendiente(boolean pendiente) throws SolicitudNoPendienteException {
+        if (!pendiente) throw new SolicitudNoPendienteException();
+    }
+
+    public static void verificarSolicitudDuplicada(boolean existe) throws SolicitudDuplicadaException {
+        if (existe) throw new SolicitudDuplicadaException();
+    }
+    
+    public static void verificarNotificacionExiste(boolean existe) throws NotificacionNoEncontradaException {
+        if (!existe) throw new NotificacionNoEncontradaException();
+    }
+    
 }

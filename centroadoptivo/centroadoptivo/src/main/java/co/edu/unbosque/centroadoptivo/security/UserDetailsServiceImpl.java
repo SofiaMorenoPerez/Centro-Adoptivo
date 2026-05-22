@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
+import co.edu.unbosque.centroadoptivo.util.AESUtil;
 
 
 
@@ -41,9 +42,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
    */
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepository
-        .findByUsername(username)
-        .orElseThrow(
-            () -> new UsernameNotFoundException("User not found with username: " + username));
+      return userRepository
+          .findByUsername(AESUtil.encrypt(username)) 
+          .orElseThrow(() ->
+              new UsernameNotFoundException("User not found with username: " + username));
   }
 }
