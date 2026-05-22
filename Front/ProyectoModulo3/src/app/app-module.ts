@@ -19,4 +19,6 @@ import { Perfil } from './perfil/perfil';
   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient()],
   bootstrap: [App],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {}
+}
