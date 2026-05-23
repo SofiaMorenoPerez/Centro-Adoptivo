@@ -38,7 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/animal")
-@CrossOrigin(origins = { "http://localhost:8081", "http://localhost:4200" })
+@CrossOrigin(origins = { "http://localhost:8081", "*"})
 @Transactional
 @Tag(name = "Gestión de Animales", description = "Endpoints para administrar animales en adopción")
 @SecurityRequirement(name = "bearerAuth")
