@@ -10,16 +10,16 @@ import { AuthService } from '../services/auth.service';
 })
 export class SignUp {
 
-  username: string = '';
-  password: string = '';
-  confirmarPassword: string = '';
-  fullName: string = '';
-  email: string = '';
-  phone: string = '';
-  city: string = '';
-  address: string = '';
-  age: number = 0;
-  error: string = '';
+  username= '';
+  password = '';
+  confirmarPassword = '';
+  fullName = '';
+  email = '';
+  phone = '';
+  city = '';
+  address = '';
+  age = 0;
+  error = '';
 
   constructor(private router: Router, private authService: AuthService) {}
 

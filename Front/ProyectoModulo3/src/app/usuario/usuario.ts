@@ -11,11 +11,11 @@ import { NotificacionModel } from '../models/notificacion.model';
   styleUrl: './usuario.css'
 })
 export class Usuario implements OnInit {
-  menuPerfil: boolean = false;
-  menuCampana: boolean = false;
+  menuPerfil = false;
+  menuCampana= false;
 
   notificaciones: NotificacionModel[] = [];
-  cantidadNoLeidas: number = 0;
+  cantidadNoLeidas = 0;
 
   constructor(
     private router: Router,

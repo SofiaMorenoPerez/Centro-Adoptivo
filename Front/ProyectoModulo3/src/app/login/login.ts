@@ -9,9 +9,9 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './login.css'
 })
 export class Login {
-  usuario: string = '';
-  contrasena: string = '';
-  error: string = '';
+  usuario = '';
+  contrasena = '';
+  error = '';
 
   constructor(private router: Router, private authService: AuthService) {}
 

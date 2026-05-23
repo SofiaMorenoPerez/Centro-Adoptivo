@@ -12,49 +12,45 @@ export class NotificacionService {
   private authService = inject(AuthService);
   private readonly urlbase: string = 'http://localhost:8081';
 
+
   private getHeaders() {
     return new HttpHeaders({
-      'Authorization': 'Bearer ' + this.authService.getToken()
+      'Authorization': `Bearer ${this.authService.getToken()}`
     });
   }
 
-
   getMis() {
     return this.cliente.get<NotificacionModel[]>(
-      this.urlbase + '/notificacion/mis',
+      `${this.urlbase}/notificacion/mis`,
       { headers: this.getHeaders() }
     );
   }
-
 
   getNoLeidas() {
     return this.cliente.get<NotificacionModel[]>(
-      this.urlbase + '/notificacion/noleidas',
+      `${this.urlbase}/notificacion/noleidas`,
       { headers: this.getHeaders() }
     );
   }
-
 
   contar() {
     return this.cliente.get<number>(
-      this.urlbase + '/notificacion/contar',
+      `${this.urlbase}/notificacion/contar`,
       { headers: this.getHeaders() }
     );
   }
 
-
   marcarLeida(id: number) {
     return this.cliente.patch(
-      this.urlbase + '/notificacion/leer/' + id,
+      `${this.urlbase}/notificacion/leer/${id}`,
       null,
       { headers: this.getHeaders() }
     );
   }
 
-
   marcarTodasLeidas() {
     return this.cliente.patch(
-      this.urlbase + '/notificacion/leer/todas',
+      `${this.urlbase}/notificacion/leer/todas`,
       null,
       { headers: this.getHeaders() }
     );

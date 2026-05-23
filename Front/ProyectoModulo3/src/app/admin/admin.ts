@@ -76,7 +76,7 @@ export class Admin implements OnInit {
         this.notificaciones = notifs;
         this.cantidadNoLeidas = notifs.filter(n => !n.leida).length;
       },
-      error: () => {  }
+      error: () => { /* Notificaciones */ }
     });
   }
 
@@ -88,7 +88,7 @@ export class Admin implements OnInit {
           this.cantidadNoLeidas = 0;
           this.notificaciones.forEach(n => { n.leida = true; }); // ← fix 1
         },
-        error: () => {  }
+        error: () => { /* Notificaciones */  }
       });
     }
   }

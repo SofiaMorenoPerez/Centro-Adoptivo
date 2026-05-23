@@ -8,8 +8,8 @@ import { Router } from '@angular/router';
   styleUrl: './inicio.css'
 })
 export class Inicio {
-  titulo: string = 'Centro de Adopción SIS Pets';
-  subtitulo: string = 'Cada patita merece un hogar lleno de amor 🐾';
+  titulo = 'Centro de Adopción SIS Pets';
+  subtitulo = 'Cada patita merece un hogar lleno de amor 🐾';
 
   constructor(private router: Router) {}
 

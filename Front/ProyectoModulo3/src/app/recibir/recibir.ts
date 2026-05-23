@@ -11,14 +11,14 @@ import { AnimalModel } from '../models/animal.model';
   styleUrl: './recibir.css'
 })
 export class Recibir implements OnInit {
-  filtroEspecie: string = '';
-  filtroEdad: string = '';
+  filtroEspecie = '';
+  filtroEdad = '';
 
   animales: AnimalModel[] = [];
   animalesFiltrados: AnimalModel[] = [];
-  cargando: boolean = false;
-  error: string = '';
-  exito: string = '';
+  cargando= false;
+  error = '';
+  exito = '';
 
   constructor(
     private router: Router,

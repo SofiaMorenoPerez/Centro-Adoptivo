@@ -13,7 +13,7 @@ export class Dar {
   edad = '';
   esterilizado= false;
   vacunado = false;
-  observaciones: string = '';
+  observaciones = '';
   imagenPreview: string | null = null;
   imagenArchivo: File | null = null;
   error = '';

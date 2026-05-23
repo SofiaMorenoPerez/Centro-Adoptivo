@@ -19,6 +19,5 @@ import { Perfil } from './perfil/perfil';
   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient()],
   bootstrap: [App],
 })
-export class AppModule {
-  constructor() {}
-}
+// skipcq: JS-0327
+export class AppModule {}

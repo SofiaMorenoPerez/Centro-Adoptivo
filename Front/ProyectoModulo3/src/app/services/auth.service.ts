@@ -11,7 +11,7 @@ export class AuthService {
 
   login(username: string, password: string) {
     return this.cliente.post<{ token: string, role: string, id: number }>(
-      this.urlbase + '/auth/login',
+      `${this.urlbase}/auth/login`,
       { username, password }
     );
   }
@@ -19,21 +19,21 @@ export class AuthService {
   register(username: string, password: string, fullName: string, email: string,
            phone: string, city: string, address: string, age: number) {
     return this.cliente.post(
-      this.urlbase + '/auth/register',
+      `${this.urlbase}/auth/register`,
       { username, password, fullName, email, phone, city, address, age },
       { responseType: 'text' }
     );
   }
 
-  guardarToken(token: string): void { localStorage.setItem('token', token); }
-  guardarRol(role: string): void { localStorage.setItem('role', role); }
-  guardarId(id: number): void { localStorage.setItem('id', id.toString()); }
+  guardarToken = (token: string): void => { localStorage.setItem('token', token); }
+  guardarRol = (role: string): void => { localStorage.setItem('role', role); }
+  guardarId = (id: number): void => { localStorage.setItem('id', id.toString()); }
 
-  getToken(): string | null { return localStorage.getItem('token'); }
-  getRol(): string | null { return localStorage.getItem('role'); }
-  getId(): number { return Number(localStorage.getItem('id')); }
+  getToken = (): string | null => { return localStorage.getItem('token'); }
+  getRol = (): string | null => { return localStorage.getItem('role'); }
+  getId = (): number => { return Number(localStorage.getItem('id')); }
 
-  logout(): void {
+  logout = (): void => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('id');

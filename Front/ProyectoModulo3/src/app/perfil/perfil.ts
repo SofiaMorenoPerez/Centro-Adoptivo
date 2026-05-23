@@ -13,16 +13,16 @@ import { UserModel } from '../models/user.model';
 export class Perfil implements OnInit {
 
   id: number = 0;
-  username: string = '';
-  fullName: string = '';
-  email: string = '';
-  phone: string = '';
-  city: string = '';
-  address: string = '';
-  age: number = 0;
-  editando: boolean = false;
-  error: string = '';
-  exito: string = '';
+  username = '';
+  fullName = '';
+  email = '';
+  phone = '';
+  city = '';
+  address = '';
+  age = 0;
+  editando = false;
+  error = '';
+  exito = '';
 
   constructor(
     private router: Router,
