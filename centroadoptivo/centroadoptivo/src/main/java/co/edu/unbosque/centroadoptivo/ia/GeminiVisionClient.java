@@ -19,11 +19,11 @@ public class GeminiVisionClient {
     private String apiKey;
 
     private static final String URL =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
+    	    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(15))
+            .version(HttpClient.Version.HTTP_1_1)  
+            .connectTimeout(Duration.ofSeconds(30)) 
             .build();
 
     // Detecta especie, raza, color y edad desde la imagen
@@ -50,6 +50,7 @@ public class GeminiVisionClient {
         HttpResponse<String> respuesta = null;
         try {
             respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
+            System.out.println("GEMINI RESPONSE: " + respuesta.statusCode() + " | " + respuesta.body()); // ← agrega esta línea
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return null;
@@ -77,11 +78,11 @@ public class GeminiVisionClient {
         HttpResponse<String> respuesta = null;
         try {
             respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
+            System.out.println("GEMINI CLASIF RESPONSE: " + respuesta.statusCode() + " | " + respuesta.body()); // ← agrega esta línea
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return "ERROR";
         }
-
         return extraerRespuesta(respuesta.body());
     }
 

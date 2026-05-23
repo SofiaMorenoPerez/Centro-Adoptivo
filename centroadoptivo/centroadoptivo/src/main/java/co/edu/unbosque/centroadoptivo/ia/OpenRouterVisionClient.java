@@ -19,11 +19,11 @@ public class OpenRouterVisionClient {
     private String apiKey;
 
     private static final String URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String MODELO = "meta-llama/llama-3.2-11b-vision-instruct:free";
-
+    private static final String MODELO = "meta-llama/llama-4-scout:free";
+    
     private final HttpClient CLIENTE = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(30))
+            .version(HttpClient.Version.HTTP_1_1)   
+            .connectTimeout(Duration.ofSeconds(30)) 
             .build();
 
     // Verifica si la clasificación detectada por Gemini es correcta
@@ -46,11 +46,11 @@ public class OpenRouterVisionClient {
         HttpResponse<String> respuesta = null;
         try {
             respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
+            System.out.println("OPENROUTER RESPONSE: " + respuesta.statusCode() + " | " + respuesta.body()); // ← agrega esta línea
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return "ERROR";
         }
-
         return extraerRespuesta(respuesta.body());
     }
 
