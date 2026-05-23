@@ -21,6 +21,10 @@ export class AnimalService {
   registrar(datos: {
     name: string;
     age: string;
+    species: string;
+    breed: string;
+    color: string;
+    classification: string;
     sterilized: boolean;
     vaccinated: boolean;
     observations: string;
@@ -30,10 +34,16 @@ export class AnimalService {
     formData.append('data', blob);
     formData.append('image', imagen);
 
+    // ⚠️ NO pongas Content-Type manualmente — deja que el navegador lo genere
+    // con el boundary correcto para multipart/form-data
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+    });
+
     return this.cliente.post<AnimalModel>(
       `${this.urlbase}/animal/registrar`,
       formData,
-      { headers: new HttpHeaders({ 'Authorization': `Bearer ${this.authService.getToken()}` }) }
+      { headers }  // solo Authorization, sin Content-Type
     );
   }
 

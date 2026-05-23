@@ -22,8 +22,8 @@ public class DeepSeekVisionClient {
     private static final String MODELO = "deepseek-chat";
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(15))
+            .version(HttpClient.Version.HTTP_1_1)
+            .connectTimeout(Duration.ofSeconds(30))
             .build();
 
     // Valida que los datos detectados sean coherentes entre sí
