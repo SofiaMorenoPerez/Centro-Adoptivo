@@ -43,4 +43,14 @@ export class UserService {
       { headers: this.getHeaders(), responseType: 'text' }
     );
   }
+
+  getAll() {
+    return this.cliente.get<UserModel[]>(
+      this.urlbase + '/usuario/getall',
+      { headers: this.getHeaders() }
+    );
+  }
+
 }
+
+
