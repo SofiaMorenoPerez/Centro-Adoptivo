@@ -23,20 +23,25 @@ public class DeepSeekVisionClient {
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(10))
+            .connectTimeout(Duration.ofSeconds(15))
             .build();
 
-    public String validarInformacionMascota(String especie, String raza, String descripcion) {
+    // Valida que los datos detectados sean coherentes entre sí
+    public String validarCoherencia(String especie, String raza,
+            String color, String edad, String clasificacion, String observaciones) {
 
-        String prompt = "Eres un validador de información de mascotas. " +
-                "Te voy a dar la siguiente información: " +
-                "Especie: " + especie + ", Raza: " + raza + ", Descripción: " + descripcion + ". " +
-                "Verifica que la información sea coherente y realista. " +
-                "Por ejemplo que el peso, tamaño y características correspondan " +
-                "a la especie y raza indicada. " +
-                "Responde UNICAMENTE con una de estas palabras: " +
-                "VALIDO si la información es coherente, " +
-                "NO_VALIDO si hay inconsistencias.";
+        String prompt =
+            "Eres un validador de información de mascotas. " +
+            "Verifica que los siguientes datos sean coherentes entre sí: " +
+            "Especie: " + especie + ", " +
+            "Raza: " + raza + ", " +
+            "Color: " + color + ", " +
+            "Edad: " + edad + ", " +
+            "Clasificación: " + clasificacion + ", " +
+            "Observaciones: " + observaciones + ". " +
+            "Verifica que la raza corresponda a la especie, que el color sea posible " +
+            "para esa raza, y que las observaciones sean coherentes. " +
+            "Responde UNICAMENTE con: VALIDO o NO_VALIDO.";
 
         String body = construirBody(prompt);
 
@@ -50,10 +55,9 @@ public class DeepSeekVisionClient {
         HttpResponse<String> respuesta = null;
         try {
             respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            return "ERROR";
         }
 
         return extraerRespuesta(respuesta.body());
@@ -77,14 +81,15 @@ public class DeepSeekVisionClient {
     }
 
     private String extraerRespuesta(String bodyRespuesta) {
-        JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
-        return json.getAsJsonArray("choices")
-                .get(0)
-                .getAsJsonObject()
-                .get("message")
-                .getAsJsonObject()
-                .get("content")
-                .getAsString()
-                .trim();
+        try {
+            JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
+            return json.getAsJsonArray("choices")
+                    .get(0).getAsJsonObject()
+                    .get("message").getAsJsonObject()
+                    .get("content").getAsString()
+                    .trim();
+        } catch (Exception e) {
+            return "ERROR";
+        }
     }
 }

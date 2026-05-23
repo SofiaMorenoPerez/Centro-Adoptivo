@@ -36,20 +36,16 @@ export class Dar {
   }
 
   guardar() {
-    // Validaciones locales
     if (!this.imagenArchivo) {
       this.error = 'La foto del animal es obligatoria.';
-      this.exito = '';
       return;
     }
     if (!this.nombre || this.nombre.trim() === '') {
       this.error = 'El nombre del animal es obligatorio.';
-      this.exito = '';
       return;
     }
-    if (!this.edad) {
-      this.error = 'La edad del animal es obligatoria.';
-      this.exito = '';
+    if (!this.observaciones || this.observaciones.trim().length < 10) {
+      this.error = 'Las observaciones deben tener mínimo 10 caracteres.';
       return;
     }
 
@@ -57,29 +53,29 @@ export class Dar {
     this.exito = '';
     this.cargando = true;
 
-    // Armar el objeto que espera el back como @RequestPart("data")
+
     const datos = {
       name: this.nombre.trim(),
-      age: this.edad,
       sterilized: this.esterilizado,
       vaccinated: this.vacunado,
-      observations: this.observaciones.trim()
+      observations: this.observaciones.trim(),
+      // valores por defecto — la IA los sobreescribe
+      age: 'ADULT',
+      species: 'unknown',
+      breed: 'unknown',
+      color: 'unknown',
+      classification: 'DOMESTIC'
     };
 
     this.animalService.registrar(datos, this.imagenArchivo).subscribe({
       next: () => {
         this.cargando = false;
-        this.exito = '¡Animal registrado exitosamente! La IA lo validó correctamente.';
-        this.error = '';
-        setTimeout(() => {
-          this.router.navigate(['/usuario']);
-        }, 2500);
+        this.exito = '¡Animal registrado! La IA detectó y validó la información automáticamente.';
+        setTimeout(() => this.router.navigate(['/usuario']), 2500);
       },
       error: (err) => {
         this.cargando = false;
-        // El back devuelve mensajes de texto plano en los errores
-        this.error = err.error || 'Error al registrar el animal. Intenta de nuevo.';
-        this.exito = '';
+        this.error = err.error || 'Error al registrar el animal.';
       }
     });
   }

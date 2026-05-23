@@ -13,8 +13,8 @@
     <div class="dar-header">
       <h2 class="dar-titulo">Dar en Adopción 🐾</h2>
       <p class="dar-subtitulo">
-        Completa los datos de tu mascota. Nuestra IA analizará la foto
-        para detectar automáticamente la especie, raza, color y edad.
+        Sube una foto de tu mascota y nuestra IA detectará automáticamente
+        la especie, raza, color y edad.
       </p>
     </div>
 
@@ -35,8 +35,10 @@
           <p>Haz clic para subir una foto</p>
           <span>La IA analizará la imagen automáticamente</span>
         </div>
-        <img *ngIf="imagenPreview" [src]="imagenPreview" class="foto-preview" alt="Preview" />
-        <input #fileInput type="file" accept="image/*" (change)="onImagenSeleccionada($event)" hidden />
+        <img *ngIf="imagenPreview" [src]="imagenPreview"
+             class="foto-preview" alt="Preview" />
+        <input #fileInput type="file" accept="image/*"
+               (change)="onImagenSeleccionada($event)" hidden />
       </div>
       <p class="foto-hint" *ngIf="imagenPreview">
         <i class="fa-solid fa-circle-check" style="color:#00c896"></i>
@@ -49,23 +51,15 @@
 
       <div class="campo campo-full">
         <label>Nombre del Animal *</label>
-        <input type="text" [(ngModel)]="nombre" placeholder="¿Cómo se llama tu mascota?" />
+        <input type="text" [(ngModel)]="nombre"
+               placeholder="¿Cómo se llama tu mascota?" />
       </div>
 
       <div class="campo campo-full">
-        <label>Edad del Animal *</label>
-        <select [(ngModel)]="edad">
-          <option value="">Selecciona una opción</option>
-          <option value="PUPPY">🐣 Cachorro</option>
-          <option value="YOUNG">🐾 Joven</option>
-          <option value="ADULT">🐶 Adulto</option>
-          <option value="SENIOR">🦴 Mayor</option>
-        </select>
-      </div>
-
-      <div class="campo campo-full">
-        <label>Observaciones</label>
-        <textarea [(ngModel)]="observaciones" placeholder="Cuéntanos sobre su comportamiento, salud, historia..." rows="4"></textarea>
+        <label>Observaciones *</label>
+        <textarea [(ngModel)]="observaciones"
+                  placeholder="Cuéntanos sobre su comportamiento, salud, historia... (mínimo 10 caracteres)"
+                  rows="4"></textarea>
       </div>
 
       <div class="campo campo-full">
@@ -74,7 +68,7 @@
           <label class="check-item">
             <input type="checkbox" [(ngModel)]="esterilizado" />
             <span class="check-custom"></span>
-            <span class="check-label">🔪 Esterilizado</span>
+            <span class="check-label">✂️ Esterilizado</span>
           </label>
           <label class="check-item">
             <input type="checkbox" [(ngModel)]="vacunado" />
@@ -90,8 +84,9 @@
     <div class="ia-info">
       <i class="fa-solid fa-robot"></i>
       <div>
-        <strong>Detección automática por IA</strong>
-        <p>A partir de la foto, detectaremos automáticamente: especie, raza, color, edad y clasificación del animal.</p>
+        <strong>Detección automática por 5 IAs</strong>
+        <p>A partir de la foto detectaremos: especie, raza, color,
+          edad y clasificación del animal automáticamente.</p>
       </div>
     </div>
 
@@ -110,5 +105,5 @@
 </div>
 
 <footer class="footer-custom">
-  <p>🐾 Centro de Adopción SIS Pets </p>
+  <p>🐾 Centro de Adopción SIS Pets</p>
 </footer>

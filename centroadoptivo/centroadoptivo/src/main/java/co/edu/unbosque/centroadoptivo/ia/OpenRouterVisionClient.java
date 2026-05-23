@@ -19,7 +19,6 @@ public class OpenRouterVisionClient {
     private String apiKey;
 
     private static final String URL = "https://openrouter.ai/api/v1/chat/completions";
-
     private static final String MODELO = "meta-llama/llama-3.2-11b-vision-instruct:free";
 
     private final HttpClient CLIENTE = HttpClient.newBuilder()
@@ -27,9 +26,15 @@ public class OpenRouterVisionClient {
             .connectTimeout(Duration.ofSeconds(30))
             .build();
 
-    public String analizarClasificacion(String imagenBase64) {
+    // Verifica si la clasificación detectada por Gemini es correcta
+    public String verificarClasificacion(String imagenBase64, String clasificacion) {
 
-        String body = construirBody(imagenBase64);
+        String prompt =
+            "Look at this animal image. " +
+            "Someone classified this animal as: " + clasificacion + ". " +
+            "Do you agree? Answer ONLY with one word: CORRECT or INCORRECT.";
+
+        String body = construirBody(imagenBase64, prompt);
 
         HttpRequest solicitud = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -41,16 +46,15 @@ public class OpenRouterVisionClient {
         HttpResponse<String> respuesta = null;
         try {
             respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            return "ERROR";
         }
 
         return extraerRespuesta(respuesta.body());
     }
 
-    private String construirBody(String imagenBase64) {
+    private String construirBody(String imagenBase64, String prompt) {
 
         JsonObject imagenUrl = new JsonObject();
         imagenUrl.addProperty("url", "data:image/jpeg;base64," + imagenBase64);
@@ -59,13 +63,9 @@ public class OpenRouterVisionClient {
         partImagen.addProperty("type", "image_url");
         partImagen.add("image_url", imagenUrl);
 
-        // Parte del texto
         JsonObject partTexto = new JsonObject();
         partTexto.addProperty("type", "text");
-        partTexto.addProperty("text",
-                "Analiza esta imagen de un animal y responde UNICAMENTE " +
-                "con una de estas dos palabras: DOMESTICO o NO_DOMESTICO " +
-                "segun si el animal es domestico o salvaje.");
+        partTexto.addProperty("text", prompt);
 
         JsonArray content = new JsonArray();
         content.add(partTexto);
@@ -87,14 +87,15 @@ public class OpenRouterVisionClient {
     }
 
     private String extraerRespuesta(String bodyRespuesta) {
-        JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
-        return json.getAsJsonArray("choices")
-                .get(0)
-                .getAsJsonObject()
-                .get("message")
-                .getAsJsonObject()
-                .get("content")
-                .getAsString()
-                .trim();
+        try {
+            JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
+            return json.getAsJsonArray("choices")
+                    .get(0).getAsJsonObject()
+                    .get("message").getAsJsonObject()
+                    .get("content").getAsString()
+                    .trim();
+        } catch (Exception e) {
+            return "ERROR";
+        }
     }
 }

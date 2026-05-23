@@ -22,23 +22,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import co.edu.unbosque.centroadoptivo.dto.AnimalDTO;
 import co.edu.unbosque.centroadoptivo.exception.AnimalNoEncontradoException;
-import co.edu.unbosque.centroadoptivo.exception.EspecieException;
 import co.edu.unbosque.centroadoptivo.exception.ImagenException;
 import co.edu.unbosque.centroadoptivo.exception.NombreException;
 import co.edu.unbosque.centroadoptivo.exception.ObservacionesException;
-import co.edu.unbosque.centroadoptivo.exception.RazaException;
 import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
 import co.edu.unbosque.centroadoptivo.service.AnimalService;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/animal")
-@CrossOrigin(origins = { "http://localhost:8081", "http://localhost:4200"})
+@CrossOrigin(origins = { "http://localhost:8081", "*"})
 @Transactional
 @Tag(name = "Gestión de Animales", description = "Endpoints para administrar animales en adopción")
 @SecurityRequirement(name = "bearerAuth")
@@ -72,12 +69,6 @@ public class AnimalController {
         } catch (NombreException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("El nombre del animal no es válido");
-        } catch (EspecieException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("La especie no es válida");
-        } catch (RazaException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("La raza no es válida");
         } catch (ObservacionesException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Las observaciones no son válidas (mínimo 10, máximo 500 caracteres)");

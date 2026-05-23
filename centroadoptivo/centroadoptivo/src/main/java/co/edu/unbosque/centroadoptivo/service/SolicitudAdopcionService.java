@@ -22,7 +22,6 @@ import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.SolicitudAdopcionRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 
 @Service
 public class SolicitudAdopcionService {
@@ -42,13 +41,8 @@ public class SolicitudAdopcionService {
  
 
     private String decryptUsername(User user) {
-        try {
-            return AESUtil.decrypt(user.getUsername());
-        } catch (Exception e) {
-            return user.getUsername();
-        }
+        return user.getUsername();
     }
-
     
 
     public SolicitudAdopcionDTO crearSolicitud(Long animalId, String usernameActual)
@@ -61,10 +55,9 @@ public class SolicitudAdopcionService {
         LanzadorDeExcepcion.verificarAnimalDisponible(
                 animal.getStatus().equals(AnimalStatus.AVAILABLE));
 
-        String encryptedUsername = AESUtil.encrypt(usernameActual);
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        User adopter = userRepository.findByUsername(encryptedUsername).get();
+                userRepository.existsByUsername(usernameActual));
+        User adopter = userRepository.findByUsername(usernameActual).get();
 
         if (animal.getPublisher().getId().equals(adopter.getId())) {
             throw new AnimalNoDisponibleException();
@@ -202,10 +195,9 @@ public class SolicitudAdopcionService {
 
 
     public Long obtenerIdPorUsername(String username) throws UserNotFoundException {
-        String encryptedUsername = AESUtil.encrypt(username);
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        return userRepository.findByUsername(encryptedUsername).get().getId();
+                userRepository.existsByUsername(username));
+        return userRepository.findByUsername(username).get().getId();
     }
     
 
