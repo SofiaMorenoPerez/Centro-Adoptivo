@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
@@ -20,14 +20,15 @@ export class Perfil implements OnInit {
   city = '';
   address = '';
   age = 0;
-  editando = false;
+  editando = true; // ← siempre en modo edición para que se vean los datos
   error = '';
   exito = '';
 
   constructor(
     private router: Router,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +46,8 @@ export class Perfil implements OnInit {
         this.city = usuario.city;
         this.address = usuario.address;
         this.age = usuario.age;
+        this.editando = false; // ← después de cargar, vuelve a solo lectura
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Error al cargar el perfil';
@@ -76,6 +79,7 @@ export class Perfil implements OnInit {
         this.editando = false;
         this.exito = 'Perfil actualizado exitosamente';
         this.error = '';
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = typeof err.error === 'string'
