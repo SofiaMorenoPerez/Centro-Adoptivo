@@ -1,0 +1,74 @@
+<!-- NAVBAR -->
+<nav class="navbar-usuario">
+  <div class="navbar-brand" (click)="volver()" style="cursor:pointer">
+    <span>🐾</span>
+    <span class="brand-name">SIS Pets</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-recibir">
+  <h1>Encuentra tu compañero ideal 🐾</h1>
+  <p>Estos animales están listos para encontrar un hogar lleno de amor</p>
+
+  <div class="filtros">
+    <select [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">
+      <option value="">Todas las especies</option>
+      <option value="Perro">🐶 Perros</option>
+      <option value="Gato">🐱 Gatos</option>
+      <option value="Conejo">🐰 Conejos</option>
+    </select>
+
+    <select [(ngModel)]="filtroEdad" (change)="aplicarFiltros()">
+      <option value="">Todas las edades</option>
+      <option value="CACHORRO">🐣 Cachorro</option>
+      <option value="JOVEN">🐾 Joven</option>
+      <option value="ADULTO">🐶 Adulto</option>
+      <option value="MAYOR">🦴 Mayor</option>
+    </select>
+  </div>
+</div>
+
+<!-- MENSAJES -->
+<div class="mensajes-wrap" *ngIf="error || exito || cargando">
+  <div *ngIf="cargando" class="mensaje-cargando">
+    <i class="fa-solid fa-spinner fa-spin"></i> Cargando animales...
+  </div>
+  <div *ngIf="error" class="mensaje-error">
+    <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+  </div>
+  <div *ngIf="exito" class="mensaje-exito">
+    <i class="fa-solid fa-circle-check"></i> {{ exito }}
+  </div>
+</div>
+
+<!-- ANIMALES -->
+<section class="animales-section">
+
+  <!-- Sin resultados -->
+  <div class="sin-resultados" *ngIf="!cargando && animalesFiltrados.length === 0">
+    <span>🐾</span>
+    <p>No hay animales disponibles con los filtros seleccionados.</p>
+  </div>
+
+  <!-- Grid de animales -->
+  <div class="animales-grid" *ngIf="animalesFiltrados.length > 0">
+    <div class="animal-card" *ngFor="let animal of animalesFiltrados">
+      <img [src]="animal.image" alt="{{ animal.name }}" class="animal-foto" />
+      <div class="animal-info">
+        <h3>{{ animal.name }}</h3>
+        <p><i class="fa-solid fa-paw"></i> {{ animal.species }} — {{ animal.breed }}</p>
+        <p><i class="fa-solid fa-cake-candles"></i> {{ animal.age }}</p>
+        <p><i class="fa-solid fa-palette"></i> {{ animal.color }}</p>
+        <div class="animal-badges">
+          <span class="badge" *ngIf="animal.sterilized">✂️ Esterilizado</span>
+          <span class="badge" *ngIf="animal.vaccinated">💉 Vacunado</span>
+        </div>
+        <button class="btn-adoptar" (click)="adoptar(animal.id)">
+          <i class="fa-solid fa-heart"></i> Quiero adoptarlo
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>

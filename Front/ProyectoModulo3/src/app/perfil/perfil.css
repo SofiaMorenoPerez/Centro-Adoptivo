@@ -1,0 +1,142 @@
+.perfil-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fce4ec, #e3f2fd);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.perfil-card {
+  width: 100%;
+  max-width: 700px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(232,127,160,0.12);
+  border: 1px solid #fce4ec;
+}
+
+.perfil-card h1 {
+  text-align: center;
+  color: #d46a8a;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+}
+
+.campos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo-full {
+  grid-column: span 2;
+}
+
+.campo label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.campo input {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid #f4d4de;
+  background: #fff;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  color: #444;
+}
+
+.campo input:focus {
+  outline: none;
+  border-color: #e87fa0;
+  box-shadow: 0 0 0 4px rgba(232,127,160,0.12);
+}
+
+.campo input:disabled {
+  background: #fafafa;
+  color: #777;
+}
+
+.botones {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.botones button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 30px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-editar {
+  background: #e87fa0;
+  color: white;
+}
+
+.btn-editar:hover {
+  background: #d46a8a;
+  transform: translateY(-2px);
+}
+
+.btn-guardar {
+  background: #6ab3d4;
+  color: white;
+}
+
+.btn-guardar:hover {
+  background: #5297b6;
+  transform: translateY(-2px);
+}
+
+.btn-eliminar {
+  background: #fff0f3;
+  color: #e84040;
+  border: 1.5px solid #ffc7d1 !important;
+}
+
+.btn-eliminar:hover {
+  background: #ffe3e8;
+}
+
+.btn-volver {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.btn-volver:hover {
+  background: #ebebeb;
+}
+
+@media (max-width: 700px) {
+
+  .perfil-card {
+    padding: 28px 22px;
+  }
+
+  .campos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campo-full {
+    grid-column: span 1;
+  }
+
+}

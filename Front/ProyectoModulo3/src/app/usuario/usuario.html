@@ -1,0 +1,125 @@
+<!-- NAVBAR -->
+<nav class="navbar-usuario">
+  <div class="navbar-brand">
+    <span>🐾</span>
+    <span class="brand-name">SIS Pets</span>
+  </div>
+  <div class="navbar-right">
+
+    <!-- CAMPANA DE NOTIFICACIONES -->
+    <div class="campana-menu">
+      <button class="btn-campana" (click)="toggleCampana()">
+        <i class="fa-solid fa-bell"></i>
+        <span class="badge-count" *ngIf="cantidadNoLeidas > 0">{{ cantidadNoLeidas }}</span>
+      </button>
+      <div class="dropdown-campana" *ngIf="menuCampana">
+        <div class="campana-header">
+          <strong>Notificaciones</strong>
+        </div>
+        <ul>
+          <li *ngIf="notificaciones.length === 0" class="sin-notifs">
+            No tienes notificaciones
+          </li>
+          <li *ngFor="let notif of notificaciones" [class.no-leida]="!notif.leida">
+            <i class="fa-solid fa-paw"></i> {{ notif.mensaje }}
+            <span class="notif-fecha">{{ notif.creadaEn | date:'dd/MM/yyyy HH:mm' }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="perfil-menu">
+      <button class="btn-tuerca" (click)="toggleMenu()">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+      <div class="dropdown-perfil" *ngIf="menuPerfil">
+        <ul>
+          <li (click)="irPerfil()">
+            <i class="fa-solid fa-user"></i> Mi Perfil
+          </li>
+          <li (click)="irPerfil()">
+            <i class="fa-solid fa-pen"></i> Editar Perfil
+          </li>
+          <li class="separador-menu"></li>
+          <li class="eliminar" (click)="irPerfil()">
+            <i class="fa-solid fa-trash"></i> Eliminar Cuenta
+          </li>
+          <li class="separador-menu"></li>
+          <li (click)="cerrarSesion()">
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-usuario">
+  <div class="hero-texto">
+    <h1>Bienvenido a <span>SIS Pets</span> 🐾</h1>
+    <p>Aquí puedes dar en adopción a tu mascota o encontrar un nuevo compañero lleno de amor para tu hogar.</p>
+  </div>
+</div>
+
+<!-- TIPS -->
+<section class="tips-section">
+  <h2 class="section-title">Cuidados para tu mascota 🐶</h2>
+  <div class="tips-grid">
+
+    <div class="tip-card">
+      <div class="tip-icon">💉</div>
+      <h3>Vacunación</h3>
+      <p>Mantén al día las vacunas de tu mascota para protegerla de enfermedades graves.</p>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-icon">🍖</div>
+      <h3>Alimentación</h3>
+      <p>Proporciona una dieta balanceada y agua fresca todos los días.</p>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-icon">🏃</div>
+      <h3>Ejercicio</h3>
+      <p>El ejercicio diario es clave para la salud física y mental de tu mascota.</p>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-icon">❤️</div>
+      <h3>Amor y Atención</h3>
+      <p>Dedícale tiempo de calidad. El vínculo contigo es lo más importante para ellos.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ACCIONES -->
+<section class="acciones-section">
+
+  <div class="accion-card">
+    <div class="accion-texto">
+      <h2>¿Tienes una mascota que necesita hogar?</h2>
+      <p>Regístrala en nuestra plataforma y ayúdala a encontrar una familia llena de amor. Validamos cada caso con responsabilidad.</p>
+      <button class="btn-dar" (click)="irDar()">
+        <i class="fa-solid fa-heart"></i> Quiero dar en adopción
+      </button>
+    </div>
+  </div>
+
+  <div class="accion-card">
+    <div class="accion-texto">
+      <h2>¿Quieres adoptar una mascota?</h2>
+      <p>Encuentra diferentes animales y especies disponibles para adopción. Cada uno espera una familia como la tuya.</p>
+      <button class="btn-recibir" (click)="irRecibir()">
+        <i class="fa-solid fa-paw"></i> Quiero adoptar
+      </button>
+    </div>
+  </div>
+
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-custom">
+  <p>🐾 Centro de Adopción SIS Pets — Todos los derechos reservados 2025</p>
+</footer>
