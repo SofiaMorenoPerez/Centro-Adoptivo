@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = { "http://localhost:8081", "*" })
+@CrossOrigin(origins = "*")
 @Tag(name = "Autenticación", description = "API para autenticación de usuarios (login y registro)")
 public class AuthController {
 
