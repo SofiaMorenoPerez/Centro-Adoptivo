@@ -18,9 +18,7 @@
       <div class="dropdown-campana" *ngIf="menuCampana">
         <div class="campana-header"><strong>Notificaciones</strong></div>
         <ul>
-          <li *ngIf="notificaciones.length === 0" class="sin-notifs">
-            No tienes notificaciones
-          </li>
+          <li *ngIf="notificaciones.length === 0" class="sin-notifs">No tienes notificaciones</li>
           <li *ngFor="let notif of notificaciones" [class.no-leida]="!notif.leida">
             <i class="fa-solid fa-paw"></i> {{ notif.mensaje }}
             <span class="notif-fecha">{{ notif.creadaEn | date:'dd/MM/yyyy HH:mm' }}</span>
@@ -74,25 +72,19 @@
           <thead>
           <tr>
             <th>ID</th>
+            <th>Acciones</th>
             <th>Animal</th>
             <th>Adoptante</th>
             <th>Fecha</th>
             <th>Estado</th>
-            <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
           <tr *ngIf="solicitudes.length === 0">
-            <td colspan="6" class="sin-datos">
-              <span>🐾</span> No hay solicitudes pendientes
-            </td>
+            <td colspan="6" class="sin-datos"><span>🐾</span> No hay solicitudes pendientes</td>
           </tr>
           <tr *ngFor="let s of solicitudes">
             <td>{{ s.id }}</td>
-            <td>{{ s.animalName }}</td>
-            <td>{{ s.adopterUsername }}</td>
-            <td>{{ s.requestDate | date:'dd/MM/yyyy' }}</td>
-            <td><span class="badge-estado">{{ s.status }}</span></td>
             <td>
               <button class="btn-aprobar" (click)="aprobar(s.id)">
                 <i class="fa-solid fa-check"></i> Aprobar
@@ -101,6 +93,10 @@
                 <i class="fa-solid fa-x"></i> Rechazar
               </button>
             </td>
+            <td>{{ s.animalName }}</td>
+            <td>{{ s.adopterUsername }}</td>
+            <td>{{ s.requestDate | date:'dd/MM/yyyy' }}</td>
+            <td><span class="badge-estado">{{ s.status }}</span></td>
           </tr>
           </tbody>
         </table>
@@ -128,9 +124,7 @@
           </thead>
           <tbody>
           <tr *ngIf="usuarios.length === 0">
-            <td colspan="7" class="sin-datos">
-              <span>🐾</span> No hay usuarios registrados
-            </td>
+            <td colspan="7" class="sin-datos"><span>🐾</span> No hay usuarios registrados</td>
           </tr>
           <tr *ngFor="let u of usuarios">
             <td>{{ u.id }}</td>
@@ -146,7 +140,6 @@
             <td>{{ u.city }}</td>
           </tr>
           </tbody>
-
         </table>
       </div>
     </div>
@@ -173,9 +166,7 @@
           </thead>
           <tbody>
           <tr *ngIf="animales.length === 0">
-            <td colspan="8" class="sin-datos">
-              <span>🐾</span> No hay animales registrados
-            </td>
+            <td colspan="8" class="sin-datos"><span>🐾</span> No hay animales registrados</td>
           </tr>
           <tr *ngFor="let a of animales">
             <td>{{ a.id }}</td>
@@ -202,37 +193,45 @@
         <h2><i class="fa-solid fa-user-shield"></i> Administradores</h2>
         <p>Gestiona los administradores del sistema.</p>
       </div>
+
+      <div class="acciones-top">
+        <button class="btn-nuevo" (click)="abrirModalCrear()">
+          <i class="fa-solid fa-plus"></i> Nuevo Administrador
+        </button>
+      </div>
+
       <div class="tabla-wrap">
         <table class="tabla">
           <thead>
           <tr>
             <th>ID</th>
+            <th>Acciones</th>
             <th>Nombre Completo</th>
             <th>Username</th>
             <th>Email</th>
             <th>Teléfono</th>
             <th>Ciudad</th>
-            <th>Acciones</th>
           </tr>
           </thead>
           <tbody>
           <tr *ngIf="admins.length === 0">
-            <td colspan="7" class="sin-datos">
-              <span>🐾</span> No hay administradores registrados
-            </td>
+            <td colspan="7" class="sin-datos"><span>🐾</span> No hay administradores registrados</td>
           </tr>
           <tr *ngFor="let a of admins">
             <td>{{ a.id }}</td>
+            <td>
+              <button class="btn-editar" (click)="abrirModalEditar(a)">
+                <i class="fa-solid fa-pen"></i> Editar
+              </button>
+              <button class="btn-eliminar" (click)="eliminarAdmin(a.id)">
+                <i class="fa-solid fa-trash"></i> Eliminar
+              </button>
+            </td>
             <td>{{ a.fullName }}</td>
             <td>{{ a.username }}</td>
             <td>{{ a.email }}</td>
             <td>{{ a.phone }}</td>
             <td>{{ a.city }}</td>
-            <td>
-              <button class="btn-rechazar" (click)="eliminarUsuario(a.id)">
-                <i class="fa-solid fa-trash"></i> Eliminar
-              </button>
-            </td>
           </tr>
           </tbody>
         </table>
@@ -242,7 +241,7 @@
   </main>
 </div>
 
-<!-- MODAL RECHAZAR -->
+<!-- MODAL RECHAZAR SOLICITUD -->
 <div class="modal-overlay" *ngIf="modalRechazar">
   <div class="modal-card">
     <h3>Razón de rechazo</h3>
@@ -251,9 +250,108 @@
       <button class="btn-rechazar" (click)="confirmarRechazo()">
         <i class="fa-solid fa-x"></i> Confirmar Rechazo
       </button>
-      <button class="btn-cancelar" (click)="cancelarRechazo()">
-        Cancelar
+      <button class="btn-cancelar" (click)="cancelarRechazo()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREAR ADMIN -->
+<div class="modal-overlay" *ngIf="modalCrear">
+  <div class="modal-card modal-grande">
+    <h3><i class="fa-solid fa-user-shield"></i> Nuevo Administrador</h3>
+    <div *ngIf="error" class="mensaje-error">
+      <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+    </div>
+    <div class="modal-grid">
+      <div class="modal-campo modal-campo-full">
+        <label>Nombre Completo</label>
+        <input type="text" [(ngModel)]="nuevoFullName" placeholder="Nombre completo" />
+      </div>
+      <div class="modal-campo modal-campo-full">
+        <label>Username</label>
+        <input type="text" [(ngModel)]="nuevoUsername" placeholder="Username" />
+      </div>
+      <div class="modal-campo">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="nuevoEmail" placeholder="Email" />
+      </div>
+      <div class="modal-campo">
+        <label>Teléfono</label>
+        <input type="text" [(ngModel)]="nuevoPhone" placeholder="Teléfono" />
+      </div>
+      <div class="modal-campo">
+        <label>Ciudad</label>
+        <input type="text" [(ngModel)]="nuevoCity" placeholder="Ciudad" />
+      </div>
+      <div class="modal-campo">
+        <label>Edad</label>
+        <input type="number" [(ngModel)]="nuevoAge" placeholder="Edad" />
+      </div>
+      <div class="modal-campo modal-campo-full">
+        <label>Dirección</label>
+        <input type="text" [(ngModel)]="nuevoAddress" placeholder="Dirección" />
+      </div>
+      <div class="modal-campo modal-campo-full">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="nuevoPassword" placeholder="Contraseña" />
+        <small class="hint">Mín. 8 caracteres, mayúscula, minúscula, número y símbolo</small>
+      </div>
+    </div>
+    <div class="modal-botones">
+      <button class="btn-nuevo" (click)="crearAdmin()">
+        <i class="fa-solid fa-plus"></i> Crear
       </button>
+      <button class="btn-cancelar" (click)="cerrarModalCrear()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR ADMIN -->
+<div class="modal-overlay" *ngIf="modalEditar">
+  <div class="modal-card modal-grande">
+    <h3><i class="fa-solid fa-pen"></i> Editar Administrador</h3>
+    <div *ngIf="error" class="mensaje-error">
+      <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+    </div>
+    <div class="modal-grid">
+      <div class="modal-campo modal-campo-full">
+        <label>Nombre Completo</label>
+        <input type="text" [(ngModel)]="editarFullName" placeholder="Nombre completo" />
+      </div>
+      <div class="modal-campo modal-campo-full">
+        <label>Username</label>
+        <input type="text" [(ngModel)]="editarUsername" placeholder="Username" />
+      </div>
+      <div class="modal-campo">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="editarEmail" placeholder="Email" />
+      </div>
+      <div class="modal-campo">
+        <label>Teléfono</label>
+        <input type="text" [(ngModel)]="editarPhone" placeholder="Teléfono" />
+      </div>
+      <div class="modal-campo">
+        <label>Ciudad</label>
+        <input type="text" [(ngModel)]="editarCity" placeholder="Ciudad" />
+      </div>
+      <div class="modal-campo">
+        <label>Edad</label>
+        <input type="number" [(ngModel)]="editarAge" placeholder="Edad" />
+      </div>
+      <div class="modal-campo modal-campo-full">
+        <label>Dirección</label>
+        <input type="text" [(ngModel)]="editarAddress" placeholder="Dirección" />
+      </div>
+      <div class="modal-campo modal-campo-full">
+        <label>Nueva Contraseña <small>(dejar vacío para no cambiar)</small></label>
+        <input type="password" [(ngModel)]="editarPassword" placeholder="Nueva contraseña" />
+      </div>
+    </div>
+    <div class="modal-botones">
+      <button class="btn-nuevo" (click)="guardarEdicionAdmin()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+      <button class="btn-cancelar" (click)="cerrarModalEditar()">Cancelar</button>
     </div>
   </div>
 </div>
