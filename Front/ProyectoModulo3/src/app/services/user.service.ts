@@ -69,7 +69,7 @@ export class UserService {
 
   cambiarRol(id: number, rol: string) {
     return this.cliente.patch(
-      this.urlbase + '/usuario/rol/' + id + '?rol=' + rol,
+      `${this.urlbase}/usuario/rol/${id}?rol=${rol}`,
       null,
       { headers: this.getHeaders(), responseType: 'text' }
     );
