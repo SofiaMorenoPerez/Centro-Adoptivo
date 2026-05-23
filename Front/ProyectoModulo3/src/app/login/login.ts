@@ -37,7 +37,9 @@ export class Login {
         }
       },
       error: (err) => {
-        this.error = err.error;
+        this.error = typeof err.error === 'string'
+          ? err.error
+          : 'Error al iniciar sesión';
       }
     });
   }
