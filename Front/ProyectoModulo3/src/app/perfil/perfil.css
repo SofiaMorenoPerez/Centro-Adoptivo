@@ -65,7 +65,8 @@
 
 .campo input:disabled {
   background: #fafafa;
-  color: #777;
+  color: #333;
+  cursor: default;
 }
 
 .botones {
