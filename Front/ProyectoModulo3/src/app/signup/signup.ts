@@ -74,8 +74,10 @@ export class SignUp {
       next: (response) => {
         this.router.navigate(['/login']);
       },
-      error: (error) => {
-        this.error = error.error;
+      error: (err) => {
+        this.error = typeof err.error === 'string'
+          ? err.error
+          : 'Error al registrar el usuario';
       }
     });
   }
