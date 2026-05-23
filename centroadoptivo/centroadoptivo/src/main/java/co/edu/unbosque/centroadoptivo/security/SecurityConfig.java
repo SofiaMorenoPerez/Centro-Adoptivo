@@ -23,8 +23,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthFilter,
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
             UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
@@ -35,16 +34,16 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
-                // ── Público ──────────────────────────────────────────
+                // ── Público ───────────────────────────────────────────
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/usuario/create", "/usuario/createjson").permitAll()
+                // CORRECCIÓN: /usuario/create y /usuario/createjson ya NO son públicos.
+                // El registro público va por /auth/register.
+                // La creación de usuarios por ADMIN cae en el catch-all /usuario/** de abajo.
 
-                // ── USER y ADMIN: ver y editar su propio perfil ───────
-                // CRÍTICO: deben ir ANTES de /usuario/** (catch-all de ADMIN)
+                // ── USER y ADMIN: perfil propio ───────────────────────
                 .requestMatchers(
-                    "/usuario/getbyid/**",
                     "/usuario/perfil/**",
                     "/usuario/editar/**"
                 ).hasAnyRole("USER", "ADMIN")
@@ -82,11 +81,10 @@ public class SecurityConfig {
                     "/animal/update/**"
                 ).hasRole("ADMIN")
 
-                // ── Solo ADMIN: resto de gestión de usuarios ──────────
-                // catch-all: getall, count, exists, delete, update de usuarios
+                // ── Solo ADMIN: gestión completa de usuarios ──────────
                 .requestMatchers("/usuario/**").hasRole("ADMIN")
 
-                // ── Cualquier otra cosa requiere autenticación ────────
+                // ── Cualquier otra cosa requiere autenticación ─────────
                 .anyRequest().authenticated()
             )
             .sessionManagement(
@@ -99,7 +97,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider authProvider =
+            new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

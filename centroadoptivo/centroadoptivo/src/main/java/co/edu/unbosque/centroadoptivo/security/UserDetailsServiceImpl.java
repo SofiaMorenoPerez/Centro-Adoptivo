@@ -1,50 +1,26 @@
 package co.edu.unbosque.centroadoptivo.security;
 
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 
-
-
-/**
- * Implementación del servicio de detalles de usuario para la autenticación.
- * Esta clase proporciona la funcionalidad necesaria para cargar los datos del usuario
- * desde el repositorio durante el proceso de autenticación.
- */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  /**
-   * Repositorio de usuarios utilizado para buscar información de usuarios.
-   */
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  /**
-   * Constructor que inicializa el repositorio de usuarios.
-   * 
-   * @param userRepository El repositorio de usuarios a utilizar para las consultas
-   */
-  public UserDetailsServiceImpl(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+    public UserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-  /**
-   * Carga los detalles del usuario por su nombre de usuario.
-   * 
-   * @param username El nombre de usuario para buscar
-   * @return Los detalles del usuario encontrado
-   * @throws UsernameNotFoundException Si no se encuentra el usuario con el nombre de usuario proporcionado
-   */
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-      return userRepository
-          .findByUsername(AESUtil.encrypt(username)) 
-          .orElseThrow(() ->
-              new UsernameNotFoundException("User not found with username: " + username));
-  }
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository
+            .findByUsername(username) // sin AESUtil.encrypt()
+            .orElseThrow(() ->
+                new UsernameNotFoundException("User not found with username: " + username));
+    }
 }
