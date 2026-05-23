@@ -75,6 +75,9 @@ public class AuthController {
     @Operation(summary = "Registrar un nuevo usuario")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDTO registerRequest) {
+    
+        registerRequest.setRole(null);
+
         int result = userService.create(registerRequest);
         if (result == 0)  return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado exitosamente");
         else if (result == 1)  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre de usuario no es válido");

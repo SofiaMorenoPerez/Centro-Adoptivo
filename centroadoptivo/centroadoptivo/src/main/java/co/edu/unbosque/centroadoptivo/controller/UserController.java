@@ -23,7 +23,6 @@ import co.edu.unbosque.centroadoptivo.dto.UserDTO;
 import co.edu.unbosque.centroadoptivo.entity.User.Role;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 import co.edu.unbosque.centroadoptivo.service.UserService;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,13 +46,83 @@ public class UserController {
     private String getUsuarioActual() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
-    
+
+    private boolean esAdmin() {
+        return SecurityContextHolder.getContext()
+            .getAuthentication().getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    // ── Perfil propio (USER y ADMIN) ──────────────────────────────────────────
+
+    @Operation(summary = "Ver mi perfil")
+    @GetMapping("/perfil/{id}")
+    public ResponseEntity<?> getPerfil(@PathVariable Long id) {
+        UserDTO found = userServ.getById(id);
+        if (found == null)
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+        // USER solo puede ver su propio perfil
+        if (!esAdmin() && !found.getUsername().equals(getUsuarioActual()))
+            return new ResponseEntity<>("Acceso denegado", HttpStatus.FORBIDDEN);
+
+        return new ResponseEntity<>(found, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Editar mi perfil")
+    @PutMapping(path = "/editar/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> editarPerfil(@PathVariable Long id,
+            @RequestBody UserDTO newUser) {
+        UserDTO found = userServ.getById(id);
+        if (found == null)
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+
+        // USER solo puede editar su propio perfil
+        if (!esAdmin() && !found.getUsername().equals(getUsuarioActual()))
+            return new ResponseEntity<>("Acceso denegado", HttpStatus.FORBIDDEN);
+
+        // USER no puede cambiar su propio rol
+        if (!esAdmin()) newUser.setRole(null);
+
+        int status = userServ.updateById(id, newUser);
+        if (status == 0) {
+            auditoriaServ.registrar(getUsuarioActual(), "EDITAR_PERFIL",
+                "Editó perfil id=" + id, true);
+            return new ResponseEntity<>("Perfil actualizado exitosamente", HttpStatus.OK);
+        }
+        auditoriaServ.registrar(getUsuarioActual(), "EDITAR_PERFIL",
+            "Intento fallido de editar perfil id=" + id + " | código=" + status, false);
+        if (status == 1)  return new ResponseEntity<>("El nombre de usuario ya está en uso", HttpStatus.CONFLICT);
+        else if (status == 2)  return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+        else if (status == 3)  return new ResponseEntity<>("La contraseña no es válida", HttpStatus.BAD_REQUEST);
+        else if (status == 4)  return new ResponseEntity<>("El email no es válido", HttpStatus.BAD_REQUEST);
+        else if (status == 5)  return new ResponseEntity<>("La edad no es válida", HttpStatus.BAD_REQUEST);
+        else if (status == 6)  return new ResponseEntity<>("El nombre completo no es válido", HttpStatus.BAD_REQUEST);
+        else if (status == 7)  return new ResponseEntity<>("El teléfono no es válido", HttpStatus.BAD_REQUEST);
+        else if (status == 8)  return new ResponseEntity<>("La ciudad no es válida", HttpStatus.BAD_REQUEST);
+        else if (status == 9)  return new ResponseEntity<>("La dirección no es válida", HttpStatus.BAD_REQUEST);
+        else return new ResponseEntity<>("Error al actualizar perfil", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // ── Solo ADMIN: gestión completa de usuarios ──────────────────────────────
 
     @Operation(summary = "Crear usuario (JSON)")
     @PostMapping(path = "/createjson", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createWithJSON(@RequestBody UserDTO newUser) {
+        // ADMIN puede asignar cualquier rol al crear desde este endpoint
         int status = userServ.create(newUser);
+        // CORRECCIÓN: como create() fuerza USER, ADMIN debe usar updateById()
+        // para asignar rol ADMIN después de crear. Se documenta así intencionalmente.
         if (status == 0) {
+            // Si el ADMIN quiso asignar un rol específico, lo actualizamos ahora
+            if (newUser.getRole() != null) {
+                UserDTO creado = userServ.getByUsername(newUser.getUsername());
+                if (creado != null) {
+                    UserDTO rolDTO = new UserDTO();
+                    rolDTO.setRole(newUser.getRole());
+                    userServ.updateById(creado.getId(), rolDTO);
+                }
+            }
             auditoriaServ.registrar(getUsuarioActual(), "CREATE_USER",
                 "Creó usuario con username=" + newUser.getUsername(), true);
             return new ResponseEntity<>("Usuario creado exitosamente", HttpStatus.CREATED);
@@ -73,47 +142,6 @@ public class UserController {
         else if (status == 10) return new ResponseEntity<>("El email ya está en uso", HttpStatus.CONFLICT);
         else return new ResponseEntity<>("Error al crear usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    @Operation(summary = "Crear usuario (parámetros)")
-    @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestParam String username, @RequestParam String password,
-            @RequestParam(required = false) String fullName, @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phone, @RequestParam(required = false) String city,
-            @RequestParam(required = false) String address, @RequestParam(required = false) Integer age,
-            @RequestParam(required = false) Role role) {
-        UserDTO newUser = new UserDTO();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-        newUser.setFullName(fullName);
-        newUser.setEmail(email);
-        newUser.setPhone(phone);
-        newUser.setCity(city);
-        newUser.setAddress(address);
-        if (age != null) newUser.setAge(age);
-        newUser.setRole(role);
-        int status = userServ.create(newUser);
-        if (status == 0) {
-            auditoriaServ.registrar(getUsuarioActual(), "CREATE_USER",
-                "Creó usuario con username=" + username, true);
-            return new ResponseEntity<>("Usuario creado exitosamente", HttpStatus.CREATED);
-        }
-        auditoriaServ.registrar(getUsuarioActual(), "CREATE_USER",
-            "Intento fallido de crear usuario con username=" + username
-            + " | código=" + status, false);
-        if (status == 1)  return new ResponseEntity<>("El nombre de usuario no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 2)  return new ResponseEntity<>("La contraseña no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 3)  return new ResponseEntity<>("El email no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 4)  return new ResponseEntity<>("El nombre completo no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 5)  return new ResponseEntity<>("El teléfono no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 6)  return new ResponseEntity<>("La ciudad no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 7)  return new ResponseEntity<>("La dirección no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 8)  return new ResponseEntity<>("La edad no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 9)  return new ResponseEntity<>("El nombre de usuario ya está en uso", HttpStatus.CONFLICT);
-        else if (status == 10) return new ResponseEntity<>("El email ya está en uso", HttpStatus.CONFLICT);
-        else return new ResponseEntity<>("Error al crear usuario", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    
 
     @Operation(summary = "Obtener todos los usuarios")
     @GetMapping("/getall")
@@ -147,11 +175,10 @@ public class UserController {
         return new ResponseEntity<>(count, HttpStatus.ACCEPTED);
     }
 
-  
-
     @Operation(summary = "Actualizar usuario (JSON)")
     @PutMapping(path = "/updatejson", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateWithJSON(@RequestParam Long id, @RequestBody UserDTO newUser) {
+    public ResponseEntity<String> updateWithJSON(@RequestParam Long id,
+            @RequestBody UserDTO newUser) {
         int status = userServ.updateById(id, newUser);
         if (status == 0) {
             auditoriaServ.registrar(getUsuarioActual(), "UPDATE_USER",
@@ -172,39 +199,6 @@ public class UserController {
         else if (status == 9)  return new ResponseEntity<>("La dirección no es válida", HttpStatus.BAD_REQUEST);
         else return new ResponseEntity<>("Error al actualizar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    @Operation(summary = "Actualizar usuario (parámetros)")
-    @PutMapping("/update")
-    public ResponseEntity<String> update(@RequestParam Long id,
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String password,
-            @RequestParam(required = false) Role role) {
-        UserDTO newUser = new UserDTO();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-        if (role != null) newUser.setRole(role);
-        int status = userServ.updateById(id, newUser);
-        if (status == 0) {
-            auditoriaServ.registrar(getUsuarioActual(), "UPDATE_USER",
-                "Actualizó usuario con id=" + id, true);
-            return new ResponseEntity<>("Usuario actualizado exitosamente", HttpStatus.ACCEPTED);
-        }
-        auditoriaServ.registrar(getUsuarioActual(), "UPDATE_USER",
-            "Intento fallido de actualizar usuario con id=" + id
-            + " | código=" + status, false);
-        if (status == 1)  return new ResponseEntity<>("El nombre de usuario ya está en uso", HttpStatus.CONFLICT);
-        else if (status == 2)  return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
-        else if (status == 3)  return new ResponseEntity<>("La contraseña no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 4)  return new ResponseEntity<>("El email no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 5)  return new ResponseEntity<>("La edad no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 6)  return new ResponseEntity<>("El nombre completo no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 7)  return new ResponseEntity<>("El teléfono no es válido", HttpStatus.BAD_REQUEST);
-        else if (status == 8)  return new ResponseEntity<>("La ciudad no es válida", HttpStatus.BAD_REQUEST);
-        else if (status == 9)  return new ResponseEntity<>("La dirección no es válida", HttpStatus.BAD_REQUEST);
-        else return new ResponseEntity<>("Error al actualizar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
 
     @Operation(summary = "Eliminar usuario por ID")
     @DeleteMapping("/deletebyid/{id}")
@@ -225,7 +219,10 @@ public class UserController {
 
     @Operation(summary = "Eliminar usuario por username")
     @DeleteMapping("/deletebyusername")
-    public ResponseEntity<String> deleteByUsername(@RequestParam String username) {
+    public ResponseEntity<String> deleteByUsername(@RequestBody UserDTO userDTO) {
+        // CORRECCIÓN: recibe por @RequestBody en lugar de @RequestParam
+        // para no exponer el username en la URL
+        String username = userDTO.getUsername();
         int status = userServ.deleteByUsername(username);
         if (status == 0) {
             auditoriaServ.registrar(getUsuarioActual(), "DELETE_USER",

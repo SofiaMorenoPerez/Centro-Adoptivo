@@ -22,7 +22,6 @@ import co.edu.unbosque.centroadoptivo.exception.PasswordNotValidException;
 import co.edu.unbosque.centroadoptivo.exception.TelefonoException;
 import co.edu.unbosque.centroadoptivo.exception.UsernameException;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 
 @Service
 public class UserService implements CRUDOperation<UserDTO> {
@@ -38,47 +37,6 @@ public class UserService implements CRUDOperation<UserDTO> {
 
     public UserService() {}
 
-    
-
-    /** Encripta los campos sensibles de la entidad antes de persistir */
-    private void encryptUser(User entity) {
-        if (entity.getUsername() != null)
-            entity.setUsername(AESUtil.encrypt(entity.getUsername()));
-        if (entity.getEmail() != null)
-            entity.setEmail(AESUtil.encrypt(entity.getEmail()));
-        if (entity.getFullName() != null)
-            entity.setFullName(AESUtil.encrypt(entity.getFullName()));
-        if (entity.getPhone() != null)
-            entity.setPhone(AESUtil.encrypt(entity.getPhone()));
-        if (entity.getCity() != null)
-            entity.setCity(AESUtil.encrypt(entity.getCity()));
-        if (entity.getAddress() != null)
-            entity.setAddress(AESUtil.encrypt(entity.getAddress()));
-    }
-
-    /** Desencripta los campos sensibles de la entidad al leer */
-    private void decryptUser(User entity) {
-        if (entity.getUsername() != null)
-            entity.setUsername(AESUtil.decrypt(entity.getUsername()));
-        if (entity.getEmail() != null)
-            entity.setEmail(AESUtil.decrypt(entity.getEmail()));
-        if (entity.getFullName() != null)
-            entity.setFullName(AESUtil.decrypt(entity.getFullName()));
-        if (entity.getPhone() != null)
-            entity.setPhone(AESUtil.decrypt(entity.getPhone()));
-        if (entity.getCity() != null)
-            entity.setCity(AESUtil.decrypt(entity.getCity()));
-        if (entity.getAddress() != null)
-            entity.setAddress(AESUtil.decrypt(entity.getAddress()));
-    }
-
-    /** Convierte entidad desencriptada a DTO */
-    private UserDTO toDTO(User entity) {
-        decryptUser(entity);
-        return modelMapper.map(entity, UserDTO.class);
-    }
-
-    
     @Override
     public int create(UserDTO data) {
         try {
@@ -120,49 +78,47 @@ public class UserService implements CRUDOperation<UserDTO> {
             } catch (EdadException e) { return 8; }
         }
 
-        
-        if (userRepo.findByUsername(AESUtil.encrypt(data.getUsername())).isPresent()) return 9;
+        if (userRepo.findByUsername(data.getUsername()).isPresent()) return 9;
         if (data.getEmail() != null &&
-            userRepo.findByEmail(AESUtil.encrypt(data.getEmail())).isPresent()) return 10;
+            userRepo.findByEmail(data.getEmail()).isPresent()) return 10;
 
-        
         User entity = modelMapper.map(data, User.class);
         entity.setPassword(passwordEncoder.encode(data.getPassword()));
         entity.setRegistrationDate(LocalDateTime.now());
-        if (entity.getRole() == null) entity.setRole(User.Role.USER); 
-        if (data.getRole() != null) entity.setRole(data.getRole());
-        entity.setAccountNonExpired(true);      
+        entity.setRole(User.Role.USER);
+        entity.setAccountNonExpired(true);
         entity.setAccountNonLocked(true);
         entity.setCredentialsNonExpired(true);
         entity.setEnabled(true);
-        encryptUser(entity);
         userRepo.save(entity);
         return 0;
     }
-
-    
 
     @Override
     public List<UserDTO> getAll() {
         List<User> entityList = userRepo.findAll();
         List<UserDTO> dtoList = new ArrayList<>();
-        entityList.forEach(entity -> dtoList.add(toDTO(entity)));
+        entityList.forEach(e -> dtoList.add(modelMapper.map(e, UserDTO.class)));
         return dtoList;
     }
 
     public UserDTO getById(Long id) {
         Optional<User> found = userRepo.findById(id);
-        if (found.isPresent()) return toDTO(found.get());
+        if (found.isPresent()) return modelMapper.map(found.get(), UserDTO.class);
         return null;
     }
 
-    
+    public UserDTO getByUsername(String username) {
+        Optional<User> found = userRepo.findByUsername(username);
+        if (found.isPresent()) return modelMapper.map(found.get(), UserDTO.class);
+        return null;
+    }
+
     @Override
     public int updateById(Long id, UserDTO newData) {
         Optional<User> found = userRepo.findById(id);
         if (!found.isPresent()) return 2;
 
-      
         if (newData.getPassword() != null) {
             try {
                 LanzadorDeExcepcion.verificarPassword(newData.getPassword());
@@ -199,36 +155,26 @@ public class UserService implements CRUDOperation<UserDTO> {
             } catch (DireccionException e) { return 9; }
         }
 
-       
         if (newData.getUsername() != null) {
-            Optional<User> newFound = userRepo.findByUsername(
-                AESUtil.encrypt(newData.getUsername()));
-            if (newFound.isPresent() && !newFound.get().getId().equals(id)) return 1;
+            Optional<User> conflict = userRepo.findByUsername(newData.getUsername());
+            if (conflict.isPresent() && !conflict.get().getId().equals(id)) return 1;
         }
 
-        
         User temp = found.get();
-        if (newData.getUsername() != null)
-            temp.setUsername(AESUtil.encrypt(newData.getUsername()));
+        if (newData.getUsername() != null) temp.setUsername(newData.getUsername());
         if (newData.getPassword() != null)
             temp.setPassword(passwordEncoder.encode(newData.getPassword()));
-        if (newData.getEmail() != null)
-            temp.setEmail(AESUtil.encrypt(newData.getEmail()));
-        if (newData.getFullName() != null)
-            temp.setFullName(AESUtil.encrypt(newData.getFullName()));
-        if (newData.getPhone() != null)
-            temp.setPhone(AESUtil.encrypt(newData.getPhone()));
-        if (newData.getCity() != null)
-            temp.setCity(AESUtil.encrypt(newData.getCity()));
-        if (newData.getAddress() != null)
-            temp.setAddress(AESUtil.encrypt(newData.getAddress()));
+        if (newData.getEmail() != null) temp.setEmail(newData.getEmail());
+        if (newData.getFullName() != null) temp.setFullName(newData.getFullName());
+        if (newData.getPhone() != null) temp.setPhone(newData.getPhone());
+        if (newData.getCity() != null) temp.setCity(newData.getCity());
+        if (newData.getAddress() != null) temp.setAddress(newData.getAddress());
         if (newData.getAge() > 0) temp.setAge(newData.getAge());
         if (newData.getRole() != null) temp.setRole(newData.getRole());
         userRepo.save(temp);
         return 0;
     }
 
-    
     @Override
     public int deleteById(Long id) {
         Optional<User> found = userRepo.findById(id);
@@ -239,18 +185,14 @@ public class UserService implements CRUDOperation<UserDTO> {
         return 1;
     }
 
-    
     public int deleteByUsername(String username) {
-       
-        Optional<User> found = userRepo.findByUsername(AESUtil.encrypt(username));
+        Optional<User> found = userRepo.findByUsername(username);
         if (found.isPresent()) {
             userRepo.delete(found.get());
             return 0;
         }
         return 1;
     }
-
-    
 
     @Override
     public long count() { return userRepo.count(); }
@@ -259,6 +201,6 @@ public class UserService implements CRUDOperation<UserDTO> {
     public boolean exist(Long id) { return userRepo.existsById(id); }
 
     public boolean findUsernameAlreadyTaken(String username) {
-        return userRepo.findByUsername(AESUtil.encrypt(username)).isPresent();
+        return userRepo.findByUsername(username).isPresent();
     }
 }

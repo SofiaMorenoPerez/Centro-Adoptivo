@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import co.edu.unbosque.centroadoptivo.entity.User;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -26,8 +25,7 @@ public class JwtUtil {
     private String secret;
 
     private Key getSigningKey() {
-        byte[] keyBytes = secret.getBytes();
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String extractUsername(String token) {
@@ -43,8 +41,7 @@ public class JwtUtil {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+        return claimsResolver.apply(extractAllClaims(token));
     }
 
     private Claims extractAllClaims(String token) {
@@ -62,22 +59,12 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("authorities", userDetails.getAuthorities());
-
-        // Username en texto plano para el token
-        String usernameParaToken = userDetails.getUsername();
-
         if (userDetails instanceof User) {
             User user = (User) userDetails;
             claims.put("role", user.getRole().name());
-            // El username en BD está encriptado — lo desencriptamos para el token
-            try {
-                usernameParaToken = AESUtil.decrypt(user.getUsername());
-            } catch (Exception e) {
-                usernameParaToken = user.getUsername();
-            }
         }
-
-        return createToken(claims, usernameParaToken);
+        // username ya está en texto plano en BD — no necesita decrypt
+        return createToken(claims, userDetails.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -91,14 +78,8 @@ public class JwtUtil {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String usernameEnToken = extractUsername(token); 
-  
-        String usernameDesencriptado;
-        try {
-            usernameDesencriptado = AESUtil.decrypt(userDetails.getUsername());
-        } catch (Exception e) {
-            usernameDesencriptado = userDetails.getUsername();
-        }
-        return (usernameEnToken.equals(usernameDesencriptado) && !isTokenExpired(token));
+        // username en token == username en BD directamente, sin decrypt
+        return extractUsername(token).equals(userDetails.getUsername())
+                && !isTokenExpired(token);
     }
 }
