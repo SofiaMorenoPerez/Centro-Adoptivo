@@ -512,3 +512,52 @@
   top: 0;
   margin-left: 8px;
 }
+
+/* ─── MODAL GRANDE (crear/editar admin) ─────────────────────────────────── */
+.modal-grande {
+  width: 560px;
+  max-width: 95vw;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-campo-full {
+  grid-column: span 2;
+}
+
+.modal-campo label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #666;
+}
+
+.modal-campo input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #f4d4de;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+  color: #444;
+}
+
+.modal-campo input:focus {
+  border-color: #e87fa0;
+  box-shadow: 0 0 0 3px rgba(232,127,160,0.12);
+}
+
+.hint {
+  font-size: 0.72rem;
+  color: #aaa;
+}

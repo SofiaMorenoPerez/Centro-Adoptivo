@@ -27,15 +27,37 @@ export class Admin implements OnInit {
   notificaciones: NotificacionModel[] = [];
   cantidadNoLeidas = 0;
 
-  // Estados
   cargando = false;
   error = '';
   exito = '';
 
-
+  // Modal rechazar solicitud
   modalRechazar = false;
   solicitudSeleccionada: number | null = null;
   razonRechazo = '';
+
+  // Modal crear admin
+  modalCrear = false;
+  nuevoUsername = '';
+  nuevoPassword = '';
+  nuevoFullName = '';
+  nuevoEmail = '';
+  nuevoPhone = '';
+  nuevoCity = '';
+  nuevoAddress = '';
+  nuevoAge = 0;
+
+  // Modal editar admin
+  modalEditar = false;
+  editarId = 0;
+  editarUsername = '';
+  editarPassword = '';
+  editarFullName = '';
+  editarEmail = '';
+  editarPhone = '';
+  editarCity = '';
+  editarAddress = '';
+  editarAge = 0;
 
   constructor(
     private router: Router,
@@ -50,7 +72,6 @@ export class Admin implements OnInit {
     this.cargarVista('transacciones');
     this.cargarNotificaciones();
   }
-
 
   cambiarVista(v: string): void {
     this.vista = v;
@@ -69,6 +90,7 @@ export class Admin implements OnInit {
     }
   }
 
+  // ─── NOTIFICACIONES ─────────────────────────────────────────────────────────
 
   cargarNotificaciones(): void {
     this.notificacionService.getMis().subscribe({
@@ -76,7 +98,7 @@ export class Admin implements OnInit {
         this.notificaciones = notifs;
         this.cantidadNoLeidas = notifs.filter(n => !n.leida).length;
       },
-      error: () => { /* Notificaciones */ }
+      error: () => {}
     });
   }
 
@@ -86,37 +108,27 @@ export class Admin implements OnInit {
       this.notificacionService.marcarTodasLeidas().subscribe({
         next: () => {
           this.cantidadNoLeidas = 0;
-          this.notificaciones.forEach(n => { n.leida = true; }); // ← fix 1
+          this.notificaciones.forEach(n => { n.leida = true; });
         },
-        error: () => { /* Notificaciones */  }
+        error: () => {}
       });
     }
   }
 
+  // ─── TRANSACCIONES ──────────────────────────────────────────────────────────
 
   cargarSolicitudes(): void {
     this.cargando = true;
     this.solicitudService.getPendientes().subscribe({
-      next: (data) => {
-        this.solicitudes = data;
-        this.cargando = false;
-      },
-      error: () => {
-        this.error = 'Error al cargar las solicitudes.';
-        this.cargando = false;
-      }
+      next: (data) => { this.solicitudes = data; this.cargando = false; },
+      error: () => { this.error = 'Error al cargar las solicitudes.'; this.cargando = false; }
     });
   }
 
   aprobar(id: number): void {
     this.solicitudService.aprobar(id).subscribe({
-      next: () => {
-        this.exito = 'Solicitud aprobada exitosamente.';
-        this.cargarSolicitudes();
-      },
-      error: (err) => {
-        this.error = err.error || 'Error al aprobar la solicitud.';
-      }
+      next: () => { this.exito = 'Solicitud aprobada exitosamente.'; this.cargarSolicitudes(); },
+      error: (err) => { this.error = err.error || 'Error al aprobar la solicitud.'; }
     });
   }
 
@@ -127,14 +139,8 @@ export class Admin implements OnInit {
   }
 
   confirmarRechazo(): void {
-    if (!this.razonRechazo.trim()) {
-      this.error = 'Debes ingresar una razón de rechazo.';
-      return;
-    }
-    if (this.solicitudSeleccionada === null) {
-      this.error = 'No hay solicitud seleccionada.';
-      return;
-    }
+    if (!this.razonRechazo.trim()) { this.error = 'Debes ingresar una razón de rechazo.'; return; }
+    if (this.solicitudSeleccionada === null) { this.error = 'No hay solicitud seleccionada.'; return; }
     this.solicitudService.rechazar(this.solicitudSeleccionada, this.razonRechazo).subscribe({
       next: () => {
         this.exito = 'Solicitud rechazada exitosamente.';
@@ -143,9 +149,7 @@ export class Admin implements OnInit {
         this.razonRechazo = '';
         this.cargarSolicitudes();
       },
-      error: (err) => {
-        this.error = err.error || 'Error al rechazar la solicitud.';
-      }
+      error: (err) => { this.error = err.error || 'Error al rechazar la solicitud.'; }
     });
   }
 
@@ -161,7 +165,7 @@ export class Admin implements OnInit {
     this.cargando = true;
     this.userService.getAll().subscribe({
       next: (data) => {
-        this.usuarios = data.filter(u => u.role === 'USER');
+        this.usuarios = (data || []).filter(u => u.role === 'USER');
         this.cargando = false;
       },
       error: () => {
@@ -173,49 +177,35 @@ export class Admin implements OnInit {
 
   eliminarUsuario(id: number): void {
     this.userService.delete(id).subscribe({
-      next: () => {
-        this.exito = 'Usuario eliminado exitosamente.';
-        this.cargarUsuarios();
-      },
-      error: () => {
-        this.error = 'Error al eliminar el usuario.';
-      }
+      next: () => { this.exito = 'Usuario eliminado exitosamente.'; this.cargarUsuarios(); },
+      error: () => { this.error = 'Error al eliminar el usuario.'; }
     });
   }
 
+  // ─── ANIMALES ───────────────────────────────────────────────────────────────
 
   cargarAnimales(): void {
     this.cargando = true;
     this.animalService.getAllAdmin().subscribe({
-      next: (data) => {
-        this.animales = data;
-        this.cargando = false;
-      },
-      error: () => {
-        this.error = 'Error al cargar los animales.';
-        this.cargando = false;
-      }
+      next: (data) => { this.animales = data; this.cargando = false; },
+      error: () => { this.error = 'Error al cargar los animales.'; this.cargando = false; }
     });
   }
 
   eliminarAnimal(id: number): void {
     this.animalService.delete(id).subscribe({
-      next: () => {
-        this.exito = 'Animal eliminado exitosamente.';
-        this.cargarAnimales();
-      },
-      error: () => {
-        this.error = 'Error al eliminar el animal.';
-      }
+      next: () => { this.exito = 'Animal eliminado exitosamente.'; this.cargarAnimales(); },
+      error: () => { this.error = 'Error al eliminar el animal.'; }
     });
   }
 
+  // ─── ADMINS ─────────────────────────────────────────────────────────────────
 
   cargarAdmins(): void {
     this.cargando = true;
     this.userService.getAll().subscribe({
       next: (data) => {
-        this.admins = data.filter(u => u.role === 'ADMIN');
+        this.admins = (data || []).filter(u => u.role === 'ADMIN');
         this.cargando = false;
       },
       error: () => {
@@ -224,6 +214,114 @@ export class Admin implements OnInit {
       }
     });
   }
+
+  eliminarAdmin(id: number): void {
+    this.userService.delete(id).subscribe({
+      next: () => { this.exito = 'Administrador eliminado exitosamente.'; this.cargarAdmins(); },
+      error: () => { this.error = 'Error al eliminar el administrador.'; }
+    });
+  }
+
+  // Modal crear admin
+  abrirModalCrear(): void {
+    this.nuevoUsername = '';
+    this.nuevoPassword = '';
+    this.nuevoFullName = '';
+    this.nuevoEmail = '';
+    this.nuevoPhone = '';
+    this.nuevoCity = '';
+    this.nuevoAddress = '';
+    this.nuevoAge = 0;
+    this.error = '';
+    this.modalCrear = true;
+  }
+
+  cerrarModalCrear(): void {
+    this.modalCrear = false;
+  }
+
+  crearAdmin(): void {
+    // Paso 1: registrar con /auth/register (público, sin token)
+    this.authService.register(
+      this.nuevoUsername,
+      this.nuevoPassword,
+      this.nuevoFullName,
+      this.nuevoEmail,
+      this.nuevoPhone,
+      this.nuevoCity,
+      this.nuevoAddress,
+      this.nuevoAge
+    ).subscribe({
+      next: () => {
+        // Paso 2: buscar el usuario creado y cambiarle el rol a ADMIN
+        this.userService.getAll().subscribe({
+          next: (data) => {
+            const creado = data.find(u => u.username === this.nuevoUsername);
+            if (creado) {
+              this.userService.updateAdmin(creado.id, { ...creado, role: 'ADMIN' }).subscribe({
+                next: () => {
+                  this.exito = 'Administrador creado exitosamente.';
+                  this.modalCrear = false;
+                  this.cargarAdmins();
+                },
+                error: () => { this.error = 'Error al asignar rol ADMIN.'; }
+              });
+            }
+          },
+          error: () => { this.error = 'Error al buscar el usuario creado.'; }
+        });
+      },
+      error: (err) => {
+        this.error = typeof err.error === 'string' ? err.error : 'Error al crear el administrador.';
+      }
+    });
+  }
+
+  // Modal editar admin
+  abrirModalEditar(admin: UserModel): void {
+    this.editarId = admin.id;
+    this.editarUsername = admin.username;
+    this.editarPassword = '';
+    this.editarFullName = admin.fullName;
+    this.editarEmail = admin.email;
+    this.editarPhone = admin.phone;
+    this.editarCity = admin.city;
+    this.editarAddress = admin.address;
+    this.editarAge = admin.age;
+    this.error = '';
+    this.modalEditar = true;
+  }
+
+  cerrarModalEditar(): void {
+    this.modalEditar = false;
+  }
+
+  guardarEdicionAdmin(): void {
+    const actualizado: UserModel = {
+      id: this.editarId,
+      username: this.editarUsername,
+      password: this.editarPassword || undefined,
+      fullName: this.editarFullName,
+      email: this.editarEmail,
+      phone: this.editarPhone,
+      city: this.editarCity,
+      address: this.editarAddress,
+      age: this.editarAge,
+      role: 'ADMIN'
+    };
+    this.userService.updateAdmin(this.editarId, actualizado).subscribe({
+      next: () => {
+        this.exito = 'Administrador actualizado exitosamente.';
+        this.modalEditar = false;
+        this.cargarAdmins();
+      },
+      error: (err) => {
+        this.error = typeof err.error === 'string' ? err.error : 'Error al actualizar el administrador.';
+      }
+    });
+  }
+
+  // ─── SESIÓN ─────────────────────────────────────────────────────────────────
 
   cerrarSesion(): void {
     this.authService.logout();
