@@ -19,14 +19,13 @@ import co.edu.unbosque.centroadoptivo.exception.NotificacionNoEncontradaExceptio
 import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.service.AuditoriaService;
 import co.edu.unbosque.centroadoptivo.service.NotificacionService;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/notificacion")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = { "http://localhost:4200", "http://localhost:8081", "*" })
 @Transactional
 @Tag(name = "Notificaciones", description = "Endpoints para el sistema de notificaciones")
 @SecurityRequirement(name = "bearerAuth")
@@ -41,7 +40,7 @@ public class NotificacionController {
     private String getUsuarioActual() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
-    
+
     @Operation(summary = "Obtener todas mis notificaciones")
     @GetMapping("/mis")
     public ResponseEntity<?> getMis() {
@@ -70,11 +69,12 @@ public class NotificacionController {
         }
     }
 
-    @Operation(summary = "Contar notificaciones no leídas (campana)")
+    @Operation(summary = "Contar notificaciones no leídas")
     @GetMapping("/contar")
     public ResponseEntity<?> contar() {
         try {
-            return ResponseEntity.ok(notificacionService.contarNoLeidas(getUsuarioActual()));
+            long count = notificacionService.contarNoLeidas(getUsuarioActual());
+            return ResponseEntity.ok(count);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Usuario no encontrado");

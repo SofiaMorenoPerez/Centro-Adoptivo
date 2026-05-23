@@ -8,8 +8,6 @@ import co.edu.unbosque.centroadoptivo.exception.NotificacionNoEncontradaExceptio
 import co.edu.unbosque.centroadoptivo.exception.UserNotFoundException;
 import co.edu.unbosque.centroadoptivo.repository.NotificacionRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +29,9 @@ public class NotificacionService {
 
     public List<NotificacionDTO> obtenerMisNotificaciones(String usernameActual)
             throws UserNotFoundException {
-        String encryptedUsername = AESUtil.encrypt(usernameActual);
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        User user = userRepository.findByUsername(encryptedUsername).get();
+                userRepository.existsByUsername(usernameActual));
+        User user = userRepository.findByUsername(usernameActual).get();
         return notificacionRepository.findByDestinatarioId(user.getId())
                 .stream()
                 .map(this::convertirADTO)
@@ -43,10 +40,9 @@ public class NotificacionService {
 
     public List<NotificacionDTO> obtenerNoLeidas(String usernameActual)
             throws UserNotFoundException {
-        String encryptedUsername = AESUtil.encrypt(usernameActual);
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        User user = userRepository.findByUsername(encryptedUsername).get();
+                userRepository.existsByUsername(usernameActual));
+        User user = userRepository.findByUsername(usernameActual).get();
         return notificacionRepository.findByDestinatarioIdAndLeida(user.getId(), false)
                 .stream()
                 .map(this::convertirADTO)
@@ -54,25 +50,24 @@ public class NotificacionService {
     }
 
     public long contarNoLeidas(String usernameActual) throws UserNotFoundException {
-        String encryptedUsername = AESUtil.encrypt(usernameActual);
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        User user = userRepository.findByUsername(encryptedUsername).get();
+                userRepository.existsByUsername(usernameActual));
+        User user = userRepository.findByUsername(usernameActual).get();
         return notificacionRepository.countByDestinatarioIdAndLeida(user.getId(), false);
     }
 
     public void marcarComoLeida(Long id) throws NotificacionNoEncontradaException {
-        LanzadorDeExcepcion.verificarNotificacionExiste(notificacionRepository.existsById(id));
+        LanzadorDeExcepcion.verificarNotificacionExiste(
+                notificacionRepository.existsById(id));
         Notificacion n = notificacionRepository.findById(id).get();
         n.setLeida(true);
         notificacionRepository.save(n);
     }
 
     public void marcarTodasComoLeidas(String usernameActual) throws UserNotFoundException {
-        String encryptedUsername = AESUtil.encrypt(usernameActual);
         LanzadorDeExcepcion.verificarUsuarioExiste(
-                userRepository.existsByUsername(encryptedUsername));
-        User user = userRepository.findByUsername(encryptedUsername).get();
+                userRepository.existsByUsername(usernameActual));
+        User user = userRepository.findByUsername(usernameActual).get();
         List<Notificacion> noLeidas = notificacionRepository
                 .findByDestinatarioIdAndLeida(user.getId(), false);
         noLeidas.forEach(n -> n.setLeida(true));
