@@ -95,8 +95,8 @@ export class Admin implements OnInit {
   cargarNotificaciones(): void {
     this.notificacionService.getMis().subscribe({
       next: (notifs) => {
-        this.notificaciones = notifs;
-        this.cantidadNoLeidas = notifs.filter(n => !n.leida).length;
+        this.notificaciones = notifs || [];
+        this.cantidadNoLeidas = (notifs || []).filter(n => !n.leida).length;
       },
       error: () => {}
     });
@@ -165,8 +165,10 @@ export class Admin implements OnInit {
     this.cargando = true;
     this.userService.getAll().subscribe({
       next: (data) => {
-        this.usuarios = (data || []).filter(u => u.role === 'USER');
-        this.cargando = false;
+        setTimeout(() => {
+          this.usuarios = (data || []).filter(u => u.role === 'USER');
+          this.cargando = false;
+        }, 0);
       },
       error: () => {
         this.error = 'Error al cargar los usuarios.';
@@ -187,8 +189,16 @@ export class Admin implements OnInit {
   cargarAnimales(): void {
     this.cargando = true;
     this.animalService.getAllAdmin().subscribe({
-      next: (data) => { this.animales = data; this.cargando = false; },
-      error: () => { this.error = 'Error al cargar los animales.'; this.cargando = false; }
+      next: (data) => {
+        setTimeout(() => {
+          this.animales = data || [];
+          this.cargando = false;
+        }, 0);
+      },
+      error: () => {
+        this.error = 'Error al cargar los animales.';
+        this.cargando = false;
+      }
     });
   }
 
@@ -205,8 +215,10 @@ export class Admin implements OnInit {
     this.cargando = true;
     this.userService.getAll().subscribe({
       next: (data) => {
-        this.admins = (data || []).filter(u => u.role === 'ADMIN');
-        this.cargando = false;
+        setTimeout(() => {
+          this.admins = (data || []).filter(u => u.role === 'ADMIN');
+          this.cargando = false;
+        }, 0);
       },
       error: () => {
         this.error = 'Error al cargar los administradores.';
@@ -241,7 +253,6 @@ export class Admin implements OnInit {
   }
 
   crearAdmin(): void {
-    // Paso 1: registrar con /auth/register (público, sin token)
     this.authService.register(
       this.nuevoUsername,
       this.nuevoPassword,
@@ -253,12 +264,11 @@ export class Admin implements OnInit {
       this.nuevoAge
     ).subscribe({
       next: () => {
-        // Paso 2: buscar el usuario creado y cambiarle el rol a ADMIN
         this.userService.getAll().subscribe({
           next: (data) => {
-            const creado = data.find(u => u.username === this.nuevoUsername);
+            const creado = (data || []).find(u => u.username === this.nuevoUsername);
             if (creado) {
-              this.userService.updateAdmin(creado.id, { ...creado, role: 'ADMIN' }).subscribe({
+              this.userService.cambiarRol(creado.id, 'ADMIN').subscribe({
                 next: () => {
                   this.exito = 'Administrador creado exitosamente.';
                   this.modalCrear = false;

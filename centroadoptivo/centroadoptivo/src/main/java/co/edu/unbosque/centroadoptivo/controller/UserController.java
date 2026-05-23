@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -234,4 +235,15 @@ public class UserController {
             + " — no encontrado", false);
         return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
     }
+    
+    @Operation(summary = "Cambiar rol de usuario (ADMIN)")
+    @PatchMapping("/rol/{id}")
+    public ResponseEntity<String> cambiarRol(@PathVariable Long id, @RequestParam String rol) {
+        UserDTO newData = new UserDTO();
+        newData.setRole(Role.valueOf(rol));
+        int status = userServ.updateById(id, newData);
+        if (status == 0) return new ResponseEntity<>("Rol actualizado", HttpStatus.OK);
+        return new ResponseEntity<>("Error al actualizar rol", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
 }
