@@ -29,30 +29,16 @@ public class BlipVisionClient {
             .build();
 
     public String analizarDescripcion(byte[] imagenBytes) {
-
-        HttpRequest solicitud =
-                construirSolicitud(imagenBytes);
-
-        HttpResponse<String> respuesta = null;
-
         try {
-
-            respuesta = CLIENTE.send(
+            HttpRequest solicitud = construirSolicitud(imagenBytes);
+            HttpResponse<String> respuesta = CLIENTE.send(
                     solicitud,
                     HttpResponse.BodyHandlers.ofString());
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-            return "ERROR";
-
-        } catch (InterruptedException e) {
-
+            return extraerRespuesta(respuesta.body());
+        } catch (Exception e) {
             e.printStackTrace();
             return "ERROR";
         }
-
-        return extraerRespuesta(respuesta.body());
     }
 
     private HttpRequest construirSolicitud(
