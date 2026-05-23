@@ -1,8 +1,6 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-
-declare var bootstrap: any;
 
 @Component({
   selector: 'app-login',
@@ -13,38 +11,17 @@ declare var bootstrap: any;
 export class Login {
   usuario = '';
   contrasena = '';
+  error = '';
 
-  toastMensaje = '';
-  toastTitulo = '';
-  toastColor = '';
-
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  mostrarToast(mensaje: string, exito: boolean): void {
-    this.toastMensaje = mensaje;
-    this.toastTitulo = exito ? '¡Éxito! ✅' : '¡Error! ❌';
-    this.toastColor = exito ? '#b5f1ca' : '#ee9fb7';
-    this.cdr.detectChanges();
-    const toastEl = document.getElementById('loginToast');
-    if (toastEl) {
-      const toastActual = bootstrap.Toast.getInstance(toastEl);
-      if (toastActual) toastActual.dispose();
-      const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
-      toast.show();
-    }
-  }
+  constructor(private router: Router, private authService: AuthService) {}
 
   ingresar() {
     if (!this.usuario || this.usuario.trim() === '') {
-      this.mostrarToast('El usuario es obligatorio', false);
+      this.error = 'El usuario es obligatorio';
       return;
     }
     if (!this.contrasena || this.contrasena.trim() === '') {
-      this.mostrarToast('La contraseña es obligatoria', false);
+      this.error = 'La contraseña es obligatoria';
       return;
     }
 
@@ -52,21 +29,17 @@ export class Login {
       next: (response) => {
         this.authService.guardarToken(response.token);
         this.authService.guardarRol(response.role);
-        this.authService.guardarId(response.id);
-        this.mostrarToast('Bienvenido', true);
-        setTimeout(() => {
-          if (response.role === 'ADMIN') {
-            this.router.navigate(['/admin']);
-          } else {
-            this.router.navigate(['/usuario']);
-          }
-        }, 1500);
+        this.authService.guardarId(response.id); // ← nuevo
+        if (response.role === 'ADMIN') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/usuario']);
+        }
       },
       error: (err) => {
-        const mensaje = typeof err.error === 'string'
+        this.error = typeof err.error === 'string'
           ? err.error
-          : err.message || 'Error al iniciar sesión';
-        this.mostrarToast(mensaje, false);
+          : 'Error al iniciar sesión';
       }
     });
   }

@@ -1,5 +1,4 @@
 <div class="perfil-wrapper">
-
   <div class="perfil-card">
 
     <h1>Mi Perfil 🐾</h1>
@@ -11,70 +10,58 @@
       <i class="fa-solid fa-circle-check"></i> {{ exito }}
     </div>
 
-    <div class="campo">
-      <label>Username</label>
-      <input type="text" [(ngModel)]="username" [disabled]="!editando">
+    <div class="campos-grid">
+
+      <div class="campo campo-full">
+        <label>Username</label>
+        <input type="text" [(ngModel)]="username" [disabled]="!editando">
+      </div>
+
+      <div class="campo campo-full">
+        <label>Nombre Completo</label>
+        <input type="text" [(ngModel)]="fullName" [disabled]="!editando">
+      </div>
+
+      <div class="campo">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" [disabled]="!editando">
+      </div>
+
+      <div class="campo">
+        <label>Teléfono</label>
+        <input type="text" [(ngModel)]="phone" [disabled]="!editando">
+      </div>
+
+      <div class="campo">
+        <label>Ciudad</label>
+        <input type="text" [(ngModel)]="city" [disabled]="!editando">
+      </div>
+
+      <div class="campo">
+        <label>Dirección</label>
+        <input type="text" [(ngModel)]="address" [disabled]="!editando">
+      </div>
+
+      <div class="campo">
+        <label>Edad</label>
+        <input type="number" [(ngModel)]="age" [disabled]="!editando">
+      </div>
+
     </div>
 
-    <div class="campo">
-      <label>Nombre Completo</label>
-      <input type="text" [(ngModel)]="fullName" [disabled]="!editando">
+    <div class="botones">
+      <button class="btn-editar" *ngIf="!editando" (click)="activarEdicion()">
+        <i class="fa-solid fa-pen"></i> Editar Perfil
+      </button>
+
+      <button class="btn-guardar" *ngIf="editando" (click)="guardarCambios()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+      </button>
+
+      <button class="btn-volver" (click)="volver()">
+        <i class="fa-solid fa-arrow-left"></i> Volver
+      </button>
     </div>
-
-    <div class="campo">
-      <label>Email</label>
-      <input type="email" [(ngModel)]="email" [disabled]="!editando">
-    </div>
-
-    <div class="campo">
-      <label>Teléfono</label>
-      <input type="text" [(ngModel)]="phone" [disabled]="!editando">
-    </div>
-
-    <div class="campo">
-      <label>Ciudad</label>
-      <input type="text" [(ngModel)]="city" [disabled]="!editando">
-    </div>
-
-    <div class="campo">
-      <label>Dirección</label>
-      <input type="text" [(ngModel)]="address" [disabled]="!editando">
-    </div>
-
-    <div class="campo">
-      <label>Edad</label>
-      <input type="number" [(ngModel)]="age" [disabled]="!editando">
-    </div>
-
-    <button
-      class="btn-editar"
-      *ngIf="!editando"
-      (click)="activarEdicion()">
-      <i class="fa-solid fa-pen"></i>
-      Editar Perfil
-    </button>
-
-    <button
-      class="btn-guardar"
-      *ngIf="editando"
-      (click)="guardarCambios()">
-      <i class="fa-solid fa-floppy-disk"></i>
-      Guardar Cambios
-    </button>
-
-    <button
-      class="btn-eliminar"
-      (click)="eliminarCuenta()">
-      <i class="fa-solid fa-trash"></i>
-      Eliminar Cuenta
-    </button>
-
-    <button
-      class="btn-volver"
-      (click)="volver()">
-      <i class="fa-solid fa-arrow-left"></i>
-      Volver
-    </button>
 
   </div>
 </div>
