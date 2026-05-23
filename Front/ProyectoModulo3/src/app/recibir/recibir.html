@@ -21,10 +21,10 @@
 
     <select [(ngModel)]="filtroEdad" (change)="aplicarFiltros()">
       <option value="">Todas las edades</option>
-      <option value="CACHORRO">🐣 Cachorro</option>
-      <option value="JOVEN">🐾 Joven</option>
-      <option value="ADULTO">🐶 Adulto</option>
-      <option value="MAYOR">🦴 Mayor</option>
+      <option value="PUPPY">🐣 Cachorro</option>
+      <option value="YOUNG">🐾 Joven</option>
+      <option value="ADULT">🐶 Adulto</option>
+      <option value="SENIOR">🦴 Mayor</option>
     </select>
   </div>
 </div>
@@ -54,7 +54,10 @@
   <!-- Grid de animales -->
   <div class="animales-grid" *ngIf="animalesFiltrados.length > 0">
     <div class="animal-card" *ngFor="let animal of animalesFiltrados">
-      <img [src]="animal.image" alt="{{ animal.name }}" class="animal-foto" />
+      <img [src]="'http://localhost:8081' + animal.image"
+           alt="{{ animal.name }}"
+           class="animal-foto"
+           onerror="this.src='assets/no-image.png'" />
       <div class="animal-info">
         <h3>{{ animal.name }}</h3>
         <p><i class="fa-solid fa-paw"></i> {{ animal.species }} — {{ animal.breed }}</p>
