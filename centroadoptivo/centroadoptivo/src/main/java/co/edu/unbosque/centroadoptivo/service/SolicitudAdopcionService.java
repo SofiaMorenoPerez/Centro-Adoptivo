@@ -1,5 +1,11 @@
 package co.edu.unbosque.centroadoptivo.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import co.edu.unbosque.centroadoptivo.dto.SolicitudAdopcionDTO;
 import co.edu.unbosque.centroadoptivo.entity.Animal;
 import co.edu.unbosque.centroadoptivo.entity.Animal.AnimalStatus;
@@ -17,12 +23,6 @@ import co.edu.unbosque.centroadoptivo.repository.AnimalRepository;
 import co.edu.unbosque.centroadoptivo.repository.SolicitudAdopcionRepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
 import co.edu.unbosque.centroadoptivo.util.AESUtil;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class SolicitudAdopcionService {
@@ -66,6 +66,10 @@ public class SolicitudAdopcionService {
                 userRepository.existsByUsername(encryptedUsername));
         User adopter = userRepository.findByUsername(encryptedUsername).get();
 
+        if (animal.getPublisher().getId().equals(adopter.getId())) {
+            throw new AnimalNoDisponibleException();
+        }
+        
         LanzadorDeExcepcion.verificarSolicitudDuplicada(
                 solicitudRepository.existsByAnimalIdAndAdopterIdAndStatus(
                         animalId, adopter.getId(), RequestStatus.PENDING));

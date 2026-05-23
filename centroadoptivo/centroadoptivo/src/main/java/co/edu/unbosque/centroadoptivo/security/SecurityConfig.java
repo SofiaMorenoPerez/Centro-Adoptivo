@@ -41,6 +41,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/usuario/create", "/usuario/createjson").permitAll()
 
+                // ── USER y ADMIN: ver y editar su propio perfil ───────
+                // CRÍTICO: deben ir ANTES de /usuario/** (catch-all de ADMIN)
+                .requestMatchers(
+                    "/usuario/getbyid/**",
+                    "/usuario/perfil/**",
+                    "/usuario/editar/**"
+                ).hasAnyRole("USER", "ADMIN")
+
                 // ── USER y ADMIN: animales ────────────────────────────
                 .requestMatchers(
                     "/animal/getall",
@@ -50,14 +58,7 @@ public class SecurityConfig {
                     "/animal/publicador/**"
                 ).hasAnyRole("USER", "ADMIN")
 
-                // ── USER y ADMIN: perfil usuario ──────────────────────
-                .requestMatchers(
-                    "/usuario/getbyid/**",
-                    "/usuario/perfil/**",
-                    "/usuario/editar/**"
-                ).hasAnyRole("USER", "ADMIN")
-
-                // ── USER y ADMIN: solicitudes (crear y ver las suyas) ─
+                // ── USER y ADMIN: solicitudes ─────────────────────────
                 .requestMatchers(
                     "/solicitud/crear",
                     "/solicitud/missolicitudes",
@@ -81,7 +82,8 @@ public class SecurityConfig {
                     "/animal/update/**"
                 ).hasRole("ADMIN")
 
-                // ── Solo ADMIN: gestión de usuarios ───────────────────
+                // ── Solo ADMIN: resto de gestión de usuarios ──────────
+                // catch-all: getall, count, exists, delete, update de usuarios
                 .requestMatchers("/usuario/**").hasRole("ADMIN")
 
                 // ── Cualquier otra cosa requiere autenticación ────────
