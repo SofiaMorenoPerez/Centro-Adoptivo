@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import co.edu.unbosque.centroadoptivo.entity.User;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
-import co.edu.unbosque.centroadoptivo.util.AESUtil;
 
 @Configuration
 public class LoadDatabase {
@@ -27,14 +26,12 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(UserRepository userRepo, PasswordEncoder passwordEncoder) {
         return args -> {
 
-        
-            Optional<User> found = userRepo.findByUsername(AESUtil.encrypt("admin1"));
+            Optional<User> found = userRepo.findByUsername("admin3");
             if (found.isPresent()) {
                 log.info("El administrador ya existe, omitiendo creación...");
             } else {
-              
                 User adminUser = new User(
-                    AESUtil.encrypt("admin1"),
+                    "admin3",
                     passwordEncoder.encode(adminPassword),
                     User.Role.ADMIN
                 );
@@ -42,12 +39,12 @@ public class LoadDatabase {
                 log.info("Precargando usuario administrador");
             }
 
-            Optional<User> found2 = userRepo.findByUsername(AESUtil.encrypt("normaluser1"));
+            Optional<User> found2 = userRepo.findByUsername("normaluser3");
             if (found2.isPresent()) {
                 log.info("El usuario normal ya existe, omitiendo creación...");
             } else {
                 User normalUser = new User(
-                    AESUtil.encrypt("normaluser1"),
+                    "normaluser3",
                     passwordEncoder.encode(userPassword),
                     User.Role.USER
                 );
