@@ -47,6 +47,11 @@
         <input type="number" [(ngModel)]="age" [disabled]="!editando">
       </div>
 
+      <div class="campo campo-full">
+        <label>Nueva Contraseña <small>(dejar vacío para no cambiar)</small></label>
+        <input type="password" [(ngModel)]="password" [disabled]="!editando" placeholder="Nueva contraseña" />
+      </div>
+
     </div>
 
     <div class="botones">

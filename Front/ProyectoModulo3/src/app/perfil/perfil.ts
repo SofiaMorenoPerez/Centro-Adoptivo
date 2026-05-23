@@ -20,9 +20,10 @@ export class Perfil implements OnInit {
   city = '';
   address = '';
   age = 0;
-  editando = true; // ← siempre en modo edición para que se vean los datos
+  editando = true;
   error = '';
   exito = '';
+  password = '';
 
   constructor(
     private router: Router,
@@ -66,6 +67,7 @@ export class Perfil implements OnInit {
       id: this.id,
       username: this.username,
       fullName: this.fullName,
+      password: this.password || undefined,
       email: this.email,
       phone: this.phone,
       city: this.city,
