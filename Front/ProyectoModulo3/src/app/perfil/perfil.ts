@@ -78,21 +78,10 @@ export class Perfil implements OnInit {
         this.error = '';
       },
       error: (err) => {
-        this.error = err.error;
+        this.error = typeof err.error === 'string'
+          ? err.error
+          : 'Error al actualizar el perfil';
         this.exito = '';
-      }
-    });
-  }
-
-  eliminarCuenta(): void {
-    const id = this.authService.getId();
-    this.userService.delete(id).subscribe({
-      next: () => {
-        this.authService.logout();
-        this.router.navigate(['/inicio']);
-      },
-      error: () => {
-        this.error = 'Error al eliminar la cuenta';
       }
     });
   }
