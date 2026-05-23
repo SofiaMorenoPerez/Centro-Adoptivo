@@ -12,7 +12,8 @@ export class AuthService {
   login(username: string, password: string) {
     return this.cliente.post<{ token: string, role: string, id: number }>(
       `${this.urlbase}/auth/login`,
-      { username, password }
+      { username, password },
+      { headers: { 'Content-Type': 'application/json' } }
     );
   }
 

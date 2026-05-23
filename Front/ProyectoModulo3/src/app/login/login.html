@@ -17,11 +17,6 @@
       <h2 class="login-title">Iniciar Sesión</h2>
       <p class="login-subtitle">Ingresa tus datos para continuar</p>
 
-      <div class="campo" *ngIf="error">
-        <div class="mensaje-error">
-          <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
-        </div>
-      </div>
 
       <div class="campo">
         <label>Usuario</label>
@@ -48,6 +43,16 @@
       <button class="btn-volver" (click)="volver()">
         <i class="fa-solid fa-arrow-left"></i> Volver al inicio
       </button>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="loginToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header" [ngStyle]="{'background-color': toastColor}">
+        <strong class="me-auto">{{ toastTitulo }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">{{ toastMensaje }}</div>
     </div>
   </div>
 
