@@ -18,37 +18,19 @@ export class UserService {
     });
   }
 
-  // Perfil del usuario autenticado
+  // Obtener todos los usuarios (ADMIN)
   getPerfil() {
     const id = this.authService.getId();
     return this.cliente.get<UserModel>(
-      this.urlbase + '/usuario/getbyid/' + id,
+      this.urlbase + '/usuario/perfil/' + id,
       { headers: this.getHeaders() }
     );
   }
 
-  // Obtener todos los usuarios (ADMIN)
-  getAll() {
-    return this.cliente.get<UserModel[]>(
-      this.urlbase + '/usuario/getall',
-      { headers: this.getHeaders() }
-    );
-  }
-
-  // Crear admin (ADMIN)
-  crear(usuario: UserModel) {
-    return this.cliente.post(
-      this.urlbase + '/usuario/createjson',
-      usuario,
-      { headers: this.getHeaders(), responseType: 'text' }
-    );
-  }
-
-  // Actualizar usuario
   update(usuario: UserModel) {
     const id = this.authService.getId();
     return this.cliente.put(
-      this.urlbase + '/usuario/updatejson?id=' + id,
+      this.urlbase + '/usuario/editar/' + id,
       usuario,
       { headers: this.getHeaders(), responseType: 'text' }
     );
@@ -61,4 +43,14 @@ export class UserService {
       { headers: this.getHeaders(), responseType: 'text' }
     );
   }
+
+  getAll() {
+    return this.cliente.get<UserModel[]>(
+      this.urlbase + '/usuario/getall',
+      { headers: this.getHeaders() }
+    );
+  }
+
 }
+
+

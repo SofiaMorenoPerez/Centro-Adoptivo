@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/notificacion")
-@CrossOrigin(origins = { "http://localhost:8081", "*" })
+@CrossOrigin(origins = "*")
 @Transactional
 @Tag(name = "Notificaciones", description = "Endpoints para el sistema de notificaciones")
 @SecurityRequirement(name = "bearerAuth")
