@@ -38,9 +38,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // CORRECCIÓN: /usuario/create y /usuario/createjson ya NO son públicos.
-                // El registro público va por /auth/register.
-                // La creación de usuarios por ADMIN cae en el catch-all /usuario/** de abajo.
+                .requestMatchers("/uploads/**").permitAll()
+                
 
                 // ── USER y ADMIN: perfil propio ───────────────────────
                 .requestMatchers(
