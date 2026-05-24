@@ -170,12 +170,14 @@ public class SecurityConfig {
      *
      * @return fuente de configuración CORS aplicada a todos los endpoints
      */
+   
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-            "https://tu-app.netlify.app"   
+            "http://localhost:4200",
+            "https://tu-app.netlify.app"
         ));
 
         config.setAllowedMethods(List.of(
