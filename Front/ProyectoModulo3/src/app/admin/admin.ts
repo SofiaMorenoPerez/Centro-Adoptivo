@@ -89,7 +89,7 @@ export class Admin implements OnInit {
   cargarSolicitudes(): void {
     this.cargando = true;
     this.solicitudService.getPendientes().subscribe({
-      next: (data) => { this.solicitudes = data; this.cargando = false; },
+      next: (data) => { this.solicitudes = data ?? []; this.cargando = false; },
       error: () => { this.error = 'Error al cargar las solicitudes.'; this.cargando = false; }
     });
   }
