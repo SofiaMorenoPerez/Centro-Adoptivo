@@ -33,6 +33,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controlador REST para la gestión de animales en adopción.
+ * <p>
+ * Expone endpoints para registrar, consultar, actualizar y eliminar animales.
+ * Requiere autenticación mediante JWT.
+ * </p>
+ */
 @RestController
 @RequestMapping("/animal")
 @CrossOrigin(origins = { "http://localhost:8081", "*"})
@@ -41,16 +48,30 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @SecurityRequirement(name = "bearerAuth")
 public class AnimalController {
 
+    /** Servicio de lógica de negocio para animales. */
     @Autowired
     private AnimalService animalService;
 
+    /** Servicio de auditoría para registrar acciones del sistema. */
     @Autowired
     private AuditoriaService auditoriaService;
 
+    /**
+     * Obtiene el nombre del usuario autenticado en el contexto de seguridad actual.
+     *
+     * @return nombre de usuario autenticado
+     */
     private String getUsuarioActual() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    /**
+     * Registra un nuevo animal con validación mediante inteligencia artificial.
+     *
+     * @param dto   datos del animal a registrar
+     * @param image imagen del animal
+     * @return el {@link AnimalDTO} creado, o un mensaje de error según la excepción
+     */
     @Operation(summary = "Registrar animal con validación IA")
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
@@ -86,6 +107,11 @@ public class AnimalController {
         }
     }
 
+    /**
+     * Obtiene la lista de todos los animales disponibles para adopción.
+     *
+     * @return lista de {@link AnimalDTO} disponibles, o 204 si no hay animales
+     */
     @Operation(summary = "Obtener todos los animales disponibles")
     @GetMapping("/getall")
     public ResponseEntity<List<AnimalDTO>> getAll() {
@@ -94,6 +120,11 @@ public class AnimalController {
         return ResponseEntity.ok(list);
     }
 
+    /**
+     * Obtiene la lista de todos los animales del sistema (uso exclusivo de ADMIN).
+     *
+     * @return lista completa de {@link AnimalDTO}, o 204 si no hay animales
+     */
     @Operation(summary = "Obtener todos los animales (ADMIN)")
     @GetMapping("/getallAdmin")
     public ResponseEntity<List<AnimalDTO>> getAllAdmin() {
@@ -102,6 +133,12 @@ public class AnimalController {
         return ResponseEntity.ok(list);
     }
 
+    /**
+     * Obtiene un animal por su identificador.
+     *
+     * @param id identificador del animal
+     * @return el {@link AnimalDTO} encontrado, o 404 si no existe
+     */
     @Operation(summary = "Obtener animal por ID")
     @GetMapping("/getbyid/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
@@ -113,12 +150,24 @@ public class AnimalController {
         }
     }
 
+    /**
+     * Obtiene los animales publicados por un usuario específico.
+     *
+     * @param publisherId identificador del usuario publicador
+     * @return lista de {@link AnimalDTO} publicados por el usuario
+     */
     @Operation(summary = "Obtener animales por publicador")
     @GetMapping("/publicador/{publisherId}")
     public ResponseEntity<List<AnimalDTO>> getByPublisher(@PathVariable Long publisherId) {
         return ResponseEntity.ok(animalService.obtenerAnimalesPorPublicador(publisherId));
     }
 
+    /**
+     * Obtiene las publicaciones del usuario autenticado actualmente.
+     *
+     * @return lista de {@link AnimalDTO} del usuario, 204 si no tiene publicaciones,
+     *         o 404 si el usuario no es encontrado
+     */
     @Operation(summary = "Mis publicaciones (usuario autenticado)")
     @GetMapping("/mispublicaciones")
     public ResponseEntity<?> misPublicaciones() {
@@ -133,6 +182,13 @@ public class AnimalController {
         }
     }
 
+    /**
+     * Actualiza los datos de un animal existente.
+     *
+     * @param id  identificador del animal a actualizar
+     * @param dto datos nuevos del animal
+     * @return el {@link AnimalDTO} actualizado, o un mensaje de error según la excepción
+     */
     @Operation(summary = "Actualizar animal")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AnimalDTO dto) {
@@ -153,6 +209,12 @@ public class AnimalController {
         }
     }
 
+    /**
+     * Elimina un animal del sistema por su identificador.
+     *
+     * @param id identificador del animal a eliminar
+     * @return 204 si fue eliminado correctamente, o 404 si no existe
+     */
     @Operation(summary = "Eliminar animal")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
