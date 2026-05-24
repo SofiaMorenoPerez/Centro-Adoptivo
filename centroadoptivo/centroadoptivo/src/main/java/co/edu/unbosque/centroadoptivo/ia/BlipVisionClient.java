@@ -17,11 +17,11 @@ import com.google.gson.JsonObject;
 @Component
 public class BlipVisionClient {
 
-    @Value("${imagga.api.key}")
-    private String apiKey;
+	@Value("${imagga.api.key}")
+	private String apiKey;
 
-    @Value("${imagga.api.secret}")
-    private String apiSecret;
+	@Value("${imagga.api.secret}")
+	private String apiSecret;
 
     private static final String URL = "https://api.imagga.com/v2/tags";
 

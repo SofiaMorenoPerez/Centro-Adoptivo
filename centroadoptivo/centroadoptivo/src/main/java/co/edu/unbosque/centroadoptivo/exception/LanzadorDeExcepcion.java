@@ -1,5 +1,7 @@
 package co.edu.unbosque.centroadoptivo.exception;
 
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 
 public class LanzadorDeExcepcion {
@@ -126,4 +128,16 @@ public class LanzadorDeExcepcion {
         if (!existe) throw new NotificacionNoEncontradaException();
     }
     
+    public static void verificarEspecieDomestica(String especie) throws ValidacionIAException {
+        List<String> especiesPermitidas = List.of(
+            "perro", "gato", "conejo", "hamster", "ave", "pájaro",
+            "loro", "pez", "tortuga", "cobayo", "cuy", "hurón"
+        );
+        boolean especieValida = especiesPermitidas.stream()
+            .anyMatch(e -> especie.toLowerCase().contains(e));
+        if (!especieValida) {
+            throw new ValidacionIAException(
+                "El animal detectado (" + especie + ") no es una especie doméstica permitida para adopción.");
+        }
+    }
 }

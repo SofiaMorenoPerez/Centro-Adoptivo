@@ -2,20 +2,24 @@ package co.edu.unbosque.centroadoptivo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import co.edu.unbosque.centroadoptivo.dto.ResultadoIADTO;
+import co.edu.unbosque.centroadoptivo.exception.LanzadorDeExcepcion;
+import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
 import co.edu.unbosque.centroadoptivo.ia.BlipVisionClient;
+import co.edu.unbosque.centroadoptivo.ia.ClaudeVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.DeepSeekVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.GeminiVisionClient;
 import co.edu.unbosque.centroadoptivo.ia.MistralVisionClient;
-import co.edu.unbosque.centroadoptivo.ia.OpenRouterVisionClient;
 
 @Service
 public class IAOrquestadorService {
 
     @Autowired private GeminiVisionClient geminiClient;
-    @Autowired private OpenRouterVisionClient openRouterClient;
+    @Autowired private ClaudeVisionClient claudeClient;
     @Autowired private BlipVisionClient blipClient;
     @Autowired private DeepSeekVisionClient deepSeekClient;
     @Autowired private MistralVisionClient mistralClient;
@@ -72,15 +76,27 @@ public class IAOrquestadorService {
         } catch (Exception e) {
             detalle.append("Gemini clasificación: ERROR | ");
         }
+        
+     // ── Validar especie doméstica ────────────────────────────────────
+        try {
+            LanzadorDeExcepcion.verificarEspecieDomestica(especie);
+        } catch (ValidacionIAException e) {
+            ResultadoIADTO resultado = new ResultadoIADTO();
+            resultado.setAprobado(false);
+            resultado.setVotos(0);
+            resultado.setTotalIAs(totalIAs);
+            resultado.setDetalle(e.getMessage());
+            return resultado;
+        }
 
         // ── IA 3: OpenRouter verifica la clasificación ───────────────────
         try {
-            String resultado = openRouterClient.verificarClasificacion(
+            String resultado = claudeClient.verificarClasificacion(
                     imagenBase64, clasificacion);
             if (resultado.contains("CORRECT")) votos++;
-            detalle.append("OpenRouter: ").append(resultado).append(" | ");
+            detalle.append("Claude: ").append(resultado).append(" | ");
         } catch (Exception e) {
-            detalle.append("OpenRouter: ERROR | ");
+            detalle.append("Claude: ERROR | ");
         }
 
         // ── IA 4: BLIP describe el animal ────────────────────────────────

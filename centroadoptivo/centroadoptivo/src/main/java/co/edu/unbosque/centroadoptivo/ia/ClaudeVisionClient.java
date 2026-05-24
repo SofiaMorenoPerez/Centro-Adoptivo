@@ -1,32 +1,32 @@
 package co.edu.unbosque.centroadoptivo.ia;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 @Component
-public class OpenRouterVisionClient {
+public class ClaudeVisionClient {
 
-    @Value("${openrouter.api.key}")
+    @Value("${anthropic.api.key}")
     private String apiKey;
 
-    private static final String URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String MODELO = "meta-llama/llama-4-scout:free";
-    
+    private static final String URL = "https://api.anthropic.com/v1/messages";
+    private static final String MODELO = "claude-haiku-4-5";
+
     private final HttpClient CLIENTE = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_1_1)   
-            .connectTimeout(Duration.ofSeconds(30)) 
+            .version(HttpClient.Version.HTTP_1_1)
+            .connectTimeout(Duration.ofSeconds(30))
             .build();
 
-    // Verifica si la clasificación detectada por Gemini es correcta
     public String verificarClasificacion(String imagenBase64, String clasificacion) {
 
         String prompt =
@@ -39,37 +39,42 @@ public class OpenRouterVisionClient {
         HttpRequest solicitud = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .uri(URI.create(URL))
-                .setHeader("Authorization", "Bearer " + apiKey)
+                .setHeader("x-api-key", apiKey)
+                .setHeader("anthropic-version", "2023-06-01")
                 .setHeader("Content-Type", "application/json")
                 .build();
 
         HttpResponse<String> respuesta = null;
         try {
             respuesta = CLIENTE.send(solicitud, HttpResponse.BodyHandlers.ofString());
-            System.out.println("OPENROUTER RESPONSE: " + respuesta.statusCode() + " | " + respuesta.body()); // ← agrega esta línea
-        } catch (IOException | InterruptedException e) {
+            System.out.println("CLAUDE RESPONSE: " + respuesta.statusCode()
+                    + " | " + respuesta.body());
+        } catch (Exception e) {
             e.printStackTrace();
             return "ERROR";
         }
+
         return extraerRespuesta(respuesta.body());
     }
 
     private String construirBody(String imagenBase64, String prompt) {
 
-        JsonObject imagenUrl = new JsonObject();
-        imagenUrl.addProperty("url", "data:image/jpeg;base64," + imagenBase64);
+        JsonObject imagenSource = new JsonObject();
+        imagenSource.addProperty("type", "base64");
+        imagenSource.addProperty("media_type", "image/jpeg");
+        imagenSource.addProperty("data", imagenBase64);
 
         JsonObject partImagen = new JsonObject();
-        partImagen.addProperty("type", "image_url");
-        partImagen.add("image_url", imagenUrl);
+        partImagen.addProperty("type", "image");
+        partImagen.add("source", imagenSource);
 
         JsonObject partTexto = new JsonObject();
         partTexto.addProperty("type", "text");
         partTexto.addProperty("text", prompt);
 
         JsonArray content = new JsonArray();
-        content.add(partTexto);
         content.add(partImagen);
+        content.add(partTexto);
 
         JsonObject mensaje = new JsonObject();
         mensaje.addProperty("role", "user");
@@ -89,10 +94,9 @@ public class OpenRouterVisionClient {
     private String extraerRespuesta(String bodyRespuesta) {
         try {
             JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
-            return json.getAsJsonArray("choices")
+            return json.getAsJsonArray("content")
                     .get(0).getAsJsonObject()
-                    .get("message").getAsJsonObject()
-                    .get("content").getAsString()
+                    .get("text").getAsString()
                     .trim();
         } catch (Exception e) {
             return "ERROR";

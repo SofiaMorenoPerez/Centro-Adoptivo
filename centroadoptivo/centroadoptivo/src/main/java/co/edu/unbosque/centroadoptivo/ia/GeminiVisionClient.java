@@ -19,7 +19,7 @@ public class GeminiVisionClient {
     private String apiKey;
 
     private static final String URL =
-    	    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=";
+    	    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
     
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)  
