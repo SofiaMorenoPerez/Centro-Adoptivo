@@ -34,17 +34,39 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Pruebas unitarias para {@link SolicitudAdopcionService}.
+ * <p>
+ * Verifica el comportamiento del servicio de solicitudes de adopción usando Mockito
+ * para simular los repositorios y servicios dependientes, sin necesidad de levantar
+ * el contexto de Spring.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class SolicitudAdopcionServiceTest {
 
+    /** Mock del repositorio de solicitudes de adopción. */
     @Mock private SolicitudAdopcionRepository solicitudRepository;
+
+    /** Mock del repositorio de animales. */
     @Mock private AnimalRepository animalRepository;
+
+    /** Mock del repositorio de usuarios. */
     @Mock private UserRepository userRepository;
+
+    /** Mock del servicio de notificaciones. */
     @Mock private NotificacionService notificacionService;
+
+    /** Instancia del servicio bajo prueba con dependencias mockeadas. */
     @InjectMocks private SolicitudAdopcionService solicitudService;
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
+    /**
+     * Crea un usuario publicador de muestra con id {@code 1} y username {@code "publicador"}.
+     *
+     * @return instancia de {@link User} representando al publicador
+     */
     private User publisher() {
         User u = new User();
         u.setId(1L);
@@ -52,6 +74,11 @@ class SolicitudAdopcionServiceTest {
         return u;
     }
 
+    /**
+     * Crea un usuario adoptante de muestra con id {@code 2} y username {@code "adoptante"}.
+     *
+     * @return instancia de {@link User} representando al adoptante
+     */
     private User adopter() {
         User u = new User();
         u.setId(2L);
@@ -59,6 +86,12 @@ class SolicitudAdopcionServiceTest {
         return u;
     }
 
+    /**
+     * Crea un animal disponible de muestra con id {@code 10}, nombre {@code "Firulais"}
+     * y estado {@link AnimalStatus#AVAILABLE}, asociado al publicador.
+     *
+     * @return instancia de {@link Animal} disponible para adopción
+     */
     private Animal animalDisponible() {
         Animal a = new Animal();
         a.setId(10L);
@@ -68,6 +101,14 @@ class SolicitudAdopcionServiceTest {
         return a;
     }
 
+    /**
+     * Crea una solicitud de adopción pendiente de muestra con id {@code 100},
+     * asociada al animal y adoptante dados.
+     *
+     * @param animal  animal sobre el que se realiza la solicitud
+     * @param adopter usuario que realiza la solicitud
+     * @return instancia de {@link SolicitudAdopcion} en estado {@link RequestStatus#PENDING}
+     */
     private SolicitudAdopcion solicitudPendiente(Animal animal, User adopter) {
         SolicitudAdopcion s = new SolicitudAdopcion(animal, adopter,
                 LocalDateTime.now(), RequestStatus.PENDING);
@@ -79,6 +120,10 @@ class SolicitudAdopcionServiceTest {
     // crearSolicitud()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code crearSolicitud} lanza {@link AnimalNoEncontradoException}
+     * cuando el animal no existe en el repositorio.
+     */
     @Test
     @DisplayName("crearSolicitud: animal no existe → AnimalNoEncontradoException")
     void crearSolicitud_animalNoExiste_lanzaExcepcion() {
@@ -87,6 +132,10 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.crearSolicitud(10L, "adoptante"));
     }
 
+    /**
+     * Verifica que {@code crearSolicitud} lanza {@link AnimalNoDisponibleException}
+     * cuando el animal existe pero no está en estado {@link AnimalStatus#AVAILABLE}.
+     */
     @Test
     @DisplayName("crearSolicitud: animal no disponible → AnimalNoDisponibleException")
     void crearSolicitud_animalNoDispo_lanzaExcepcion() {
@@ -99,6 +148,10 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.crearSolicitud(10L, "adoptante"));
     }
 
+    /**
+     * Verifica que {@code crearSolicitud} lanza {@link UserNotFoundException}
+     * cuando el usuario adoptante no existe en el repositorio.
+     */
     @Test
     @DisplayName("crearSolicitud: usuario no existe → UserNotFoundException")
     void crearSolicitud_usuarioNoExiste_lanzaExcepcion() {
@@ -111,11 +164,15 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.crearSolicitud(10L, "adoptante"));
     }
 
+    /**
+     * Verifica que {@code crearSolicitud} lanza {@link AnimalNoDisponibleException}
+     * cuando el adoptante es el mismo usuario que publicó el animal.
+     */
     @Test
     @DisplayName("crearSolicitud: adoptante es el mismo publicador → AnimalNoDisponibleException")
     void crearSolicitud_adoptanteEsPublicador_lanzaExcepcion() {
         User pub = publisher();
-        Animal a = animalDisponible(); // publisher id=1
+        Animal a = animalDisponible();
 
         when(animalRepository.existsById(10L)).thenReturn(true);
         when(animalRepository.findById(10L)).thenReturn(Optional.of(a));
@@ -126,6 +183,10 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.crearSolicitud(10L, "publicador"));
     }
 
+    /**
+     * Verifica que {@code crearSolicitud} lanza {@link SolicitudDuplicadaException}
+     * cuando ya existe una solicitud pendiente del mismo adoptante para el mismo animal.
+     */
     @Test
     @DisplayName("crearSolicitud: solicitud duplicada → SolicitudDuplicadaException")
     void crearSolicitud_duplicada_lanzaExcepcion() {
@@ -143,6 +204,13 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.crearSolicitud(10L, "adoptante"));
     }
 
+    /**
+     * Verifica que {@code crearSolicitud} con datos válidos cambia el estado del animal
+     * a {@link AnimalStatus#PENDING}, guarda la solicitud, envía dos notificaciones
+     * y retorna un DTO correctamente formado.
+     *
+     * @throws Exception no se espera en este escenario
+     */
     @Test
     @DisplayName("crearSolicitud: valida → cambia estado animal, guarda solicitud, envía 2 notificaciones")
     void crearSolicitud_valida_guardaYNotifica() throws Exception {
@@ -160,17 +228,10 @@ class SolicitudAdopcionServiceTest {
 
         SolicitudAdopcionDTO result = solicitudService.crearSolicitud(10L, "adoptante");
 
-        // Animal pasa a PENDING
         assertEquals(AnimalStatus.PENDING, a.getStatus());
         verify(animalRepository).save(a);
-
-        // Solicitud guardada
         verify(solicitudRepository).save(any(SolicitudAdopcion.class));
-
-        // Dos notificaciones enviadas (al publicador y al adoptante)
         verify(notificacionService, times(2)).enviar(anyString(), any(User.class));
-
-        // DTO bien formado
         assertNotNull(result);
         assertEquals(100L, result.getId());
         assertEquals(10L, result.getAnimalId());
@@ -180,6 +241,12 @@ class SolicitudAdopcionServiceTest {
         assertEquals(RequestStatus.PENDING, result.getStatus());
     }
 
+    /**
+     * Verifica que al crear una solicitud válida, la notificación enviada al publicador
+     * contiene el nombre de usuario del adoptante.
+     *
+     * @throws Exception no se espera en este escenario
+     */
     @Test
     @DisplayName("crearSolicitud: notificacion al publicador contiene nombre del adoptante")
     void crearSolicitud_notificacionPublicadorContieneAdoptante() throws Exception {
@@ -203,10 +270,12 @@ class SolicitudAdopcionServiceTest {
         );
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // aprobarSolicitud()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que {@code aprobarSolicitud} lanza {@link SolicitudNoEncontradaException}
+     * cuando la solicitud no existe en el repositorio.
+     */
     @Test
     @DisplayName("aprobarSolicitud: solicitud no existe → SolicitudNoEncontradaException")
     void aprobarSolicitud_noExiste_lanzaExcepcion() {
@@ -215,6 +284,10 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.aprobarSolicitud(100L));
     }
 
+    /**
+     * Verifica que {@code aprobarSolicitud} lanza {@link SolicitudNoPendienteException}
+     * cuando la solicitud existe pero no está en estado {@link RequestStatus#PENDING}.
+     */
     @Test
     @DisplayName("aprobarSolicitud: no esta pendiente → SolicitudNoPendienteException")
     void aprobarSolicitud_noPendiente_lanzaExcepcion() {
@@ -230,6 +303,13 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.aprobarSolicitud(100L));
     }
 
+    /**
+     * Verifica que {@code aprobarSolicitud} con una solicitud pendiente cambia su estado
+     * a {@link RequestStatus#APPROVED}, asigna fecha de resolución, cambia el animal a
+     * {@link AnimalStatus#ADOPTED}, asigna el adoptante al animal y envía dos notificaciones.
+     *
+     * @throws Exception no se espera en este escenario
+     */
     @Test
     @DisplayName("aprobarSolicitud: pendiente → APPROVED, animal ADOPTED, 2 notificaciones")
     void aprobarSolicitud_pendiente_aprueba() throws Exception {
@@ -243,22 +323,21 @@ class SolicitudAdopcionServiceTest {
 
         SolicitudAdopcionDTO result = solicitudService.aprobarSolicitud(100L);
 
-        // Estado de solicitud
         assertEquals(RequestStatus.APPROVED, s.getStatus());
         assertNotNull(s.getResolutionDate());
-
-        // Animal adoptado con adoptante asignado
         assertEquals(AnimalStatus.ADOPTED, a.getStatus());
         assertEquals(adopter, a.getAdopter());
         verify(animalRepository).save(a);
-
-        // Dos notificaciones
         verify(notificacionService, times(2)).enviar(anyString(), any(User.class));
-
-        // DTO
         assertEquals(RequestStatus.APPROVED, result.getStatus());
     }
 
+    /**
+     * Verifica que al aprobar una solicitud, la notificación enviada al adoptante
+     * contiene la palabra {@code "Felicitaciones"}.
+     *
+     * @throws Exception no se espera en este escenario
+     */
     @Test
     @DisplayName("aprobarSolicitud: notificacion al adoptante contiene Felicitaciones")
     void aprobarSolicitud_notificacionAdopanteContienefelicitaciones() throws Exception {
@@ -278,10 +357,12 @@ class SolicitudAdopcionServiceTest {
         );
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // rechazarSolicitud()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que {@code rechazarSolicitud} lanza {@link SolicitudNoEncontradaException}
+     * cuando la solicitud no existe en el repositorio.
+     */
     @Test
     @DisplayName("rechazarSolicitud: solicitud no existe → SolicitudNoEncontradaException")
     void rechazarSolicitud_noExiste_lanzaExcepcion() {
@@ -290,6 +371,10 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.rechazarSolicitud(100L, "Sin espacio"));
     }
 
+    /**
+     * Verifica que {@code rechazarSolicitud} lanza {@link SolicitudNoPendienteException}
+     * cuando la solicitud existe pero no está en estado {@link RequestStatus#PENDING}.
+     */
     @Test
     @DisplayName("rechazarSolicitud: no esta pendiente → SolicitudNoPendienteException")
     void rechazarSolicitud_noPendiente_lanzaExcepcion() {
@@ -305,11 +390,18 @@ class SolicitudAdopcionServiceTest {
                 () -> solicitudService.rechazarSolicitud(100L, "Sin espacio"));
     }
 
+    /**
+     * Verifica que {@code rechazarSolicitud} con una solicitud pendiente cambia su estado
+     * a {@link RequestStatus#REJECTED}, asigna el motivo de rechazo, la fecha de resolución,
+     * devuelve el animal a {@link AnimalStatus#AVAILABLE} y envía dos notificaciones.
+     *
+     * @throws Exception no se espera en este escenario
+     */
     @Test
     @DisplayName("rechazarSolicitud: pendiente → REJECTED, animal vuelve a AVAILABLE, 2 notifs")
     void rechazarSolicitud_pendiente_rechaza() throws Exception {
         Animal a = animalDisponible();
-        a.setStatus(AnimalStatus.PENDING); // estaba en pending
+        a.setStatus(AnimalStatus.PENDING);
         User adopter = adopter();
         SolicitudAdopcion s = solicitudPendiente(a, adopter);
 
@@ -319,21 +411,21 @@ class SolicitudAdopcionServiceTest {
 
         SolicitudAdopcionDTO result = solicitudService.rechazarSolicitud(100L, "Sin espacio");
 
-        // Estado solicitud
         assertEquals(RequestStatus.REJECTED, s.getStatus());
         assertEquals("Sin espacio", s.getRejectionReason());
         assertNotNull(s.getResolutionDate());
-
-        // Animal vuelve a AVAILABLE
         assertEquals(AnimalStatus.AVAILABLE, a.getStatus());
         verify(animalRepository).save(a);
-
-        // Dos notificaciones
         verify(notificacionService, times(2)).enviar(anyString(), any(User.class));
-
         assertEquals(RequestStatus.REJECTED, result.getStatus());
     }
 
+    /**
+     * Verifica que al rechazar una solicitud, la notificación enviada al adoptante
+     * contiene el motivo de rechazo indicado.
+     *
+     * @throws Exception no se espera en este escenario
+     */
     @Test
     @DisplayName("rechazarSolicitud: motivo incluido en notificacion al adoptante")
     void rechazarSolicitud_motivoEnNotificacion() throws Exception {
@@ -353,10 +445,12 @@ class SolicitudAdopcionServiceTest {
         );
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // obtenerPendientes()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que {@code obtenerPendientes} retorna la lista de DTOs correctamente
+     * mapeados cuando existen solicitudes en estado {@link RequestStatus#PENDING}.
+     */
     @Test
     @DisplayName("obtenerPendientes: con pendientes → lista DTOs")
     void obtenerPendientes_conPendientes_retornaLista() {
@@ -373,6 +467,10 @@ class SolicitudAdopcionServiceTest {
         assertEquals("Firulais", result.get(0).getAnimalName());
     }
 
+    /**
+     * Verifica que {@code obtenerPendientes} retorna una lista vacía
+     * cuando no hay solicitudes pendientes.
+     */
     @Test
     @DisplayName("obtenerPendientes: sin pendientes → lista vacia")
     void obtenerPendientes_sinPendientes_listaVacia() {
@@ -380,10 +478,11 @@ class SolicitudAdopcionServiceTest {
         assertTrue(solicitudService.obtenerPendientes().isEmpty());
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // obtenerPorAdoptante()
-    // ═══════════════════════════════════════════════════════════════════════
-
+   
+    /**
+     * Verifica que {@code obtenerPorAdoptante} retorna la lista de solicitudes
+     * asociadas al adoptante indicado cuando existen registros.
+     */
     @Test
     @DisplayName("obtenerPorAdoptante: con solicitudes → lista correcta")
     void obtenerPorAdoptante_conSolicitudes_retornaLista() {
@@ -399,6 +498,10 @@ class SolicitudAdopcionServiceTest {
         assertEquals(2L, result.get(0).getAdopterId());
     }
 
+    /**
+     * Verifica que {@code obtenerPorAdoptante} retorna una lista vacía
+     * cuando el adoptante no tiene solicitudes registradas.
+     */
     @Test
     @DisplayName("obtenerPorAdoptante: sin solicitudes → lista vacia")
     void obtenerPorAdoptante_sinSolicitudes_listaVacia() {
@@ -406,10 +509,12 @@ class SolicitudAdopcionServiceTest {
         assertTrue(solicitudService.obtenerPorAdoptante(99L).isEmpty());
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // obtenerPorAnimal()
-    // ═══════════════════════════════════════════════════════════════════════
+   
 
+    /**
+     * Verifica que {@code obtenerPorAnimal} retorna la lista de solicitudes
+     * asociadas al animal indicado cuando existen registros.
+     */
     @Test
     @DisplayName("obtenerPorAnimal: con solicitudes → lista correcta")
     void obtenerPorAnimal_conSolicitudes_retornaLista() {
@@ -425,6 +530,10 @@ class SolicitudAdopcionServiceTest {
         assertEquals(10L, result.get(0).getAnimalId());
     }
 
+    /**
+     * Verifica que {@code obtenerPorAnimal} retorna una lista vacía
+     * cuando el animal no tiene solicitudes registradas.
+     */
     @Test
     @DisplayName("obtenerPorAnimal: sin solicitudes → lista vacia")
     void obtenerPorAnimal_sinSolicitudes_listaVacia() {
@@ -432,20 +541,27 @@ class SolicitudAdopcionServiceTest {
         assertTrue(solicitudService.obtenerPorAnimal(99L).isEmpty());
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // obtenerIdPorUsername()
-    // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code obtenerIdPorUsername} retorna el id del usuario
+     * cuando el username existe en el repositorio.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("obtenerIdPorUsername: usuario existe → retorna id")
     void obtenerIdPorUsername_existe_retornaId() throws UserNotFoundException {
-        User adopter = adopter(); // id=2
+        User adopter = adopter();
         when(userRepository.existsByUsername("adoptante")).thenReturn(true);
         when(userRepository.findByUsername("adoptante")).thenReturn(Optional.of(adopter));
 
         assertEquals(2L, solicitudService.obtenerIdPorUsername("adoptante"));
     }
 
+    /**
+     * Verifica que {@code obtenerIdPorUsername} lanza {@link UserNotFoundException}
+     * cuando el username no existe en el repositorio.
+     */
     @Test
     @DisplayName("obtenerIdPorUsername: usuario no existe → UserNotFoundException")
     void obtenerIdPorUsername_noExiste_lanzaExcepcion() {

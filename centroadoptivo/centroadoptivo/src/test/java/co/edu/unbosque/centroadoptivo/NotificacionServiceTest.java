@@ -23,15 +23,33 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Pruebas unitarias para {@link NotificacionService}.
+ * <p>
+ * Verifica el comportamiento del servicio de notificaciones usando Mockito para
+ * simular los repositorios {@link NotificacionRepository} y {@link UserRepository},
+ * sin necesidad de levantar el contexto de Spring.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class NotificacionServiceTest {
 
+    /** Mock del repositorio de notificaciones inyectado en el servicio. */
     @Mock private NotificacionRepository notificacionRepository;
+
+    /** Mock del repositorio de usuarios inyectado en el servicio. */
     @Mock private UserRepository userRepository;
+
+    /** Instancia del servicio bajo prueba con dependencias mockeadas. */
     @InjectMocks private NotificacionService notificacionService;
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
+    /**
+     * Crea un usuario de muestra con id {@code 1} y username {@code "juan123"}.
+     *
+     * @return instancia de {@link User} con datos predefinidos
+     */
     private User sampleUser() {
         User u = new User();
         u.setId(1L);
@@ -39,16 +57,24 @@ class NotificacionServiceTest {
         return u;
     }
 
+    /**
+     * Crea una notificación de muestra asociada al usuario dado, con id {@code 10}.
+     *
+     * @param user usuario destinatario de la notificación
+     * @return instancia de {@link Notificacion} con datos predefinidos
+     */
     private Notificacion sampleNotif(User user) {
         Notificacion n = new Notificacion("Mensaje de prueba", user);
         n.setId(10L);
         return n;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // enviar()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que al enviar una notificación, se guarda con el mensaje,
+     * destinatario correctos y el campo {@code leida} en {@code false}.
+     */
     @Test
     @DisplayName("enviar: guarda notificacion con mensaje y destinatario correctos")
     void enviar_guardaNotificacion() {
@@ -64,6 +90,10 @@ class NotificacionServiceTest {
         assertFalse(guardada.isLeida());
     }
 
+    /**
+     * Verifica que el método {@code enviar} puede invocarse múltiples veces
+     * y cada llamada genera un {@code save} independiente en el repositorio.
+     */
     @Test
     @DisplayName("enviar: se puede llamar multiples veces")
     void enviar_multiplesVeces_guardaMultiples() {
@@ -73,10 +103,13 @@ class NotificacionServiceTest {
         verify(notificacionRepository, times(2)).save(any(Notificacion.class));
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // obtenerMisNotificaciones()
-    // ═══════════════════════════════════════════════════════════════════════
-
+    
+    /**
+     * Verifica que {@code obtenerMisNotificaciones} retorna la lista de DTOs
+     * correctamente mapeados cuando el usuario existe y tiene notificaciones.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("obtenerMisNotificaciones: usuario valido → lista de DTOs")
     void obtenerMisNotificaciones_usuarioValido_retornaLista() throws UserNotFoundException {
@@ -96,6 +129,10 @@ class NotificacionServiceTest {
         assertFalse(result.get(0).isLeida());
     }
 
+    /**
+     * Verifica que {@code obtenerMisNotificaciones} lanza {@link UserNotFoundException}
+     * cuando el usuario no existe en el sistema.
+     */
     @Test
     @DisplayName("obtenerMisNotificaciones: usuario inexistente → UserNotFoundException")
     void obtenerMisNotificaciones_usuarioInexistente_lanzaExcepcion() {
@@ -104,6 +141,12 @@ class NotificacionServiceTest {
                 () -> notificacionService.obtenerMisNotificaciones("fantasma"));
     }
 
+    /**
+     * Verifica que {@code obtenerMisNotificaciones} retorna una lista vacía
+     * cuando el usuario existe pero no tiene notificaciones.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("obtenerMisNotificaciones: sin notificaciones → lista vacia")
     void obtenerMisNotificaciones_sinNotificaciones_listaVacia() throws UserNotFoundException {
@@ -115,10 +158,14 @@ class NotificacionServiceTest {
         assertTrue(notificacionService.obtenerMisNotificaciones("juan123").isEmpty());
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // obtenerNoLeidas()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que {@code obtenerNoLeidas} retorna únicamente las notificaciones
+     * no leídas del usuario cuando el usuario existe.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("obtenerNoLeidas: usuario valido → solo no leidas")
     void obtenerNoLeidas_usuarioValido_retornaSoloNoLeidas() throws UserNotFoundException {
@@ -136,6 +183,10 @@ class NotificacionServiceTest {
         assertFalse(result.get(0).isLeida());
     }
 
+    /**
+     * Verifica que {@code obtenerNoLeidas} lanza {@link UserNotFoundException}
+     * cuando el usuario no existe en el sistema.
+     */
     @Test
     @DisplayName("obtenerNoLeidas: usuario inexistente → UserNotFoundException")
     void obtenerNoLeidas_usuarioInexistente_lanzaExcepcion() {
@@ -144,6 +195,12 @@ class NotificacionServiceTest {
                 () -> notificacionService.obtenerNoLeidas("fantasma"));
     }
 
+    /**
+     * Verifica que {@code obtenerNoLeidas} retorna una lista vacía
+     * cuando todas las notificaciones del usuario ya han sido leídas.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("obtenerNoLeidas: todas leidas → lista vacia")
     void obtenerNoLeidas_todasLeidas_listaVacia() throws UserNotFoundException {
@@ -156,10 +213,14 @@ class NotificacionServiceTest {
         assertTrue(notificacionService.obtenerNoLeidas("juan123").isEmpty());
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // contarNoLeidas()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que {@code contarNoLeidas} retorna el conteo correcto
+     * de notificaciones no leídas cuando el usuario tiene pendientes.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("contarNoLeidas: usuario con 3 no leidas → 3")
     void contarNoLeidas_retornaConteo() throws UserNotFoundException {
@@ -171,6 +232,10 @@ class NotificacionServiceTest {
         assertEquals(3L, notificacionService.contarNoLeidas("juan123"));
     }
 
+    /**
+     * Verifica que {@code contarNoLeidas} lanza {@link UserNotFoundException}
+     * cuando el usuario no existe en el sistema.
+     */
     @Test
     @DisplayName("contarNoLeidas: usuario inexistente → UserNotFoundException")
     void contarNoLeidas_usuarioInexistente_lanzaExcepcion() {
@@ -179,6 +244,12 @@ class NotificacionServiceTest {
                 () -> notificacionService.contarNoLeidas("nadie"));
     }
 
+    /**
+     * Verifica que {@code contarNoLeidas} retorna {@code 0}
+     * cuando el usuario no tiene notificaciones sin leer.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("contarNoLeidas: sin no leidas → 0")
     void contarNoLeidas_sinNoLeidas_retornaCero() throws UserNotFoundException {
@@ -190,10 +261,14 @@ class NotificacionServiceTest {
         assertEquals(0L, notificacionService.contarNoLeidas("juan123"));
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // marcarComoLeida()
-    // ═══════════════════════════════════════════════════════════════════════
+    
 
+    /**
+     * Verifica que {@code marcarComoLeida} actualiza el campo {@code leida}
+     * a {@code true} y persiste el cambio cuando la notificación existe.
+     *
+     * @throws NotificacionNoEncontradaException no se espera en este escenario
+     */
     @Test
     @DisplayName("marcarComoLeida: notificacion existe → marca leida y guarda")
     void marcarComoLeida_existe_marcaYGuarda() throws NotificacionNoEncontradaException {
@@ -210,6 +285,10 @@ class NotificacionServiceTest {
         verify(notificacionRepository).save(n);
     }
 
+    /**
+     * Verifica que {@code marcarComoLeida} lanza {@link NotificacionNoEncontradaException}
+     * cuando la notificación con el id indicado no existe.
+     */
     @Test
     @DisplayName("marcarComoLeida: no existe → NotificacionNoEncontradaException")
     void marcarComoLeida_noExiste_lanzaExcepcion() {
@@ -218,10 +297,14 @@ class NotificacionServiceTest {
                 () -> notificacionService.marcarComoLeida(99L));
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // marcarTodasComoLeidas()
-    // ═══════════════════════════════════════════════════════════════════════
+   
 
+    /**
+     * Verifica que {@code marcarTodasComoLeidas} marca todas las notificaciones
+     * no leídas como leídas y las persiste mediante {@code saveAll}.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("marcarTodasComoLeidas: dos no leidas → ambas marcadas y guardadas")
     void marcarTodasComoLeidas_dosNoLeidas_marcaAmbas() throws UserNotFoundException {
@@ -242,6 +325,10 @@ class NotificacionServiceTest {
         verify(notificacionRepository).saveAll(List.of(n1, n2));
     }
 
+    /**
+     * Verifica que {@code marcarTodasComoLeidas} lanza {@link UserNotFoundException}
+     * cuando el usuario no existe en el sistema.
+     */
     @Test
     @DisplayName("marcarTodasComoLeidas: usuario inexistente → UserNotFoundException")
     void marcarTodasComoLeidas_usuarioInexistente_lanzaExcepcion() {
@@ -250,6 +337,12 @@ class NotificacionServiceTest {
                 () -> notificacionService.marcarTodasComoLeidas("nadie"));
     }
 
+    /**
+     * Verifica que {@code marcarTodasComoLeidas} invoca {@code saveAll} con una
+     * lista vacía cuando el usuario no tiene notificaciones sin leer.
+     *
+     * @throws UserNotFoundException no se espera en este escenario
+     */
     @Test
     @DisplayName("marcarTodasComoLeidas: sin no leidas → saveAll con lista vacia")
     void marcarTodasComoLeidas_sinNoLeidas_saveAllVacio() throws UserNotFoundException {
