@@ -10,7 +10,7 @@ export class AnimalService {
 
   private cliente = inject(HttpClient);
   private authService = inject(AuthService);
-  private readonly urlbase: string = 'https://gpcueb.org/sofiamoreno';
+  private readonly urlbase: string = 'https://gpcueb.org/isabellamoreno';
 
   private getHeaders() {
     return new HttpHeaders({

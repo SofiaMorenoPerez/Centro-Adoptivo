@@ -1,5 +1,15 @@
 package co.edu.unbosque.centroadoptivo.service;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import co.edu.unbosque.centroadoptivo.dto.AnimalDTO;
 import co.edu.unbosque.centroadoptivo.dto.ResultadoIADTO;
 import co.edu.unbosque.centroadoptivo.entity.Animal;
@@ -21,19 +31,6 @@ import co.edu.unbosque.centroadoptivo.repository.ResultadoIARepository;
 import co.edu.unbosque.centroadoptivo.repository.UserRepository;
 import co.edu.unbosque.centroadoptivo.repository.ValidacionIARepository;
 import co.edu.unbosque.centroadoptivo.util.ImageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Servicio que gestiona todas las operaciones relacionadas con los animales
@@ -76,8 +73,7 @@ public class AnimalService {
      * Directorio donde se almacenan las imágenes de los animales.
      * Configurable desde {@code application.properties}.
      */
-    @Value("${app.imagenes.directorio:uploads/animales}")
-    private String directorioImagenes;
+ 
 
     /**
      * Registra un nuevo animal en el sistema, validando los datos básicos
@@ -328,23 +324,18 @@ public class AnimalService {
     }
 
     /**
-     * Guarda la imagen del animal en el directorio configurado del servidor,
-     * generando un nombre único mediante UUID para evitar colisiones.
+     * Convierte la imagen del animal a Base64 para almacenarla
+     * directamente en la base de datos, evitando dependencia del sistema de archivos.
      *
-     * @param imagen archivo de imagen a guardar en disco
-     * @return ruta relativa de la imagen guardada, accesible como recurso estático
-     * @throws IOException si ocurre un error durante la escritura del archivo
+     * @param imagen archivo de imagen a convertir
+     * @return cadena Base64 con el prefijo data URI listo para usar en el frontend
+     * @throws IOException si ocurre un error durante la lectura del archivo
      */
     private String guardarImagen(MultipartFile imagen) throws IOException {
-        Path directorio = Paths.get(directorioImagenes);
-        if (!Files.exists(directorio)) {
-            Files.createDirectories(directorio);
-        }
-        String nombreArchivo = UUID.randomUUID()
-                + "_" + imagen.getOriginalFilename();
-        Path destino = directorio.resolve(nombreArchivo);
-        Files.copy(imagen.getInputStream(), destino);
-        return "/" + directorioImagenes + "/" + nombreArchivo;
+        byte[] bytes = imagen.getBytes();
+        String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
+        String contentType = imagen.getContentType();
+        return "data:" + contentType + ";base64," + base64;
     }
 
     /**

@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
 
   private cliente = inject(HttpClient);
-  private readonly urlbase: string = 'https://gpcueb.org/sofiamoreno';
+  private readonly urlbase: string = 'https://gpcueb.org/isabellamoreno';
 
   login(username: string, password: string) {
     return this.cliente.post<{ token: string, role: string, id: number }>(
