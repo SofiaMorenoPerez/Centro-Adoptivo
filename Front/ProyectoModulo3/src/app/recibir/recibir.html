@@ -42,6 +42,7 @@
         <div class="animal-badges">
           <span class="badge" *ngIf="animal.sterilized">✂️ Esterilizado</span>
           <span class="badge" *ngIf="animal.vaccinated">💉 Vacunado</span>
+          <p><i class="fa-solid fa-comment"></i> {{ animal.observations }}</p>
         </div>
         <button class="btn-adoptar" (click)="adoptar(animal.id)">
           <i class="fa-solid fa-heart"></i> Quiero adoptarlo
