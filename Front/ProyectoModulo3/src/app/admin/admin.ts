@@ -84,7 +84,7 @@ export class Admin implements OnInit {
     }
   }
 
-  // ─── TRANSACCIONES ──────────────────────────────────────────────────────────
+  // ─── TRANSACCIONES ─
 
   cargarSolicitudes(): void {
     this.cargando = true;
@@ -299,8 +299,6 @@ export class Admin implements OnInit {
       }
     });
   }
-
-  // ─── SESIÓN ─────────────────────────────────────────────────────────────────
 
   cerrarSesion(): void {
     this.authService.logout();
