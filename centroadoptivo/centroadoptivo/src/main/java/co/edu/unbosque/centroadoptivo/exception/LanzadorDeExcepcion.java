@@ -130,14 +130,23 @@ public class LanzadorDeExcepcion {
     
     public static void verificarEspecieDomestica(String especie) throws ValidacionIAException {
         List<String> especiesPermitidas = List.of(
-            "perro", "gato", "conejo", "hamster", "ave", "pájaro",
-            "loro", "pez", "tortuga", "cobayo", "cuy", "hurón"
+            "perro", "gato", "conejo", "hamster", "ave", "pajaro",
+            "loro", "pez", "peces", "tortuga", "cobayo", "cobaya", "cuy", "huron"
         );
+
+     
+        String especieNormalizada = especie.toLowerCase()
+            .replace("á", "a").replace("é", "e")
+            .replace("í", "i").replace("ó", "o")
+            .replace("ú", "u").replace("ñ", "n");
+
         boolean especieValida = especiesPermitidas.stream()
-            .anyMatch(e -> especie.toLowerCase().contains(e));
+            .anyMatch(e -> especieNormalizada.contains(e));
+
         if (!especieValida) {
             throw new ValidacionIAException(
-                "El animal detectado (" + especie + ") no es una especie doméstica permitida para adopción.");
+                "El animal detectado (" + especie +
+                ") no es una especie doméstica permitida para adopción.");
         }
     }
 }
