@@ -4,11 +4,10 @@ import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { AnimalService } from '../services/animal.service';
 import { SolicitudService } from '../services/solicitud.service';
-import { NotificacionService } from '../services/notificacion.service';
 import { UserModel } from '../models/user.model';
 import { AnimalModel } from '../models/animal.model';
 import { SolicitudModel } from '../models/solicitud.model';
-import { NotificacionModel } from '../models/notificacion.model';
+
 
 @Component({
   selector: 'app-admin',
@@ -18,14 +17,11 @@ import { NotificacionModel } from '../models/notificacion.model';
 })
 export class Admin implements OnInit {
   vista = 'transacciones';
-  menuCampana = false;
 
   usuarios: UserModel[] = [];
   admins: UserModel[] = [];
   animales: AnimalModel[] = [];
   solicitudes: SolicitudModel[] = [];
-  notificaciones: NotificacionModel[] = [];
-  cantidadNoLeidas = 0;
 
   cargando = false;
   error = '';
@@ -65,12 +61,10 @@ export class Admin implements OnInit {
     private userService: UserService,
     private animalService: AnimalService,
     private solicitudService: SolicitudService,
-    private notificacionService: NotificacionService
   ) {}
 
   ngOnInit(): void {
     this.cargarVista('transacciones');
-    this.cargarNotificaciones();
   }
 
   cambiarVista(v: string): void {
@@ -90,37 +84,12 @@ export class Admin implements OnInit {
     }
   }
 
-  // ─── NOTIFICACIONES ─────────────────────────────────────────────────────────
-
-  cargarNotificaciones(): void {
-    this.notificacionService.getMis().subscribe({
-      next: (notifs) => {
-        this.notificaciones = notifs || [];
-        this.cantidadNoLeidas = (notifs || []).filter(n => !n.leida).length;
-      },
-      error: () => {}
-    });
-  }
-
-  toggleCampana(): void {
-    this.menuCampana = !this.menuCampana;
-    if (this.menuCampana && this.cantidadNoLeidas > 0) {
-      this.notificacionService.marcarTodasLeidas().subscribe({
-        next: () => {
-          this.cantidadNoLeidas = 0;
-          this.notificaciones.forEach(n => { n.leida = true; });
-        },
-        error: () => {}
-      });
-    }
-  }
-
-  // ─── TRANSACCIONES ──────────────────────────────────────────────────────────
+  // ─── TRANSACCIONES ─
 
   cargarSolicitudes(): void {
     this.cargando = true;
     this.solicitudService.getPendientes().subscribe({
-      next: (data) => { this.solicitudes = data; this.cargando = false; },
+      next: (data) => { this.solicitudes = data ?? []; this.cargando = false; },
       error: () => { this.error = 'Error al cargar las solicitudes.'; this.cargando = false; }
     });
   }
@@ -330,8 +299,6 @@ export class Admin implements OnInit {
       }
     });
   }
-
-  // ─── SESIÓN ─────────────────────────────────────────────────────────────────
 
   cerrarSesion(): void {
     this.authService.logout();

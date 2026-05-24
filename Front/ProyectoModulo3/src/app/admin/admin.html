@@ -9,24 +9,6 @@
     </div>
 
     <!-- CAMPANA -->
-    <div class="campana-wrap">
-      <button class="btn-campana" (click)="toggleCampana()">
-        <i class="fa-solid fa-bell"></i>
-        <span class="badge-count" *ngIf="cantidadNoLeidas > 0">{{ cantidadNoLeidas }}</span>
-        Notificaciones
-      </button>
-      <div class="dropdown-campana" *ngIf="menuCampana">
-        <div class="campana-header"><strong>Notificaciones</strong></div>
-        <ul>
-          <li *ngIf="notificaciones.length === 0" class="sin-notifs">No tienes notificaciones</li>
-          <li *ngFor="let notif of notificaciones" [class.no-leida]="!notif.leida">
-            <i class="fa-solid fa-paw"></i> {{ notif.mensaje }}
-            <span class="notif-fecha">{{ notif.creadaEn | date:'dd/MM/yyyy HH:mm' }}</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
     <nav class="sidebar-nav">
       <button class="nav-item" [class.activo]="vista === 'transacciones'" (click)="cambiarVista('transacciones')">
         <i class="fa-solid fa-arrows-left-right"></i> Transacciones
