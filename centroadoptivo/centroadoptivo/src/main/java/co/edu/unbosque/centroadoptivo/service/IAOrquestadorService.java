@@ -2,10 +2,8 @@ package co.edu.unbosque.centroadoptivo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import co.edu.unbosque.centroadoptivo.dto.ResultadoIADTO;
 import co.edu.unbosque.centroadoptivo.exception.LanzadorDeExcepcion;
 import co.edu.unbosque.centroadoptivo.exception.ValidacionIAException;
@@ -33,109 +31,134 @@ public class IAOrquestadorService {
         int totalIAs = 5;
         StringBuilder detalle = new StringBuilder();
 
-        // Datos que las IAs van a detectar
+        String[] datosAnimal = detectarConGemini(imagenBase64, detalle);
+        String especie = datosAnimal[0];
+        String raza = datosAnimal[1];
+        String color = datosAnimal[2];
+        String edad = datosAnimal[3];
+
+        try {
+            LanzadorDeExcepcion.verificarEspecieDomestica(especie);
+        } catch (ValidacionIAException e) {
+            return resultadoRechazado(e.getMessage(), totalIAs);
+        }
+
+        if (!especie.equals("desconocido")) votos++;
+
+        String clasificacion = clasificarConGemini(imagenBase64, detalle);
+        if (!clasificacion.equals("ERROR")) votos++;
+
+        votos += validarConClaude(imagenBase64, clasificacion, detalle);
+        votos += analizarConImagga(imagenBytes, especie, detalle);
+        votos += validarConDeepSeek(especie, raza, color, edad, clasificacion, observaciones, detalle);
+        votos += moderarConMistral(observaciones, detalle);
+
+        boolean aprobado = votos >= 4;
+        return construirResultado(especie, raza, color, edad,
+                clasificacion, aprobado, votos, totalIAs, detalle.toString());
+    }
+
+
+    private String[] detectarConGemini(String imagenBase64, StringBuilder detalle) {
         String especie = "desconocido";
         String raza = "desconocida";
         String color = "desconocido";
         String edad = "ADULT";
-        String clasificacion = "DOMESTIC";
-
-        // ── IA 1: Gemini detecta especie, raza, color y edad ────────────
         try {
             String jsonRespuesta = geminiClient.detectarDatosAnimal(imagenBase64);
-
-            // Limpiamos posibles bloques de código markdown
             String jsonLimpio = jsonRespuesta
-                    .replace("```json", "")
-                    .replace("```", "")
-                    .trim();
-
+                    .replace("```json", "").replace("```", "").trim();
             JsonObject datos = new Gson().fromJson(jsonLimpio, JsonObject.class);
             especie = datos.get("especie").getAsString();
             raza = datos.get("raza").getAsString();
             color = datos.get("color").getAsString();
             edad = datos.get("edad").getAsString();
-
-            votos++;
-            detalle.append("Gemini: detectó ")
-                    .append(especie).append(" ")
-                    .append(raza).append(" | ");
-
+            detalle.append("Gemini: detectó ").append(especie)
+                   .append(" ").append(raza).append(" | ");
         } catch (Exception e) {
             detalle.append("Gemini: ERROR | ");
         }
+        return new String[]{especie, raza, color, edad};
+    }
 
-        // ── IA 2: Gemini verifica clasificación ──────────────────────────
+    private String clasificarConGemini(String imagenBase64, StringBuilder detalle) {
         try {
-            String resultadoClasificacion = geminiClient.verificarClasificacion(imagenBase64);
-            clasificacion = resultadoClasificacion.contains("NON") ?
-                    "NON_DOMESTIC" : "DOMESTIC";
-            votos++;
-            detalle.append("Gemini clasificación: ")
-                    .append(clasificacion).append(" | ");
+            String resultado = geminiClient.verificarClasificacion(imagenBase64);
+            String clasificacion = resultado.contains("NON") ? "NON_DOMESTIC" : "DOMESTIC";
+            detalle.append("Gemini clasificación: ").append(clasificacion).append(" | ");
+            return clasificacion;
         } catch (Exception e) {
             detalle.append("Gemini clasificación: ERROR | ");
+            return "ERROR";
         }
-        
-     // ── Validar especie doméstica ────────────────────────────────────
-        try {
-            LanzadorDeExcepcion.verificarEspecieDomestica(especie);
-        } catch (ValidacionIAException e) {
-            ResultadoIADTO resultado = new ResultadoIADTO();
-            resultado.setAprobado(false);
-            resultado.setVotos(0);
-            resultado.setTotalIAs(totalIAs);
-            resultado.setDetalle(e.getMessage());
-            return resultado;
-        }
+    }
 
-        // ── IA 3: OpenRouter verifica la clasificación ───────────────────
+    private int validarConClaude(String imagenBase64, String clasificacion, StringBuilder detalle) {
         try {
-            String resultado = claudeClient.verificarClasificacion(
-                    imagenBase64, clasificacion);
-            if (resultado.contains("CORRECT")) votos++;
+            String resultado = claudeClient.verificarClasificacion(imagenBase64, clasificacion);
             detalle.append("Claude: ").append(resultado).append(" | ");
+            return resultado.contains("CORRECT") ? 1 : 0;
         } catch (Exception e) {
             detalle.append("Claude: ERROR | ");
+            return 0;
         }
+    }
 
-        // ── IA 4: BLIP describe el animal ────────────────────────────────
+    private int analizarConImagga(byte[] imagenBytes, String especie, StringBuilder detalle) {
         try {
-            String descripcionBlip = blipClient.analizarDescripcion(imagenBytes);
-            // Si BLIP menciona la especie detectada es un buen signo
-            if (descripcionBlip.toLowerCase().contains(especie.toLowerCase()) ||
-                descripcionBlip.toLowerCase().contains("dog") ||
-                descripcionBlip.toLowerCase().contains("cat") ||
-                descripcionBlip.toLowerCase().contains("animal")) {
-                votos++;
+            String descripcion = blipClient.analizarDescripcion(imagenBytes);
+            detalle.append("Imagga: ").append(descripcion).append(" | ");
+            if (descripcion.toLowerCase().contains(especie.toLowerCase()) ||
+                descripcion.toLowerCase().contains("dog") ||
+                descripcion.toLowerCase().contains("cat") ||
+                descripcion.toLowerCase().contains("animal") ||
+                descripcion.toLowerCase().contains("pet")) {
+                return 1;
             }
-            detalle.append("BLIP: ").append(descripcionBlip).append(" | ");
         } catch (Exception e) {
-            detalle.append("BLIP: ERROR | ");
+            detalle.append("Imagga: ERROR | ");
         }
+        return 0;
+    }
 
-        // ── IA 5: DeepSeek valida coherencia de todo ─────────────────────
+    private int validarConDeepSeek(String especie, String raza, String color,
+            String edad, String clasificacion, String observaciones,
+            StringBuilder detalle) {
         try {
             String resultado = deepSeekClient.validarCoherencia(
                     especie, raza, color, edad, clasificacion, observaciones);
-            if (resultado.equals("VALIDO")) votos++;
             detalle.append("DeepSeek: ").append(resultado).append(" | ");
+            return resultado.equals("VALIDO") ? 1 : 0;
         } catch (Exception e) {
             detalle.append("DeepSeek: ERROR | ");
+            return 0;
         }
+    }
 
-        // ── Mistral modera las observaciones ─────────────────────────────
+    private int moderarConMistral(String observaciones, StringBuilder detalle) {
         try {
             String resultado = mistralClient.moderarDescripcion(observaciones);
-            if (resultado.equals("APROBADO")) votos++;
             detalle.append("Mistral: ").append(resultado);
+            return resultado.equals("APROBADO") ? 1 : 0;
         } catch (Exception e) {
             detalle.append("Mistral: ERROR");
+            return 0;
         }
+    }
 
-        // ── Resultado final ───────────────────────────────────────────────
-        boolean aprobado = votos >= 4;
 
+    private ResultadoIADTO resultadoRechazado(String mensaje, int totalIAs) {
+        ResultadoIADTO resultado = new ResultadoIADTO();
+        resultado.setAprobado(false);
+        resultado.setVotos(0);
+        resultado.setTotalIAs(totalIAs);
+        resultado.setDetalle(mensaje);
+        return resultado;
+    }
+
+    private ResultadoIADTO construirResultado(String especie, String raza,
+            String color, String edad, String clasificacion,
+            boolean aprobado, int votos, int totalIAs, String detalle) {
         ResultadoIADTO resultado = new ResultadoIADTO();
         resultado.setEspecie(especie);
         resultado.setRaza(raza);
@@ -145,8 +168,7 @@ public class IAOrquestadorService {
         resultado.setAprobado(aprobado);
         resultado.setVotos(votos);
         resultado.setTotalIAs(totalIAs);
-        resultado.setDetalle(detalle.toString());
-
+        resultado.setDetalle(detalle);
         return resultado;
     }
 }

@@ -29,10 +29,12 @@ public class ClaudeVisionClient {
 
     public String verificarClasificacion(String imagenBase64, String clasificacion) {
 
-        String prompt =
-            "Look at this animal image. " +
-            "Someone classified this animal as: " + clasificacion + ". " +
-            "Do you agree? Answer ONLY with one word: CORRECT or INCORRECT.";
+    	String prompt =
+    		    "Look at this animal image. " +
+    		    "Someone classified this animal as: " + clasificacion + ". " +
+    		    "Domestic animals include: dogs, cats, rabbits, hamsters, guinea pigs, " +
+    		    "parrots, canaries, fish, turtles, ferrets and common pets. " +
+    		    "Do you agree with the classification? Answer ONLY with one word: CORRECT or INCORRECT.";
 
         String body = construirBody(imagenBase64, prompt);
 
