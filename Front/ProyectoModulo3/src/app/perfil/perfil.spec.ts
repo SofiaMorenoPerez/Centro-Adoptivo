@@ -13,9 +13,9 @@ describe('Perfil', () => {
   let component: Perfil;
   let fixture: ComponentFixture<Perfil>;
 
-  let userServiceMock: any;
-  let authServiceMock: any;
-  let routerMock: any;
+  let userServiceMock: { getPerfil: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+  let authServiceMock: { getRol: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
 

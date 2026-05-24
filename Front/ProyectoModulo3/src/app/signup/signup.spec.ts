@@ -11,8 +11,8 @@ describe('SignUp', () => {
   let component: SignUp;
   let fixture: ComponentFixture<SignUp>;
 
-  let authServiceMock: any;
-  let routerMock: any;
+  let authServiceMock: { register: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
 

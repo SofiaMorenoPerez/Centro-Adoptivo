@@ -13,9 +13,9 @@ describe('Recibir', () => {
   let component: Recibir;
   let fixture: ComponentFixture<Recibir>;
 
-  let animalServiceMock: any;
-  let solicitudServiceMock: any;
-  let routerMock: any;
+  let animalServiceMock: { getAll: ReturnType<typeof vi.fn> };
+  let solicitudServiceMock: { crear: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
 

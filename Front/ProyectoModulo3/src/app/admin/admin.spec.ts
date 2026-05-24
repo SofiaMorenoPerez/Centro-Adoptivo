@@ -16,11 +16,13 @@ describe('Admin', () => {
   let component: Admin;
   let fixture: ComponentFixture<Admin>;
 
-  let routerMock: any;
-  let authServiceMock: any;
-  let userServiceMock: any;
-  let animalServiceMock: any;
-  let solicitudServiceMock: any;
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let authServiceMock: { logout: ReturnType<typeof vi.fn>; register: ReturnType<typeof vi.fn> };
+  let userServiceMock: { getAll: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn>; cambiarRol: ReturnType<typeof vi.fn>; updateAdmin: ReturnType<typeof vi.fn> };
+  let animalServiceMock: { getAllAdmin: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> };
+  let solicitudServiceMock: { getPendientes: ReturnType<typeof vi.fn>; aprobar: ReturnType<typeof vi.fn>; rechazar: ReturnType<typeof vi.fn> };
+
+  // ... resto del archivo sin cambios
 
   beforeEach(async () => {
 

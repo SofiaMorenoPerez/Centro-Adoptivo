@@ -13,9 +13,9 @@ describe('Usuario', () => {
   let component: Usuario;
   let fixture: ComponentFixture<Usuario>;
 
-  let authServiceMock: any;
-  let routerMock: any;
-  let notificacionServiceMock: any;
+  let authServiceMock: { logout: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let notificacionServiceMock: { getMis: ReturnType<typeof vi.fn>; marcarTodasLeidas: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
 

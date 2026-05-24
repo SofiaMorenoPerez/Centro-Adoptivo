@@ -12,8 +12,8 @@ describe('Dar', () => {
   let component: Dar;
   let fixture: ComponentFixture<Dar>;
 
-  let animalServiceMock: any;
-  let routerMock: any;
+  let animalServiceMock: { registrar: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
 

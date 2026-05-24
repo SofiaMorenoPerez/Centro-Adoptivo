@@ -12,8 +12,8 @@ describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
 
-  let authServiceMock: any;
-  let routerMock: any;
+  let authServiceMock: { login: ReturnType<typeof vi.fn>; guardarToken: ReturnType<typeof vi.fn>; guardarRol: ReturnType<typeof vi.fn>; guardarId: ReturnType<typeof vi.fn> };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
 
