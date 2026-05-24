@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AnimalService } from '../services/animal.service';
 import { SolicitudService } from '../services/solicitud.service';
@@ -11,19 +11,18 @@ import { AnimalModel } from '../models/animal.model';
   styleUrl: './recibir.css'
 })
 export class Recibir implements OnInit {
-  filtroEspecie = '';
-  filtroEdad = '';
 
   animales: AnimalModel[] = [];
   animalesFiltrados: AnimalModel[] = [];
-  cargando= false;
+  cargando = false;
   error = '';
   exito = '';
 
   constructor(
     private router: Router,
     private animalService: AnimalService,
-    private solicitudService: SolicitudService
+    private solicitudService: SolicitudService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -34,24 +33,17 @@ export class Recibir implements OnInit {
     this.cargando = true;
     this.animalService.getAll().subscribe({
       next: (animales) => {
-        this.animales = animales;
-        this.aplicarFiltros();
+        this.animales = animales || [];
+        this.animalesFiltrados = [...this.animales];
         this.cargando = false;
+        this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Error al cargar los animales.';
+        this.animales = [];
+        this.animalesFiltrados = [];
         this.cargando = false;
+        this.cdr.detectChanges();
       }
-    });
-  }
-
-  aplicarFiltros(): void {
-    this.animalesFiltrados = this.animales.filter(animal => {
-      const coincideEspecie = this.filtroEspecie === '' ||
-        animal.species?.toLowerCase() === this.filtroEspecie.toLowerCase();
-      const coincideEdad = this.filtroEdad === '' ||
-        animal.age === this.filtroEdad;
-      return coincideEspecie && coincideEdad;
     });
   }
 
@@ -61,9 +53,11 @@ export class Recibir implements OnInit {
     this.solicitudService.crear(animalId).subscribe({
       next: () => {
         this.exito = '¡Solicitud enviada! El admin revisará tu solicitud pronto.';
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        this.error = err.error || 'Error al enviar la solicitud.';
+        this.error = typeof err.error === 'string' ? err.error : 'Error al enviar la solicitud.';
+        this.cdr.detectChanges();
       }
     });
   }
