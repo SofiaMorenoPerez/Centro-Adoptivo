@@ -19,7 +19,7 @@ public class GeminiVisionClient {
     private String apiKey;
 
     private static final String URL =
-    	    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=";
+    	    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
     
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)  
@@ -62,10 +62,15 @@ public class GeminiVisionClient {
     // Verifica clasificación doméstico/no doméstico
     public String verificarClasificacion(String imagenBase64) {
 
-        String prompt =
-            "Analiza esta imagen de un animal y responde UNICAMENTE " +
-            "con una de estas dos palabras: DOMESTIC o NON_DOMESTIC " +
-            "segun si el animal es domestico o salvaje.";
+    	 String prompt =
+    		        "Analiza esta imagen de un animal y responde UNICAMENTE " +
+    		        "con una de estas dos palabras: DOMESTIC o NON_DOMESTIC " +
+    		        "segun si el animal es domestico o salvaje. " +
+    		        "Considera DOMESTIC los siguientes animales: perros, gatos, conejos, " +
+    		        "hamsters, cobayas, cuyes, loros, pericos, canarios, peces de acuario, " +
+    		        "tortugas de tierra, hurones y cualquier animal común de compañía. " +
+    		        "Considera NON_DOMESTIC: leones, tigres, osos, lobos, elefantes, " +
+    		        "serpientes salvajes, cocodrilos y animales de zoológico o selva.";
 
         String body = construirBody(imagenBase64, prompt);
 
