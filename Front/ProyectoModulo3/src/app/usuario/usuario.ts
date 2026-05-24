@@ -30,8 +30,8 @@ export class Usuario implements OnInit {
   cargarNotificaciones(): void {
     this.notificacionService.getMis().subscribe({
       next: (notifs) => {
-        this.notificaciones = notifs;
-        this.cantidadNoLeidas = notifs.filter(n => !n.leida).length;
+        this.notificaciones = notifs ?? [];
+        this.cantidadNoLeidas = this.notificaciones.filter(n => !n.leida).length;
       },
       error: () => {}
     });

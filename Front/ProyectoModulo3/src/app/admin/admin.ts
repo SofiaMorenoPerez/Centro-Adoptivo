@@ -84,12 +84,12 @@ export class Admin implements OnInit {
     }
   }
 
-  // ─── TRANSACCIONES ──────────────────────────────────────────────────────────
+  // ─── TRANSACCIONES ─
 
   cargarSolicitudes(): void {
     this.cargando = true;
     this.solicitudService.getPendientes().subscribe({
-      next: (data) => { this.solicitudes = data; this.cargando = false; },
+      next: (data) => { this.solicitudes = data ?? []; this.cargando = false; },
       error: () => { this.error = 'Error al cargar las solicitudes.'; this.cargando = false; }
     });
   }
@@ -299,8 +299,6 @@ export class Admin implements OnInit {
       }
     });
   }
-
-  // ─── SESIÓN ─────────────────────────────────────────────────────────────────
 
   cerrarSesion(): void {
     this.authService.logout();
