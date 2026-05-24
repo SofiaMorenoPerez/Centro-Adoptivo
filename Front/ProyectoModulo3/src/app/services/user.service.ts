@@ -51,14 +51,6 @@ export class UserService {
     );
   }
 
-  crearAdmin(usuario: UserModel) {
-    return this.cliente.post(
-      this.urlbase + '/usuario/createjson',
-      usuario,
-      { headers: this.getHeaders(), responseType: 'text' }
-    );
-  }
-
   updateAdmin(id: number, usuario: UserModel) {
     return this.cliente.put(
       this.urlbase + '/usuario/updatejson?id=' + id,

@@ -10,23 +10,6 @@
 <div class="hero-recibir">
   <h1>Encuentra tu compañero ideal 🐾</h1>
   <p>Estos animales están listos para encontrar un hogar lleno de amor</p>
-
-  <div class="filtros">
-    <select [(ngModel)]="filtroEspecie" (change)="aplicarFiltros()">
-      <option value="">Todas las especies</option>
-      <option value="Perro">🐶 Perros</option>
-      <option value="Gato">🐱 Gatos</option>
-      <option value="Conejo">🐰 Conejos</option>
-    </select>
-
-    <select [(ngModel)]="filtroEdad" (change)="aplicarFiltros()">
-      <option value="">Todas las edades</option>
-      <option value="PUPPY">🐣 Cachorro</option>
-      <option value="YOUNG">🐾 Joven</option>
-      <option value="ADULT">🐶 Adulto</option>
-      <option value="SENIOR">🦴 Mayor</option>
-    </select>
-  </div>
 </div>
 
 <!-- MENSAJES -->
@@ -44,12 +27,6 @@
 
 <!-- ANIMALES -->
 <section class="animales-section">
-
-  <!-- Sin resultados -->
-  <div class="sin-resultados" *ngIf="!cargando && animalesFiltrados.length === 0">
-    <span>🐾</span>
-    <p>No hay animales disponibles con los filtros seleccionados.</p>
-  </div>
 
   <!-- Grid de animales -->
   <div class="animales-grid" *ngIf="animalesFiltrados.length > 0">
