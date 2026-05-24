@@ -20,16 +20,41 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Pruebas unitarias para {@link UserService}.
+ * <p>
+ * Verifica el comportamiento del servicio de usuarios usando Mockito para
+ * simular el repositorio {@link UserRepository}, el mapeador {@link ModelMapper}
+ * y el codificador de contraseñas {@link PasswordEncoder}, sin necesidad de
+ * levantar el contexto de Spring.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    /** Mock del repositorio de usuarios. */
     @Mock private UserRepository userRepo;
+
+    /** Mock del mapeador de entidades a DTOs. */
     @Mock private ModelMapper modelMapper;
+
+    /** Mock del codificador de contraseñas. */
     @Mock private PasswordEncoder passwordEncoder;
+
+    /** Instancia del servicio bajo prueba con dependencias mockeadas. */
     @InjectMocks private UserService userService;
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
+    /**
+     * Crea un {@link UserDTO} con datos válidos para usar en los tests.
+     * <p>
+     * La edad se establece en {@code 0} para omitir la validación de edad
+     * en los casos donde no se requiere probarla.
+     * </p>
+     *
+     * @return instancia de {@link UserDTO} con datos válidos predefinidos
+     */
     private UserDTO validDTO() {
         UserDTO dto = new UserDTO();
         dto.setUsername("juan123");
@@ -39,10 +64,16 @@ class UserServiceTest {
         dto.setPhone("+573001234567");
         dto.setCity("Bogota");
         dto.setAddress("Calle 1 #2-34");
-        dto.setAge(0); // age <= 0 omite validacion de edad
+        dto.setAge(0);
         return dto;
     }
 
+    /**
+     * Crea una entidad {@link User} de muestra con id {@code 1},
+     * username {@code "juan123"} y contraseña hasheada.
+     *
+     * @return instancia de {@link User} con datos predefinidos
+     */
     private User sampleEntity() {
         User u = new User();
         u.setId(1L);
@@ -55,6 +86,10 @@ class UserServiceTest {
     // create()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code create} retorna {@code 1} cuando el username está vacío,
+     * sin interactuar con el repositorio.
+     */
     @Test
     @DisplayName("create: username vacio → 1")
     void create_usernameVacio_returns1() {
@@ -64,6 +99,10 @@ class UserServiceTest {
         verifyNoInteractions(userRepo);
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 1} cuando el username
+     * tiene menos de 3 caracteres.
+     */
     @Test
     @DisplayName("create: username demasiado corto → 1")
     void create_usernameCorto_returns1() {
@@ -72,6 +111,10 @@ class UserServiceTest {
         assertEquals(1, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 1} cuando el username
+     * contiene caracteres no permitidos.
+     */
     @Test
     @DisplayName("create: username con caracteres invalidos → 1")
     void create_usernameCaracteresInvalidos_returns1() {
@@ -80,6 +123,10 @@ class UserServiceTest {
         assertEquals(1, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 2} cuando la contraseña
+     * no contiene ninguna letra mayúscula.
+     */
     @Test
     @DisplayName("create: password sin mayuscula → 2")
     void create_passwordSinMayuscula_returns2() {
@@ -88,6 +135,10 @@ class UserServiceTest {
         assertEquals(2, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 2} cuando la contraseña
+     * tiene menos de 8 caracteres.
+     */
     @Test
     @DisplayName("create: password muy corta → 2")
     void create_passwordCorta_returns2() {
@@ -96,6 +147,10 @@ class UserServiceTest {
         assertEquals(2, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 3} cuando el correo electrónico
+     * no tiene un formato válido.
+     */
     @Test
     @DisplayName("create: email con formato invalido → 3")
     void create_emailInvalido_returns3() {
@@ -104,6 +159,10 @@ class UserServiceTest {
         assertEquals(3, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 4} cuando el nombre completo
+     * contiene caracteres numéricos.
+     */
     @Test
     @DisplayName("create: nombre con numeros → 4")
     void create_nombreConNumeros_returns4() {
@@ -112,15 +171,23 @@ class UserServiceTest {
         assertEquals(4, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 5} cuando el teléfono
+     * no tiene un formato válido.
+     */
     @Test
     @DisplayName("create: telefono invalido → 5")
     void create_telefonoInvalido_returns5() {
         UserDTO dto = validDTO();
-        dto.setFullName(null); // saltamos nombre
+        dto.setFullName(null);
         dto.setPhone("abc");
         assertEquals(5, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 6} cuando la ciudad
+     * contiene caracteres numéricos.
+     */
     @Test
     @DisplayName("create: ciudad con numeros → 6")
     void create_ciudadInvalida_returns6() {
@@ -131,6 +198,10 @@ class UserServiceTest {
         assertEquals(6, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 7} cuando la dirección
+     * tiene menos de 5 caracteres.
+     */
     @Test
     @DisplayName("create: direccion muy corta → 7")
     void create_direccionInvalida_returns7() {
@@ -142,6 +213,10 @@ class UserServiceTest {
         assertEquals(7, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 8} cuando la edad del usuario
+     * es menor de 18 años.
+     */
     @Test
     @DisplayName("create: edad menor de 18 → 8")
     void create_edadMenorDeEeighteen_returns8() {
@@ -154,6 +229,10 @@ class UserServiceTest {
         assertEquals(8, userService.create(dto));
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 9} cuando el username
+     * ya está registrado en el sistema, sin guardar ningún usuario.
+     */
     @Test
     @DisplayName("create: username ya tomado → 9")
     void create_usernameTomado_returns9() {
@@ -163,6 +242,10 @@ class UserServiceTest {
         verify(userRepo, never()).save(any());
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 10} cuando el correo electrónico
+     * ya está registrado en el sistema, sin guardar ningún usuario.
+     */
     @Test
     @DisplayName("create: email ya registrado → 10")
     void create_emailDuplicado_returns10() {
@@ -173,11 +256,16 @@ class UserServiceTest {
         verify(userRepo, never()).save(any());
     }
 
+    /**
+     * Verifica que {@code create} retorna {@code 0} con datos válidos, guarda el usuario
+     * con todos los campos de seguridad activos, el rol {@link User.Role#USER},
+     * fecha de registro asignada y la contraseña codificada.
+     */
     @Test
     @DisplayName("create: datos validos → 0 y guarda con campos de seguridad")
     void create_datosValidos_returns0YGuarda() {
         UserDTO dto = validDTO();
-        dto.setEmail(null); // evitamos verificar email duplicado
+        dto.setEmail(null);
         User entity = sampleEntity();
         when(userRepo.findByUsername("juan123")).thenReturn(Optional.empty());
         when(modelMapper.map(dto, User.class)).thenReturn(entity);
@@ -200,6 +288,10 @@ class UserServiceTest {
     // getAll()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code getAll} retorna una lista con el DTO mapeado
+     * cuando el repositorio contiene un usuario.
+     */
     @Test
     @DisplayName("getAll: repositorio con un usuario → lista con un DTO")
     void getAll_conUsuario_retornaLista() {
@@ -215,6 +307,10 @@ class UserServiceTest {
         assertEquals("juan123", result.get(0).getUsername());
     }
 
+    /**
+     * Verifica que {@code getAll} retorna una lista vacía
+     * cuando el repositorio no tiene usuarios.
+     */
     @Test
     @DisplayName("getAll: repositorio vacio → lista vacia")
     void getAll_vacio_retornaListaVacia() {
@@ -226,6 +322,9 @@ class UserServiceTest {
     // getById() / getByUsername()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code getById} retorna un DTO no nulo cuando el usuario existe.
+     */
     @Test
     @DisplayName("getById: usuario existe → retorna DTO")
     void getById_existe_retornaDTO() {
@@ -236,6 +335,10 @@ class UserServiceTest {
         assertNotNull(userService.getById(1L));
     }
 
+    /**
+     * Verifica que {@code getById} retorna {@code null}
+     * cuando el usuario no existe en el repositorio.
+     */
     @Test
     @DisplayName("getById: no existe → null")
     void getById_noExiste_retornaNull() {
@@ -243,6 +346,10 @@ class UserServiceTest {
         assertNull(userService.getById(99L));
     }
 
+    /**
+     * Verifica que {@code getByUsername} retorna un DTO no nulo
+     * cuando el usuario existe en el repositorio.
+     */
     @Test
     @DisplayName("getByUsername: encontrado → DTO")
     void getByUsername_encontrado_retornaDTO() {
@@ -253,6 +360,10 @@ class UserServiceTest {
         assertNotNull(userService.getByUsername("juan123"));
     }
 
+    /**
+     * Verifica que {@code getByUsername} retorna {@code null}
+     * cuando el usuario no existe en el repositorio.
+     */
     @Test
     @DisplayName("getByUsername: no encontrado → null")
     void getByUsername_noEncontrado_retornaNull() {
@@ -264,6 +375,10 @@ class UserServiceTest {
     // updateById()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 2}
+     * cuando el id del usuario no existe en el repositorio.
+     */
     @Test
     @DisplayName("updateById: id no encontrado → 2")
     void updateById_noEncontrado_returns2() {
@@ -271,6 +386,10 @@ class UserServiceTest {
         assertEquals(2, userService.updateById(99L, new UserDTO()));
     }
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 3}
+     * cuando la nueva contraseña no cumple los requisitos de validación.
+     */
     @Test
     @DisplayName("updateById: nueva password invalida → 3")
     void updateById_passwordInvalida_returns3() {
@@ -280,6 +399,10 @@ class UserServiceTest {
         assertEquals(3, userService.updateById(1L, newData));
     }
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 4}
+     * cuando el nuevo correo electrónico no tiene un formato válido.
+     */
     @Test
     @DisplayName("updateById: email invalido → 4")
     void updateById_emailInvalido_returns4() {
@@ -289,6 +412,10 @@ class UserServiceTest {
         assertEquals(4, userService.updateById(1L, newData));
     }
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 5}
+     * cuando la nueva edad es menor de 18 años.
+     */
     @Test
     @DisplayName("updateById: edad invalida → 5")
     void updateById_edadInvalida_returns5() {
@@ -298,10 +425,14 @@ class UserServiceTest {
         assertEquals(5, userService.updateById(1L, newData));
     }
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 1} y no guarda cambios
+     * cuando el nuevo username ya está en uso por otro usuario diferente.
+     */
     @Test
     @DisplayName("updateById: username en conflicto con otro usuario → 1")
     void updateById_usernameConflicto_returns1() {
-        User existing = sampleEntity(); // id=1
+        User existing = sampleEntity();
         User otro = new User();
         otro.setId(2L);
         otro.setUsername("pepe99");
@@ -316,21 +447,29 @@ class UserServiceTest {
         verify(userRepo, never()).save(any());
     }
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 0} y guarda los cambios
+     * cuando el nuevo username pertenece al mismo usuario (sin conflicto).
+     */
     @Test
     @DisplayName("updateById: username mismo usuario (no conflicto) → 0")
     void updateById_usernameMismoUsuario_returns0() {
-        User existing = sampleEntity(); // id=1, username=juan123
+        User existing = sampleEntity();
 
         UserDTO newData = new UserDTO();
-        newData.setUsername("juan123"); // mismo usuario
+        newData.setUsername("juan123");
 
         when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
-        when(userRepo.findByUsername("juan123")).thenReturn(Optional.of(existing)); // mismo id
+        when(userRepo.findByUsername("juan123")).thenReturn(Optional.of(existing));
 
         assertEquals(0, userService.updateById(1L, newData));
         verify(userRepo).save(existing);
     }
 
+    /**
+     * Verifica que {@code updateById} retorna {@code 0}, guarda los cambios
+     * y actualiza el campo {@code fullName} cuando solo se modifica el nombre.
+     */
     @Test
     @DisplayName("updateById: solo nombre → 0 y actualiza campo")
     void updateById_soloNombre_returns0YActualiza() {
@@ -345,6 +484,10 @@ class UserServiceTest {
         assertEquals("Juan Camilo", existing.getFullName());
     }
 
+    /**
+     * Verifica que {@code updateById} codifica y guarda la nueva contraseña
+     * cuando esta es válida.
+     */
     @Test
     @DisplayName("updateById: password valida → se codifica y guarda")
     void updateById_passwordValida_seCodifica() {
@@ -364,6 +507,10 @@ class UserServiceTest {
     // deleteById()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code deleteById} retorna {@code 0} e invoca {@code delete}
+     * cuando el usuario con el id indicado existe.
+     */
     @Test
     @DisplayName("deleteById: existe → 0 y llama delete")
     void deleteById_existe_returns0() {
@@ -373,6 +520,10 @@ class UserServiceTest {
         verify(userRepo).delete(u);
     }
 
+    /**
+     * Verifica que {@code deleteById} retorna {@code 1} y no invoca {@code delete}
+     * cuando el usuario no existe en el repositorio.
+     */
     @Test
     @DisplayName("deleteById: no existe → 1 sin delete")
     void deleteById_noExiste_returns1() {
@@ -385,6 +536,10 @@ class UserServiceTest {
     // deleteByUsername()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code deleteByUsername} retorna {@code 0} e invoca {@code delete}
+     * cuando el usuario con el username indicado existe.
+     */
     @Test
     @DisplayName("deleteByUsername: existe → 0")
     void deleteByUsername_existe_returns0() {
@@ -394,6 +549,10 @@ class UserServiceTest {
         verify(userRepo).delete(u);
     }
 
+    /**
+     * Verifica que {@code deleteByUsername} retorna {@code 1} y no invoca {@code delete}
+     * cuando el usuario no existe en el repositorio.
+     */
     @Test
     @DisplayName("deleteByUsername: no existe → 1")
     void deleteByUsername_noExiste_returns1() {
@@ -406,6 +565,9 @@ class UserServiceTest {
     // count() / exist() / findUsernameAlreadyTaken()
     // ═══════════════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica que {@code count} retorna el valor proporcionado por el repositorio.
+     */
     @Test
     @DisplayName("count: retorna valor del repo")
     void count_retornaValor() {
@@ -413,6 +575,10 @@ class UserServiceTest {
         assertEquals(7L, userService.count());
     }
 
+    /**
+     * Verifica que {@code exist} retorna {@code true}
+     * cuando el id existe en el repositorio.
+     */
     @Test
     @DisplayName("exist: id presente → true")
     void exist_presente_returnsTrue() {
@@ -420,6 +586,10 @@ class UserServiceTest {
         assertTrue(userService.exist(1L));
     }
 
+    /**
+     * Verifica que {@code exist} retorna {@code false}
+     * cuando el id no existe en el repositorio.
+     */
     @Test
     @DisplayName("exist: id ausente → false")
     void exist_ausente_returnsFalse() {
@@ -427,6 +597,10 @@ class UserServiceTest {
         assertFalse(userService.exist(99L));
     }
 
+    /**
+     * Verifica que {@code findUsernameAlreadyTaken} retorna {@code true}
+     * cuando el username ya está en uso por algún usuario.
+     */
     @Test
     @DisplayName("findUsernameAlreadyTaken: tomado → true")
     void findUsernameAlreadyTaken_tomado_returnsTrue() {
@@ -434,6 +608,10 @@ class UserServiceTest {
         assertTrue(userService.findUsernameAlreadyTaken("juan123"));
     }
 
+    /**
+     * Verifica que {@code findUsernameAlreadyTaken} retorna {@code false}
+     * cuando el username está disponible.
+     */
     @Test
     @DisplayName("findUsernameAlreadyTaken: libre → false")
     void findUsernameAlreadyTaken_libre_returnsFalse() {
