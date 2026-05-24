@@ -482,3 +482,83 @@
   background: #fce4ec;
   color: #d46a8a;
 }
+/* ── Responsive móvil ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  .navbar-usuario {
+    padding: 12px 16px;
+  }
+
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .hero-usuario {
+    padding: 40px 20px;
+  }
+
+  .hero-texto h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero-texto p {
+    font-size: 0.92rem;
+  }
+
+  .tips-section {
+    padding: 36px 16px;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  .tips-grid {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .tip-card {
+    width: 100%;
+    max-width: 340px;
+    padding: 24px 20px;
+  }
+
+  .acciones-section {
+    padding: 30px 16px 40px;
+  }
+
+  .accion-card {
+    padding: 24px 20px;
+  }
+
+  .accion-texto h2 {
+    font-size: 1.1rem;
+  }
+
+  .accion-texto p {
+    font-size: 0.88rem;
+  }
+
+  .btn-dar,
+  .btn-recibir {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .dropdown-campana {
+    min-width: 260px;
+    right: -60px;
+  }
+
+  .dropdown-perfil {
+    min-width: 180px;
+  }
+
+  .modal-card {
+    width: 90%;
+    padding: 24px 16px;
+  }
+}

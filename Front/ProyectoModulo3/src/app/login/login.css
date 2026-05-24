@@ -187,3 +187,48 @@
   color: #fff;
   transform: translateY(-2px);
 }
+
+/* ── Responsive móvil ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  .login-wrapper {
+    flex-direction: column;
+  }
+
+  .login-left {
+    padding: 40px 20px 30px;
+    flex: none;
+  }
+
+  .brand-icon {
+    font-size: 3rem;
+  }
+
+  .brand-title {
+    font-size: 2rem;
+  }
+
+  .brand-desc {
+    font-size: 0.9rem;
+  }
+
+  .login-right {
+    padding: 30px 20px 40px;
+    flex: none;
+  }
+
+  .login-card {
+    max-width: 100%;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .btn-ingresar,
+  .btn-signup,
+  .btn-volver {
+    font-size: 0.95rem;
+    padding: 0.7rem;
+  }
+}

@@ -174,3 +174,55 @@
 .btn-volver:hover {
   background: #e4e4ef;
 }
+
+/* ── Responsive móvil ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  .signup-wrapper {
+    flex-direction: column;
+  }
+
+  .signup-left {
+    padding: 40px 20px 30px;
+    flex: none;
+  }
+
+  .brand-icon {
+    font-size: 3rem;
+  }
+
+  .brand-title {
+    font-size: 2rem;
+  }
+
+  .brand-desc {
+    font-size: 0.9rem;
+  }
+
+  .signup-right {
+    padding: 30px 20px 40px;
+    flex: none;
+  }
+
+  .signup-card {
+    max-width: 100%;
+  }
+
+  .signup-title {
+    font-size: 1.5rem;
+  }
+
+  .campos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campo-full {
+    grid-column: 1;
+  }
+
+  .btn-guardar,
+  .btn-volver {
+    font-size: 0.95rem;
+    padding: 0.7rem;
+  }
+}
