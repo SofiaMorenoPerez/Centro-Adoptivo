@@ -21,17 +21,38 @@ import co.edu.unbosque.centroadoptivo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controlador REST para la autenticación de usuarios.
+ * <p>
+ * Expone endpoints para el inicio de sesión y el registro de nuevos usuarios.
+ * </p>
+ */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
 @Tag(name = "Autenticación", description = "API para autenticación de usuarios (login y registro)")
 public class AuthController {
 
+    /** Gestor de autenticación de Spring Security. */
     private final AuthenticationManager authenticationManager;
+
+    /** Utilidad para generación y validación de tokens JWT. */
     private final JwtUtil jwtUtil;
+
+    /** Servicio de lógica de negocio para usuarios. */
     private final UserService userService;
+
+    /** Servicio de auditoría para registrar acciones del sistema. */
     private final AuditoriaService auditoriaService;
 
+    /**
+     * Constructor del controlador de autenticación.
+     *
+     * @param authenticationManager gestor de autenticación de Spring Security
+     * @param jwtUtil               utilidad para manejo de tokens JWT
+     * @param userService           servicio de usuarios
+     * @param auditoriaService      servicio de auditoría
+     */
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             UserService userService, AuditoriaService auditoriaService) {
         this.authenticationManager = authenticationManager;
@@ -40,6 +61,13 @@ public class AuthController {
         this.auditoriaService = auditoriaService;
     }
 
+    /**
+     * Autentica un usuario y retorna un token JWT junto con su rol e identificador.
+     *
+     * @param loginRequest DTO con las credenciales del usuario (username y password)
+     * @return {@link AuthResponse} con el token, rol e id del usuario autenticado,
+     *         o 401 si las credenciales son inválidas
+     */
     @Operation(summary = "Iniciar sesión de usuario")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO loginRequest) {
@@ -72,10 +100,17 @@ public class AuthController {
         }
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema con rol USER por defecto.
+     *
+     * @param registerRequest DTO con los datos del nuevo usuario
+     * @return 201 si fue registrado exitosamente, o un mensaje de error con el
+     *         código HTTP correspondiente según el tipo de validación fallida
+     */
     @Operation(summary = "Registrar un nuevo usuario")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDTO registerRequest) {
-    
+
         registerRequest.setRole(null);
 
         int result = userService.create(registerRequest);
@@ -93,19 +128,52 @@ public class AuthController {
         else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar el usuario");
     }
 
+    /**
+     * Clase interna que representa la respuesta de autenticación exitosa.
+     */
     private static class AuthResponse {
+
+        /** Token JWT generado tras la autenticación. */
         private final String token;
+
+        /** Rol del usuario autenticado. */
         private final String role;
+
+        /** Identificador único del usuario autenticado. */
         private final Long id;
 
+        /**
+         * Constructor de la respuesta de autenticación.
+         *
+         * @param token token JWT generado
+         * @param role  rol del usuario
+         * @param id    identificador del usuario
+         */
         public AuthResponse(String token, String role, Long id) {
             this.token = token;
             this.role = role;
             this.id = id;
         }
 
+        /**
+         * Retorna el token JWT.
+         *
+         * @return token JWT
+         */
         public String getToken() { return token; }
+
+        /**
+         * Retorna el rol del usuario.
+         *
+         * @return rol del usuario
+         */
         public String getRole()  { return role; }
+
+        /**
+         * Retorna el identificador del usuario.
+         *
+         * @return id del usuario
+         */
         public Long getId()      { return id; }
     }
 }

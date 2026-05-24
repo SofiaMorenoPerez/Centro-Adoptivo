@@ -28,26 +28,47 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controlador REST para la gestión de usuarios.
+ * <p>
+ * Expone endpoints para consultar, crear, actualizar, eliminar usuarios
+ * y gestionar roles. Algunos endpoints están restringidos a usuarios con rol ADMIN.
+ * Requiere autenticación mediante JWT.
+ * </p>
+ */
 @RestController
 @RequestMapping("/usuario")
-@CrossOrigin(origins = "*") // cross origin * all
+@CrossOrigin(origins = "*")
 @Transactional
 @Tag(name = "Gestión de Usuarios", description = "Endpoints para administrar usuarios")
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
+    /** Servicio de lógica de negocio para usuarios. */
     @Autowired
     private UserService userServ;
 
+    /** Servicio de auditoría para registrar acciones del sistema. */
     @Autowired
     private AuditoriaService auditoriaServ;
 
+    /** Constructor por defecto. */
     public UserController() {}
 
+    /**
+     * Obtiene el nombre del usuario autenticado en el contexto de seguridad actual.
+     *
+     * @return nombre de usuario autenticado
+     */
     private String getUsuarioActual() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    /**
+     * Verifica si el usuario autenticado tiene rol de administrador.
+     *
+     * @return {@code true} si el usuario es ADMIN, {@code false} en caso contrario
+     */
     private boolean esAdmin() {
         return SecurityContextHolder.getContext()
             .getAuthentication().getAuthorities().stream()
@@ -56,6 +77,15 @@ public class UserController {
 
     // ── Perfil propio (USER y ADMIN) ──────────────────────────────────────────
 
+    /**
+     * Obtiene el perfil de un usuario por su identificador.
+     * <p>
+     * Un usuario con rol USER solo puede consultar su propio perfil.
+     * </p>
+     *
+     * @param id identificador del usuario
+     * @return el {@link UserDTO} encontrado, 403 si no tiene permisos, o 404 si no existe
+     */
     @Operation(summary = "Ver mi perfil")
     @GetMapping("/perfil/{id}")
     public ResponseEntity<?> getPerfil(@PathVariable Long id) {
@@ -63,13 +93,22 @@ public class UserController {
         if (found == null)
             return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-        // USER solo puede ver su propio perfil
         if (!esAdmin() && !found.getUsername().equals(getUsuarioActual()))
             return new ResponseEntity<>("Acceso denegado", HttpStatus.FORBIDDEN);
 
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
+    /**
+     * Actualiza el perfil de un usuario por su identificador.
+     * <p>
+     * Un usuario con rol USER solo puede editar su propio perfil y no puede cambiar su rol.
+     * </p>
+     *
+     * @param id      identificador del usuario a editar
+     * @param newUser DTO con los nuevos datos del usuario
+     * @return mensaje de éxito, 403 si no tiene permisos, o un mensaje de error según la validación
+     */
     @Operation(summary = "Editar mi perfil")
     @PutMapping(path = "/editar/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> editarPerfil(@PathVariable Long id,
@@ -78,11 +117,9 @@ public class UserController {
         if (found == null)
             return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
 
-        // USER solo puede editar su propio perfil
         if (!esAdmin() && !found.getUsername().equals(getUsuarioActual()))
             return new ResponseEntity<>("Acceso denegado", HttpStatus.FORBIDDEN);
 
-        // USER no puede cambiar su propio rol
         if (!esAdmin()) newUser.setRole(null);
 
         int status = userServ.updateById(id, newUser);
@@ -107,15 +144,20 @@ public class UserController {
 
     // ── Solo ADMIN: gestión completa de usuarios ──────────────────────────────
 
+    /**
+     * Crea un nuevo usuario a partir de un cuerpo JSON (uso exclusivo de ADMIN).
+     * <p>
+     * Si el ADMIN especifica un rol, este se asigna en una actualización posterior a la creación.
+     * </p>
+     *
+     * @param newUser DTO con los datos del nuevo usuario
+     * @return mensaje de éxito con 201, o un mensaje de error según la validación
+     */
     @Operation(summary = "Crear usuario (JSON)")
     @PostMapping(path = "/createjson", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createWithJSON(@RequestBody UserDTO newUser) {
-        // ADMIN puede asignar cualquier rol al crear desde este endpoint
         int status = userServ.create(newUser);
-        // CORRECCIÓN: como create() fuerza USER, ADMIN debe usar updateById()
-        // para asignar rol ADMIN después de crear. Se documenta así intencionalmente.
         if (status == 0) {
-            // Si el ADMIN quiso asignar un rol específico, lo actualizamos ahora
             if (newUser.getRole() != null) {
                 UserDTO creado = userServ.getByUsername(newUser.getUsername());
                 if (creado != null) {
@@ -144,6 +186,11 @@ public class UserController {
         else return new ResponseEntity<>("Error al crear usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Obtiene la lista de todos los usuarios registrados en el sistema.
+     *
+     * @return lista de {@link UserDTO}, o 204 si no hay usuarios
+     */
     @Operation(summary = "Obtener todos los usuarios")
     @GetMapping("/getall")
     public ResponseEntity<List<UserDTO>> getAll() {
@@ -152,6 +199,12 @@ public class UserController {
         return new ResponseEntity<>(list, HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Obtiene un usuario por su identificador.
+     *
+     * @param id identificador del usuario
+     * @return el {@link UserDTO} encontrado, o 404 si no existe
+     */
     @Operation(summary = "Obtener usuario por ID")
     @GetMapping("/getbyid/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
@@ -160,6 +213,12 @@ public class UserController {
         return new ResponseEntity<>(new UserDTO(), HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Verifica si existe un usuario con el identificador indicado.
+     *
+     * @param id identificador del usuario
+     * @return {@code true} si existe, o 204 si no existe
+     */
     @Operation(summary = "Verificar existencia de usuario")
     @GetMapping("/exists/{id}")
     public ResponseEntity<Boolean> exists(@PathVariable Long id) {
@@ -168,6 +227,11 @@ public class UserController {
         return new ResponseEntity<>(false, HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Retorna el total de usuarios registrados en el sistema.
+     *
+     * @return cantidad de usuarios, o 204 si no hay ninguno
+     */
     @Operation(summary = "Contar usuarios")
     @GetMapping("/count")
     public ResponseEntity<Long> count() {
@@ -176,6 +240,13 @@ public class UserController {
         return new ResponseEntity<>(count, HttpStatus.ACCEPTED);
     }
 
+    /**
+     * Actualiza los datos de un usuario existente a partir de un cuerpo JSON.
+     *
+     * @param id      identificador del usuario a actualizar
+     * @param newUser DTO con los nuevos datos del usuario
+     * @return mensaje de éxito, o un mensaje de error según la validación
+     */
     @Operation(summary = "Actualizar usuario (JSON)")
     @PutMapping(path = "/updatejson", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateWithJSON(@RequestParam Long id,
@@ -201,6 +272,12 @@ public class UserController {
         else return new ResponseEntity<>("Error al actualizar usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Elimina un usuario del sistema por su identificador.
+     *
+     * @param id identificador del usuario a eliminar
+     * @return mensaje de éxito, o 404 si el usuario no existe
+     */
     @Operation(summary = "Eliminar usuario por ID")
     @DeleteMapping("/deletebyid/{id}")
     public ResponseEntity<String> deleteById(@PathVariable Long id) {
@@ -218,11 +295,18 @@ public class UserController {
         return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Elimina un usuario del sistema por su nombre de usuario.
+     * <p>
+     * El username se recibe en el cuerpo de la petición para no exponerlo en la URL.
+     * </p>
+     *
+     * @param userDTO DTO que contiene el username del usuario a eliminar
+     * @return mensaje de éxito, o 404 si el usuario no existe
+     */
     @Operation(summary = "Eliminar usuario por username")
     @DeleteMapping("/deletebyusername")
     public ResponseEntity<String> deleteByUsername(@RequestBody UserDTO userDTO) {
-        // CORRECCIÓN: recibe por @RequestBody en lugar de @RequestParam
-        // para no exponer el username en la URL
         String username = userDTO.getUsername();
         int status = userServ.deleteByUsername(username);
         if (status == 0) {
@@ -235,7 +319,14 @@ public class UserController {
             + " — no encontrado", false);
         return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
     }
-    
+
+    /**
+     * Cambia el rol de un usuario existente (uso exclusivo de ADMIN).
+     *
+     * @param id  identificador del usuario
+     * @param rol nombre del nuevo rol a asignar (debe coincidir con los valores de {@link Role})
+     * @return mensaje de éxito, o 500 si ocurre un error al actualizar
+     */
     @Operation(summary = "Cambiar rol de usuario (ADMIN)")
     @PatchMapping("/rol/{id}")
     public ResponseEntity<String> cambiarRol(@PathVariable Long id, @RequestParam String rol) {
@@ -245,5 +336,4 @@ public class UserController {
         if (status == 0) return new ResponseEntity<>("Rol actualizado", HttpStatus.OK);
         return new ResponseEntity<>("Error al actualizar rol", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    
 }
