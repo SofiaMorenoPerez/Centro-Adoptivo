@@ -47,7 +47,7 @@ export class Perfil implements OnInit {
         this.city = usuario.city;
         this.address = usuario.address;
         this.age = usuario.age;
-        this.editando = false; // ← después de cargar, vuelve a solo lectura
+        this.editando = false;
         this.cdr.detectChanges();
       },
       error: () => {

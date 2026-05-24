@@ -35,27 +35,73 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Servicio que gestiona todas las operaciones relacionadas con los animales
+ * en el sistema de adopción, incluyendo registro con validación por IA,
+ * consulta, actualización y eliminación.
+ * <p>
+ * Durante el registro de un animal, coordina con {@link IAOrquestadorService}
+ * para detectar automáticamente la especie, raza, color, edad y clasificación
+ * del animal a partir de su imagen, y valida que la información sea coherente
+ * antes de persistirla en la base de datos.
+ * </p>
+ *
+ * @author Centro Adoptivo
+ * @version 1.0
+ */
 @Service
 public class AnimalService {
 
+    /** Repositorio para operaciones CRUD sobre animales. */
     @Autowired
     private AnimalRepository animalRepository;
 
+    /** Repositorio para operaciones CRUD sobre usuarios. */
     @Autowired
     private UserRepository userRepository;
 
+    /** Repositorio para persistir las validaciones de IA. */
     @Autowired
     private ValidacionIARepository validacionIARepository;
 
+    /** Repositorio para persistir los resultados detallados de las IAs. */
     @Autowired
     private ResultadoIARepository resultadoIARepository;
 
+    /** Servicio orquestador que coordina las llamadas a las 5 IAs. */
     @Autowired
     private IAOrquestadorService iaOrquestadorService;
 
+    /**
+     * Directorio donde se almacenan las imágenes de los animales.
+     * Configurable desde {@code application.properties}.
+     */
     @Value("${app.imagenes.directorio:uploads/animales}")
     private String directorioImagenes;
 
+    /**
+     * Registra un nuevo animal en el sistema, validando los datos básicos
+     * ingresados por el usuario y utilizando 5 IAs para detectar automáticamente
+     * la especie, raza, color, edad y clasificación del animal a partir de su imagen.
+     * <p>
+     * El animal solo se persiste si obtiene suficientes votos de aprobación
+     * de las IAs participantes. Los resultados de la validación se guardan
+     * en {@link ResultadoIA} y {@link ValidacionIA}.
+     * </p>
+     *
+     * @param dto            DTO con los datos básicos del animal (nombre, observaciones,
+     *                       esterilizado, vacunado)
+     * @param imagen         imagen del animal a analizar por las IAs
+     * @param usernameActual nombre de usuario del publicador autenticado
+     * @return {@link AnimalDTO} con todos los datos del animal registrado,
+     *         incluyendo los detectados por las IAs
+     * @throws NombreException       si el nombre del animal no es válido
+     * @throws ObservacionesException si las observaciones no cumplen los requisitos
+     * @throws ImagenException        si la imagen no es válida (formato o tamaño)
+     * @throws ValidacionIAException  si el animal no pasa la validación de las IAs
+     * @throws UserNotFoundException  si el usuario publicador no existe en el sistema
+     * @throws IOException            si ocurre un error al guardar la imagen en disco
+     */
     public AnimalDTO registrarAnimal(
             AnimalDTO dto,
             MultipartFile imagen,
@@ -67,8 +113,6 @@ public class AnimalService {
             UserNotFoundException,
             IOException {
 
-        // Validamos solo nombre, observaciones e imagen
-        // especie, raza, color, edad y clasificacion los detecta la IA
         LanzadorDeExcepcion.verificarNombreAnimal(dto.getName());
         LanzadorDeExcepcion.verificarObservaciones(dto.getObservations());
         LanzadorDeExcepcion.verificarImagen(imagen);
@@ -82,14 +126,12 @@ public class AnimalService {
         byte[] imagenBytes = ImageUtil.obtenerBytes(imagen);
         String imagenBase64 = ImageUtil.convertirABase64(imagenBytes);
 
-        // Las IAs detectan y validan automáticamente
         ResultadoIADTO resultadoIA = iaOrquestadorService.detectarYValidar(
                 imagenBase64,
                 imagenBytes,
                 dto.getObservations()
         );
 
-        // Si no pasó la validación no se guarda
         if (!resultadoIA.isAprobado()) {
             throw new ValidacionIAException(
                 "La imagen no pasó la validación de las IAs. " +
@@ -111,19 +153,16 @@ public class AnimalService {
         animal.setAdopter(null);
         animal.setStatus(AnimalStatus.AVAILABLE);
 
-        // Datos detectados por las IAs
         animal.setSpecies(resultadoIA.getEspecie());
         animal.setBreed(resultadoIA.getRaza());
         animal.setColor(resultadoIA.getColor());
 
-        // Convertir edad a enum — si falla usamos ADULT por defecto
         try {
             animal.setAge(AnimalAge.valueOf(resultadoIA.getEdad()));
         } catch (Exception e) {
             animal.setAge(AnimalAge.ADULT);
         }
 
-        // Convertir clasificacion a enum — si falla usamos DOMESTIC por defecto
         try {
             animal.setClassification(
                 AnimalClassification.valueOf(resultadoIA.getClasificacion()));
@@ -133,7 +172,6 @@ public class AnimalService {
 
         Animal savedAnimal = animalRepository.save(animal);
 
-        // Guardar resultado de las IAs
         ResultadoIA resultadoGuardado = new ResultadoIA(
                 resultadoIA.getEspecie(),
                 resultadoIA.getRaza(),
@@ -162,6 +200,13 @@ public class AnimalService {
         return convertirADTO(savedAnimal);
     }
 
+    /**
+     * Obtiene la lista de todos los animales con estado {@code AVAILABLE}
+     * disponibles para adopción.
+     *
+     * @return lista de {@link AnimalDTO} con los animales disponibles,
+     *         vacía si no hay ninguno
+     */
     public List<AnimalDTO> obtenerAnimalesDisponibles() {
         return animalRepository
                 .findByStatus(AnimalStatus.AVAILABLE)
@@ -170,6 +215,13 @@ public class AnimalService {
                 .toList();
     }
 
+    /**
+     * Obtiene la lista completa de todos los animales registrados en el sistema,
+     * independientemente de su estado.
+     *
+     * @return lista de {@link AnimalDTO} con todos los animales registrados,
+     *         vacía si no hay ninguno
+     */
     public List<AnimalDTO> obtenerTodos() {
         return animalRepository
                 .findAll()
@@ -178,6 +230,13 @@ public class AnimalService {
                 .toList();
     }
 
+    /**
+     * Obtiene un animal específico por su identificador único.
+     *
+     * @param id identificador único del animal a buscar
+     * @return {@link AnimalDTO} con los datos del animal encontrado
+     * @throws AnimalNoEncontradoException si no existe un animal con el ID indicado
+     */
     public AnimalDTO obtenerAnimalPorId(Long id)
             throws AnimalNoEncontradoException {
         LanzadorDeExcepcion.verificarAnimalExiste(
@@ -185,6 +244,13 @@ public class AnimalService {
         return convertirADTO(animalRepository.findById(id).get());
     }
 
+    /**
+     * Obtiene todos los animales publicados por un usuario específico.
+     *
+     * @param publisherId identificador único del usuario publicador
+     * @return lista de {@link AnimalDTO} con los animales del publicador,
+     *         vacía si no ha publicado ninguno
+     */
     public List<AnimalDTO> obtenerAnimalesPorPublicador(Long publisherId) {
         return animalRepository
                 .findByPublisherId(publisherId)
@@ -193,6 +259,17 @@ public class AnimalService {
                 .toList();
     }
 
+    /**
+     * Actualiza los datos básicos de un animal existente (nombre, observaciones,
+     * esterilizado y vacunado). No modifica los datos detectados por las IAs.
+     *
+     * @param id  identificador único del animal a actualizar
+     * @param dto DTO con los nuevos datos del animal
+     * @return {@link AnimalDTO} con los datos actualizados del animal
+     * @throws AnimalNoEncontradoException si no existe un animal con el ID indicado
+     * @throws NombreException             si el nuevo nombre del animal no es válido
+     * @throws ObservacionesException      si las nuevas observaciones no son válidas
+     */
     public AnimalDTO actualizarAnimal(Long id, AnimalDTO dto)
             throws AnimalNoEncontradoException,
             NombreException,
@@ -213,6 +290,12 @@ public class AnimalService {
         return convertirADTO(animalRepository.save(animal));
     }
 
+    /**
+     * Elimina un animal del sistema por su identificador único.
+     *
+     * @param id identificador único del animal a eliminar
+     * @throws AnimalNoEncontradoException si no existe un animal con el ID indicado
+     */
     public void eliminarAnimal(Long id)
             throws AnimalNoEncontradoException {
         LanzadorDeExcepcion.verificarAnimalExiste(
@@ -220,6 +303,13 @@ public class AnimalService {
         animalRepository.deleteById(id);
     }
 
+    /**
+     * Obtiene el identificador único de un usuario a partir de su nombre de usuario.
+     *
+     * @param username nombre de usuario a buscar
+     * @return identificador único del usuario encontrado
+     * @throws UserNotFoundException si no existe un usuario con ese nombre de usuario
+     */
     public Long obtenerIdPorUsername(String username)
             throws UserNotFoundException {
         LanzadorDeExcepcion.verificarUsuarioExiste(
@@ -227,10 +317,24 @@ public class AnimalService {
         return userRepository.findByUsername(username).get().getId();
     }
 
+    /**
+     * Busca un animal por su identificador único sin lanzar excepción si no existe.
+     *
+     * @param id identificador único del animal a buscar
+     * @return {@link Optional} con el animal si existe, vacío si no
+     */
     public Optional<Animal> findById(Long id) {
         return animalRepository.findById(id);
     }
 
+    /**
+     * Guarda la imagen del animal en el directorio configurado del servidor,
+     * generando un nombre único mediante UUID para evitar colisiones.
+     *
+     * @param imagen archivo de imagen a guardar en disco
+     * @return ruta relativa de la imagen guardada, accesible como recurso estático
+     * @throws IOException si ocurre un error durante la escritura del archivo
+     */
     private String guardarImagen(MultipartFile imagen) throws IOException {
         Path directorio = Paths.get(directorioImagenes);
         if (!Files.exists(directorio)) {
@@ -243,6 +347,13 @@ public class AnimalService {
         return "/" + directorioImagenes + "/" + nombreArchivo;
     }
 
+    /**
+     * Convierte una entidad {@link Animal} a su representación como
+     * {@link AnimalDTO} para ser retornada al cliente.
+     *
+     * @param animal entidad animal a convertir
+     * @return {@link AnimalDTO} con todos los datos del animal
+     */
     private AnimalDTO convertirADTO(Animal animal) {
         AnimalDTO dto = new AnimalDTO();
         dto.setId(animal.getId());

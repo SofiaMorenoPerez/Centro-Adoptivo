@@ -126,7 +126,6 @@
   background: #ebebeb;
 }
 
-/* ── Responsive móvil ─────────────────────────────────────────── */
 @media (max-width: 768px) {
 
   .perfil-wrapper {

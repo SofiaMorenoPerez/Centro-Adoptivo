@@ -27,12 +27,10 @@ export class Admin implements OnInit {
   error = '';
   exito = '';
 
-  // Modal rechazar solicitud
   modalRechazar = false;
   solicitudSeleccionada: number | null = null;
   razonRechazo = '';
 
-  // Modal crear admin
   modalCrear = false;
   nuevoUsername = '';
   nuevoPassword = '';
@@ -43,7 +41,6 @@ export class Admin implements OnInit {
   nuevoAddress = '';
   nuevoAge = 0;
 
-  // Modal editar admin
   modalEditar = false;
   editarId = 0;
   editarUsername = '';
@@ -84,7 +81,6 @@ export class Admin implements OnInit {
     }
   }
 
-  // ─── TRANSACCIONES ─
 
   cargarSolicitudes(): void {
     this.cargando = true;
@@ -128,7 +124,7 @@ export class Admin implements OnInit {
     this.razonRechazo = '';
   }
 
-  // ─── USUARIOS ───────────────────────────────────────────────────────────────
+
 
   cargarUsuarios(): void {
     this.cargando = true;
@@ -153,7 +149,7 @@ export class Admin implements OnInit {
     });
   }
 
-  // ─── ANIMALES ───────────────────────────────────────────────────────────────
+
 
   cargarAnimales(): void {
     this.cargando = true;
@@ -178,7 +174,7 @@ export class Admin implements OnInit {
     });
   }
 
-  // ─── ADMINS ─────────────────────────────────────────────────────────────────
+
 
   cargarAdmins(): void {
     this.cargando = true;
@@ -203,7 +199,7 @@ export class Admin implements OnInit {
     });
   }
 
-  // Modal crear admin
+
   abrirModalCrear(): void {
     this.nuevoUsername = '';
     this.nuevoPassword = '';
@@ -256,7 +252,6 @@ export class Admin implements OnInit {
     });
   }
 
-  // Modal editar admin
   abrirModalEditar(admin: UserModel): void {
     this.editarId = admin.id;
     this.editarUsername = admin.username;

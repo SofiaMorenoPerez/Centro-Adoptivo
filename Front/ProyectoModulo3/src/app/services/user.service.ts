@@ -36,7 +36,6 @@ export class UserService {
     );
   }
 
-  // Eliminar usuario
   delete(id: number) {
     return this.cliente.delete(
       this.urlbase + '/usuario/deletebyid/' + id,

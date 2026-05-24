@@ -41,7 +41,6 @@ export class Usuario implements OnInit {
     this.menuCampana = !this.menuCampana;
     this.menuPerfil = false;
 
-    // Al abrir la campana marcamos todas como leídas
     if (this.menuCampana && this.cantidadNoLeidas > 0) {
       this.notificacionService.marcarTodasLeidas().subscribe({
         next: () => {

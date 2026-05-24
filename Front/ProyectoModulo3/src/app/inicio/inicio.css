@@ -131,7 +131,6 @@
   border-top: 1px solid #f0d6e0;
 }
 
-/* ── Responsive móvil ─────────────────────────────────────────── */
 @media (max-width: 768px) {
 
   .hero-section {

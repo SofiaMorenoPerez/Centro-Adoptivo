@@ -175,7 +175,6 @@
   background: #e4e4ef;
 }
 
-/* ── Responsive móvil ─────────────────────────────────────────── */
 @media (max-width: 768px) {
 
   .signup-wrapper {

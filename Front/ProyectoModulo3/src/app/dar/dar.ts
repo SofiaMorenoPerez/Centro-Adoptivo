@@ -59,7 +59,7 @@ export class Dar {
       sterilized: this.esterilizado,
       vaccinated: this.vacunado,
       observations: this.observaciones.trim(),
-      // valores por defecto — la IA los sobreescribe
+
       age: 'ADULT',
       species: 'unknown',
       breed: 'unknown',
