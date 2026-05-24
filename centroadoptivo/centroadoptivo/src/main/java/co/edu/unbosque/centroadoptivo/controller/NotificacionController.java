@@ -23,6 +23,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controlador REST para la gestión de notificaciones del usuario autenticado.
+ * <p>
+ * Expone endpoints para consultar, contar y marcar como leídas las notificaciones.
+ * Requiere autenticación mediante JWT.
+ * </p>
+ */
 @RestController
 @RequestMapping("/notificacion")
 @CrossOrigin(origins = { "http://localhost:4200", "http://localhost:8081", "*" })
@@ -31,16 +38,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @SecurityRequirement(name = "bearerAuth")
 public class NotificacionController {
 
+    /** Servicio de lógica de negocio para notificaciones. */
     @Autowired
     private NotificacionService notificacionService;
 
+    /** Servicio de auditoría para registrar acciones del sistema. */
     @Autowired
     private AuditoriaService auditoriaService;
 
+    /**
+     * Obtiene el nombre del usuario autenticado en el contexto de seguridad actual.
+     *
+     * @return nombre de usuario autenticado
+     */
     private String getUsuarioActual() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    /**
+     * Obtiene todas las notificaciones del usuario autenticado.
+     *
+     * @return lista de {@link NotificacionDTO}, 204 si no hay notificaciones,
+     *         o 404 si el usuario no es encontrado
+     */
     @Operation(summary = "Obtener todas mis notificaciones")
     @GetMapping("/mis")
     public ResponseEntity<?> getMis() {
@@ -55,6 +75,12 @@ public class NotificacionController {
         }
     }
 
+    /**
+     * Obtiene las notificaciones no leídas del usuario autenticado.
+     *
+     * @return lista de {@link NotificacionDTO} no leídas, 204 si no hay ninguna,
+     *         o 404 si el usuario no es encontrado
+     */
     @Operation(summary = "Obtener notificaciones no leídas")
     @GetMapping("/noleidas")
     public ResponseEntity<?> getNoLeidas() {
@@ -69,6 +95,11 @@ public class NotificacionController {
         }
     }
 
+    /**
+     * Cuenta el número de notificaciones no leídas del usuario autenticado.
+     *
+     * @return cantidad de notificaciones no leídas, o 404 si el usuario no es encontrado
+     */
     @Operation(summary = "Contar notificaciones no leídas")
     @GetMapping("/contar")
     public ResponseEntity<?> contar() {
@@ -81,6 +112,12 @@ public class NotificacionController {
         }
     }
 
+    /**
+     * Marca una notificación específica como leída.
+     *
+     * @param id identificador de la notificación a marcar
+     * @return 200 si fue marcada correctamente, o 404 si la notificación no existe
+     */
     @Operation(summary = "Marcar una notificación como leída")
     @PatchMapping("/leer/{id}")
     public ResponseEntity<?> marcarLeida(@PathVariable Long id) {
@@ -95,6 +132,11 @@ public class NotificacionController {
         }
     }
 
+    /**
+     * Marca todas las notificaciones del usuario autenticado como leídas.
+     *
+     * @return 200 si todas fueron marcadas correctamente, o 404 si el usuario no es encontrado
+     */
     @Operation(summary = "Marcar todas las notificaciones como leídas")
     @PatchMapping("/leer/todas")
     public ResponseEntity<?> marcarTodasLeidas() {
