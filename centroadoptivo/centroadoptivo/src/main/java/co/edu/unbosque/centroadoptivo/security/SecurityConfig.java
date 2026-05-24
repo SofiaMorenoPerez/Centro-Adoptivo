@@ -177,7 +177,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
             "http://localhost:4200",
-            "https://tu-app.netlify.app"
+            "https://grand-bublanina-e8461f.netlify.app"
         ));
 
         config.setAllowedMethods(List.of(
