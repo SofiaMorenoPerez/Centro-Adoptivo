@@ -16,19 +16,44 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
 
+/**
+ * Configuración de seguridad de la aplicación.
+ * Define las reglas de autorización por rol, la política de sesiones sin estado
+ * y el proveedor de autenticación basado en JWT.
+ *
+ * @author Centro Adoptivo Unbosque
+ * @version 1.0
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /** Filtro que intercepta y valida el token JWT en cada petición. */
     private final JwtAuthenticationFilter jwtAuthFilter;
+
+    /** Servicio que carga los detalles del usuario para la autenticación. */
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Constructor que inyecta las dependencias necesarias para la configuración de seguridad.
+     *
+     * @param jwtAuthFilter    filtro de autenticación JWT
+     * @param userDetailsService servicio de carga de detalles del usuario
+     */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
             UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Define la cadena de filtros de seguridad HTTP.
+     * Configura las rutas públicas, las rutas protegidas por rol y la política de sesiones.
+     *
+     * @param http objeto de configuración de seguridad HTTP
+     * @return la cadena de filtros configurada
+     * @throws Exception si ocurre un error durante la configuración
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -39,7 +64,6 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                
 
                 // ── USER y ADMIN: perfil propio ───────────────────────
                 .requestMatchers(
@@ -94,6 +118,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Define el proveedor de autenticación que verifica las credenciales
+     * del usuario contra la base de datos usando BCrypt.
+     *
+     * @return proveedor de autenticación configurado
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider =
@@ -102,12 +132,25 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Expone el {@link AuthenticationManager} como bean de Spring
+     * para ser usado en el proceso de autenticación del login.
+     *
+     * @param config configuración de autenticación de Spring
+     * @return el gestor de autenticación
+     * @throws Exception si ocurre un error al obtener el gestor
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Define el codificador de contraseñas usando el algoritmo BCrypt.
+     *
+     * @return codificador de contraseñas BCrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
