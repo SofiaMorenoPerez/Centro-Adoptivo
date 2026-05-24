@@ -4,7 +4,7 @@
   background: #f8f9fe;
 }
 
-/* SIDEBAR */
+
 .sidebar {
   width: 240px;
   background: #fff;
@@ -98,7 +98,6 @@
   background: #ffe0e6;
 }
 
-/* MAIN */
 .admin-main {
   flex: 1;
   padding: 36px 32px;
@@ -150,7 +149,6 @@
   transform: translateY(-2px);
 }
 
-/* TABLA */
 
 .tabla-wrap {
   border-radius: 16px;
@@ -212,7 +210,7 @@
   margin-bottom: 8px;
 }
 
-/* BOTONES TABLA */
+
 .btn-editar {
   padding: 6px 14px;
   font-size: 0.78rem;
@@ -279,7 +277,7 @@
   background: #ffe0e6;
 }
 
-/* CAMPANA NOTIFICACIONES */
+
 
 .campana-menu {
   position: relative;
@@ -513,7 +511,7 @@
   margin-left: 8px;
 }
 
-/* ─── MODAL GRANDE (crear/editar admin) ─────────────────────────────────── */
+
 .modal-grande {
   width: 560px;
   max-width: 95vw;
@@ -560,4 +558,107 @@
 .hint {
   font-size: 0.72rem;
   color: #aaa;
+}
+
+@media (max-width: 768px) {
+
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding: 16px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sidebar-brand {
+    flex-direction: row;
+    margin-bottom: 0;
+    gap: 8px;
+    font-size: 1.1rem;
+  }
+
+  .campana-wrap {
+    margin-bottom: 0;
+  }
+
+  .campana-wrap .btn-campana {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .campana-wrap .dropdown-campana {
+    left: 0;
+    top: 48px;
+    margin-left: 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .btn-cerrar {
+    margin-top: 0;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .admin-main {
+    padding: 20px 12px;
+  }
+
+  .seccion-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .tabla-wrap {
+    overflow-x: auto;
+  }
+
+  .tabla {
+    min-width: 600px;
+  }
+
+  .modal-card {
+    width: 92%;
+    padding: 24px 16px;
+  }
+
+  .modal-grande {
+    width: 92%;
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-campo-full {
+    grid-column: span 1;
+  }
+
+  .modal-botones {
+    flex-direction: column;
+  }
+
+  .modal-botones button {
+    width: 100%;
+    text-align: center;
+  }
 }

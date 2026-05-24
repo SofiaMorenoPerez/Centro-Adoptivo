@@ -330,3 +330,55 @@
   box-shadow: 0 0 0 3px rgba(244,184,203,0.15);
   background: #fff;
 }
+@media (max-width: 768px) {
+
+  .dar-container {
+    padding: 24px 12px 40px;
+  }
+
+  .dar-card {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+
+  .dar-titulo {
+    font-size: 1.4rem;
+  }
+
+  .dar-subtitulo {
+    font-size: 0.85rem;
+  }
+
+  .foto-upload {
+    padding: 20px;
+    min-height: 140px;
+  }
+
+  .campos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campo-full {
+    grid-column: 1;
+  }
+
+  .checks-row {
+    gap: 16px;
+  }
+
+  .ia-info {
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+  }
+
+  .botones-fila {
+    flex-direction: column;
+  }
+
+  .btn-guardar,
+  .btn-volver {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+}

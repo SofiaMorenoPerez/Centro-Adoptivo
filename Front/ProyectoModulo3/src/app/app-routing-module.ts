@@ -14,12 +14,11 @@ import { RoleGuard } from './guard/role.guard';
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
 
-  // Rutas públicas — sin guards
+
   { path: 'inicio', component: Inicio },
   { path: 'login', component: Login },
   { path: 'sign-up', component: SignUp },
 
-  // Rutas de USER — necesita token y rol USER
   {
     path: 'usuario',
     component: Usuario,
@@ -45,7 +44,6 @@ const routes: Routes = [
     data: { rol: 'USER' }
   },
 
-  // Rutas de ADMIN — necesita token y rol ADMIN
   {
     path: 'admin',
     component: Admin,
@@ -53,7 +51,6 @@ const routes: Routes = [
     data: { rol: 'ADMIN' }
   },
 
-  // Ruta no encontrada
   { path: '**', redirectTo: 'inicio' }
 ];
 

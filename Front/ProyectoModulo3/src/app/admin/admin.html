@@ -1,6 +1,6 @@
 <div class="admin-layout">
 
-  <!-- SIDEBAR -->
+
   <aside class="sidebar">
     <div class="sidebar-brand">
       <span>🐾</span>
@@ -8,7 +8,7 @@
       <span class="brand-admin">Admin</span>
     </div>
 
-    <!-- CAMPANA -->
+
     <nav class="sidebar-nav">
       <button class="nav-item" [class.activo]="vista === 'transacciones'" (click)="cambiarVista('transacciones')">
         <i class="fa-solid fa-arrows-left-right"></i> Transacciones
@@ -29,10 +29,10 @@
     </button>
   </aside>
 
-  <!-- CONTENIDO -->
+
   <main class="admin-main">
 
-    <!-- MENSAJES GLOBALES -->
+
     <div *ngIf="error" class="mensaje-error">
       <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
     </div>
@@ -43,7 +43,7 @@
       <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
     </div>
 
-    <!-- TRANSACCIONES -->
+
     <div *ngIf="vista === 'transacciones'">
       <div class="seccion-header">
         <h2><i class="fa-solid fa-arrows-left-right"></i> Transacciones</h2>
@@ -85,7 +85,7 @@
       </div>
     </div>
 
-    <!-- USUARIOS -->
+
     <div *ngIf="vista === 'usuarios'">
       <div class="seccion-header">
         <h2><i class="fa-solid fa-users"></i> Usuarios</h2>
@@ -126,7 +126,7 @@
       </div>
     </div>
 
-    <!-- ANIMALES -->
+
     <div *ngIf="vista === 'animales'">
       <div class="seccion-header">
         <h2><i class="fa-solid fa-paw"></i> Animales</h2>
@@ -169,7 +169,7 @@
       </div>
     </div>
 
-    <!-- ADMINS -->
+
     <div *ngIf="vista === 'admins'">
       <div class="seccion-header">
         <h2><i class="fa-solid fa-user-shield"></i> Administradores</h2>
@@ -223,7 +223,6 @@
   </main>
 </div>
 
-<!-- MODAL RECHAZAR SOLICITUD -->
 <div class="modal-overlay" *ngIf="modalRechazar">
   <div class="modal-card">
     <h3>Razón de rechazo</h3>
@@ -237,7 +236,6 @@
   </div>
 </div>
 
-<!-- MODAL CREAR ADMIN -->
 <div class="modal-overlay" *ngIf="modalCrear">
   <div class="modal-card modal-grande">
     <h3><i class="fa-solid fa-user-shield"></i> Nuevo Administrador</h3>
@@ -288,7 +286,6 @@
   </div>
 </div>
 
-<!-- MODAL EDITAR ADMIN -->
 <div class="modal-overlay" *ngIf="modalEditar">
   <div class="modal-card modal-grande">
     <h3><i class="fa-solid fa-pen"></i> Editar Administrador</h3>

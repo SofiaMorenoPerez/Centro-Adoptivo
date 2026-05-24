@@ -1,4 +1,3 @@
-<!-- NAVBAR -->
 <nav class="navbar-usuario">
   <div class="navbar-brand" (click)="volver()" style="cursor:pointer">
     <span>🐾</span>
@@ -9,7 +8,6 @@
 <div class="dar-container">
   <div class="dar-card">
 
-    <!-- HEADER -->
     <div class="dar-header">
       <h2 class="dar-titulo">Dar en Adopción 🐾</h2>
       <p class="dar-subtitulo">
@@ -18,7 +16,6 @@
       </p>
     </div>
 
-    <!-- MENSAJES -->
     <div *ngIf="error" class="mensaje-error">
       <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
     </div>
@@ -26,7 +23,6 @@
       <i class="fa-solid fa-circle-check"></i> {{ exito }}
     </div>
 
-    <!-- UPLOAD FOTO -->
     <div class="foto-section">
       <label class="foto-label">Foto del Animal *</label>
       <div class="foto-upload" (click)="fileInput.click()">
@@ -46,7 +42,6 @@
       </p>
     </div>
 
-    <!-- FORMULARIO -->
     <div class="campos-grid">
 
       <div class="campo campo-full">
@@ -80,7 +75,6 @@
 
     </div>
 
-    <!-- INFO IA -->
     <div class="ia-info">
       <i class="fa-solid fa-robot"></i>
       <div>
@@ -90,7 +84,6 @@
       </div>
     </div>
 
-    <!-- BOTONES -->
     <div class="botones-fila">
       <button class="btn-guardar" (click)="guardar()" [disabled]="cargando">
         <i class="fa-solid fa-paw"></i>

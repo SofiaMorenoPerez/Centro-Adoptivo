@@ -6,28 +6,64 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+/**
+ * Cliente de IA que se conecta a la API de Mistral para moderar las descripciones
+ * u observaciones ingresadas por el usuario sobre un animal en adopción.
+ * <p>
+ * Utiliza el modelo {@code mistral-small-latest} para verificar que el contenido
+ * sea apropiado, coherente y no contenga información fraudulenta o inapropiada.
+ * </p>
+ *
+ * @author Centro Adoptivo
+ * @version 1.0
+ */
 @Component
 public class MistralVisionClient {
 
+    /**
+     * Clave de API de Mistral inyectada desde {@code application.properties}.
+     */
     @Value("${mistral.api.key}")
     private String apiKey;
 
+    /**
+     * URL base del endpoint de chat de la API de Mistral.
+     */
     private static final String URL = "https://api.mistral.ai/v1/chat/completions";
+
+    /**
+     * Identificador del modelo de Mistral utilizado para la moderación de contenido.
+     */
     private static final String MODELO = "mistral-small-latest";
 
+    /**
+     * Cliente HTTP configurado con HTTP/2 y un tiempo de espera de 10 segundos.
+     */
     private final HttpClient CLIENTE = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
+    /**
+     * Modera la descripción u observaciones de una mascota verificando que
+     * el contenido sea apropiado, coherente y libre de lenguaje inapropiado
+     * o información sospechosa.
+     *
+     * @param descripcion texto con las observaciones ingresadas por el usuario
+     *                    sobre la mascota que desea dar en adopción
+     * @return {@code "APROBADO"} si la descripción es adecuada para la plataforma,
+     *         o {@code "RECHAZADO"} si contiene contenido inapropiado, incoherente
+     *         o sospechoso
+     */
     public String moderarDescripcion(String descripcion) {
-
         String prompt = "Eres un moderador de contenido para una plataforma de adopción de mascotas. " +
                 "Analiza la siguiente descripción de una mascota: '" + descripcion + "'. " +
                 "Verifica que: " +
@@ -59,8 +95,14 @@ public class MistralVisionClient {
         return extraerRespuesta(respuesta.body());
     }
 
+    /**
+     * Construye el cuerpo JSON de la solicitud a la API de Mistral
+     * con el prompt de moderación de contenido.
+     *
+     * @param prompt texto del prompt a enviar al modelo
+     * @return cadena JSON lista para ser enviada como cuerpo de la solicitud HTTP
+     */
     private String construirBody(String prompt) {
-
         JsonObject mensaje = new JsonObject();
         mensaje.addProperty("role", "user");
         mensaje.addProperty("content", prompt);
@@ -76,6 +118,13 @@ public class MistralVisionClient {
         return new Gson().toJson(bodyJson);
     }
 
+    /**
+     * Extrae el texto de la respuesta JSON devuelta por la API de Mistral.
+     *
+     * @param bodyRespuesta cadena JSON con la respuesta completa de la API
+     * @return texto extraído del primer choice de la respuesta con el resultado
+     *         de la moderación
+     */
     private String extraerRespuesta(String bodyRespuesta) {
         JsonObject json = new Gson().fromJson(bodyRespuesta, JsonObject.class);
         return json.getAsJsonArray("choices")
@@ -88,4 +137,3 @@ public class MistralVisionClient {
                 .trim();
     }
 }
-//edit

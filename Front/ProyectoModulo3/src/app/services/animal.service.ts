@@ -34,8 +34,7 @@ export class AnimalService {
     formData.append('data', blob);
     formData.append('image', imagen);
 
-    // ⚠️ NO pongas Content-Type manualmente — deja que el navegador lo genere
-    // con el boundary correcto para multipart/form-data
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.authService.getToken()}`
     });
@@ -43,7 +42,7 @@ export class AnimalService {
     return this.cliente.post<AnimalModel>(
       `${this.urlbase}/animal/registrar`,
       formData,
-      { headers }  // solo Authorization, sin Content-Type
+      { headers }
     );
   }
 

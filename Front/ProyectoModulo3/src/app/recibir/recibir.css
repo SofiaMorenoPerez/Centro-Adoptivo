@@ -214,3 +214,50 @@
   object-fit: cover;
   display: block;
 }
+@media (max-width: 768px) {
+
+  .navbar-usuario {
+    padding: 12px 16px;
+  }
+
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .hero-recibir {
+    padding: 36px 16px 28px;
+  }
+
+  .hero-recibir h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-recibir p {
+    font-size: 0.9rem;
+  }
+
+  .animales-section {
+    padding: 24px 12px 40px;
+  }
+
+  .animales-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .animal-foto {
+    height: 200px;
+  }
+
+  .animal-info {
+    padding: 16px;
+  }
+
+  .btn-adoptar {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .mensajes-wrap {
+    padding: 0 12px;
+  }
+}
