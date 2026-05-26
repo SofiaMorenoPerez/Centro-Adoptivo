@@ -10,7 +10,7 @@ export class SolicitudService {
 
   private cliente = inject(HttpClient);
   private authService = inject(AuthService);
-  private readonly urlbase: string = 'http://localhost:8081';
+  private readonly urlbase: string = 'https://gpcueb.org/sofiamoreno';
 
   private getHeaders() {
     return new HttpHeaders({
