@@ -71,7 +71,7 @@ export class Dar {
       next: () => {
         this.cargando = false;
         this.exito = '¡Animal registrado! La IA detectó y validó la información automáticamente.';
-        setTimeout(() => this.router.navigate(['/usuario']), 2500);
+        setTimeout(() => this.router.navigate(['/usuario']), 4000);
       },
       error: (err) => {
         this.cargando = false;

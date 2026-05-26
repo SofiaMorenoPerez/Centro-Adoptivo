@@ -72,12 +72,6 @@ public class AnimalService {
     @Autowired
     private IAOrquestadorService iaOrquestadorService;
 
-    /**
-     * Directorio donde se almacenan las imágenes de los animales.
-     * Configurable desde {@code application.properties}.
-     */
-    @Value("${app.imagenes.directorio:uploads/animales}")
-    private String directorioImagenes;
 
     /**
      * Registra un nuevo animal en el sistema, validando los datos básicos
@@ -327,24 +321,12 @@ public class AnimalService {
         return animalRepository.findById(id);
     }
 
-    /**
-     * Guarda la imagen del animal en el directorio configurado del servidor,
-     * generando un nombre único mediante UUID para evitar colisiones.
-     *
-     * @param imagen archivo de imagen a guardar en disco
-     * @return ruta relativa de la imagen guardada, accesible como recurso estático
-     * @throws IOException si ocurre un error durante la escritura del archivo
-     */
+ 
     private String guardarImagen(MultipartFile imagen) throws IOException {
-        Path directorio = Paths.get(directorioImagenes);
-        if (!Files.exists(directorio)) {
-            Files.createDirectories(directorio);
-        }
-        String nombreArchivo = UUID.randomUUID()
-                + "_" + imagen.getOriginalFilename();
-        Path destino = directorio.resolve(nombreArchivo);
-        Files.copy(imagen.getInputStream(), destino);
-        return "/" + directorioImagenes + "/" + nombreArchivo;
+        byte[] bytes = imagen.getBytes();
+        String base64 = java.util.Base64.getEncoder().encodeToString(bytes);
+        String contentType = imagen.getContentType();
+        return "data:" + contentType + ";base64," + base64;
     }
 
     /**

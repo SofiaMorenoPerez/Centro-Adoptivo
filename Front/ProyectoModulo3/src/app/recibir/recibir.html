@@ -31,7 +31,7 @@
   <!-- Grid de animales -->
   <div class="animales-grid" *ngIf="animalesFiltrados.length > 0">
     <div class="animal-card" *ngFor="let animal of animalesFiltrados">
-      <img [src]="'http://localhost:8081' + animal.image"
+      <img [src]="animal.image">
            alt="{{ animal.name }}"
            class="animal-foto" />
       <div class="animal-info">
